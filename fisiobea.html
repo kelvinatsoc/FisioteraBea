@@ -201,7 +201,7 @@ textarea { min-height: 80px; resize: vertical; line-height: 1.45; }
     <nav class="tabs" id="tabs"></nav>
   </aside>
   <div style="min-width:0">
-    <div class="mobile-top"><div class="wrap"><div class="brand" id="brand2"></div><span class="muted" id="hoje-top" style="font-size:.85rem"></span></div></div>
+    <div class="mobile-top"><div class="wrap"><div class="brand" id="brand2"></div><div class="row" style="gap:6px"><span class="muted" id="hoje-top" style="font-size:.85rem"></span><button class="ghost small" id="tema-top" onclick="alternarTema()" aria-label="Alternar tema claro e escuro"></button></div></div></div>
     <main class="wrap" id="app"></main>
   </div>
 </div>
@@ -257,6 +257,19 @@ const S = {
   pacientes: [], evolucoes: [], avaliacoes: [], sessoes: [], pagamentos: [],
   modelo: MODELO_PADRAO, config: { ...CONFIG_PADRAO }, carregado: false, nuvem: false, erro: null,
 };
+// Tema: automático (segue o aparelho), claro ou escuro; escolha fica salva neste aparelho
+const TEMA_HOST = document.documentElement.getAttribute('data-theme');
+let tema = 'auto';
+try { tema = localStorage.getItem('fisiobea-tema') || 'auto'; } catch (e) {}
+function aplicarTema() {
+  const r = document.documentElement;
+  if (tema === 'auto') { TEMA_HOST ? r.setAttribute('data-theme', TEMA_HOST) : r.removeAttribute('data-theme'); }
+  else r.setAttribute('data-theme', tema);
+}
+aplicarTema();
+const escuroAgora = () => tema === 'dark' || (tema === 'auto' && (TEMA_HOST === 'dark' || (!TEMA_HOST && matchMedia('(prefers-color-scheme: dark)').matches)));
+window.mudarTema = t => { tema = t; try { localStorage.setItem('fisiobea-tema', t); } catch (e) {} aplicarTema(); render(); };
+window.alternarTema = () => mudarTema(escuroAgora() ? 'light' : 'dark');
 let ocultarNomes = false;
 try { ocultarNomes = localStorage.getItem('fisiobea-ocultar') === '1'; } catch (e) {}
 let store = null;
@@ -381,6 +394,7 @@ function saldoPacote(p) {
 // ================= Navegação =================
 function render() {
   $('#brand').innerHTML = LOGO; $('#brand2').innerHTML = LOGO;
+  $('#tema-top').textContent = escuroAgora() ? '☀' : '☾';
   const h = new Date(); $('#hoje-top').textContent = `${DIAS[h.getDay()]}, ${h.getDate()} ${MESES[h.getMonth()].slice(0, 3)}`;
   $('#tabs').innerHTML = ABAS.map(([k, n]) => `<button class="${S.aba === k ? 'on' : ''}" onclick="ir('${k}')">${ICON[k]}${n}</button>`).join('');
   const app = $('#app');
@@ -949,6 +963,12 @@ function vAjustes() {
     <h3>Importar pacientes</h3>
     <p class="sub" style="margin:0">Planilha salva como CSV, com as colunas: nome; celular; nascimento (dd/mm/aaaa); cpf; diagnóstico.</p>
     <label class="btn ghost small" style="justify-self:start">Escolher arquivo CSV<input type="file" accept=".csv,text/csv" hidden onchange="importarCSV(this.files[0])"></label>
+  </div>
+
+  <div class="section">
+    <h3>Aparência</h3>
+    <div class="chips" style="margin:0">${[['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Escuro']].map(([k, n]) => `<button class="chip ${tema === k ? 'on' : ''}" onclick="mudarTema('${k}')">${n}</button>`).join('')}</div>
+    <p class="sub" style="margin:0">Automático segue o tema do celular ou do tablet.</p>
   </div>
 
   <div class="section">
