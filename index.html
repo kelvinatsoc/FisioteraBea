@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FisioBea · Planejamento de Atendimentos</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topo">
+    <div class="marca">
+      <svg viewBox="0 0 64 64" class="logo" aria-hidden="true">
+        <circle cx="32" cy="32" r="30" fill="#fff" stroke="#f2c230" stroke-width="4"/>
+        <path d="M32 10v44" stroke="#1f7a3f" stroke-width="4" stroke-linecap="round"/>
+        <path d="M22 18c6 0 10 4 10 8s-4 8-10 8 -6 4 0 8c4 2 10 2 10 6" fill="none" stroke="#1f7a3f" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M42 18c-6 0-10 4-10 8" fill="none" stroke="#f2c230" stroke-width="3.5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1>FisioBea</h1>
+        <small>Planejamento de atendimentos</small>
+      </div>
+    </div>
+    <nav class="abas">
+      <button data-aba="agenda" class="ativa">Agenda</button>
+      <button data-aba="pacientes">Pacientes</button>
+      <button data-aba="treinos">Treinos</button>
+      <button data-aba="evolucoes">Evoluções</button>
+      <button data-aba="modelo">Modelo</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- AGENDA -->
+    <section id="agenda" class="aba ativa">
+      <div class="cab">
+        <h2>Agenda da semana</h2>
+        <div class="nav-semana">
+          <button id="semana-ant" class="sec">◀</button>
+          <span id="semana-titulo"></span>
+          <button id="semana-prox" class="sec">▶</button>
+        </div>
+      </div>
+      <div id="grade-semana" class="grade-semana"></div>
+    </section>
+
+    <!-- PACIENTES -->
+    <section id="pacientes" class="aba">
+      <div class="cab">
+        <h2>Pacientes</h2>
+        <button id="novo-paciente">+ Novo paciente</button>
+      </div>
+      <div id="lista-pacientes" class="cartoes"></div>
+    </section>
+
+    <!-- TREINOS -->
+    <section id="treinos" class="aba">
+      <div class="cab">
+        <h2>Treinos</h2>
+        <select id="treino-paciente"></select>
+      </div>
+      <div id="area-treinos"></div>
+    </section>
+
+    <!-- EVOLUÇÕES -->
+    <section id="evolucoes" class="aba">
+      <div class="cab">
+        <h2>Evoluções</h2>
+        <div class="linha">
+          <select id="evo-paciente"></select>
+          <button id="nova-evolucao">+ Nova evolução</button>
+        </div>
+      </div>
+      <div id="lista-evolucoes"></div>
+    </section>
+
+    <!-- MODELO -->
+    <section id="modelo" class="aba">
+      <div class="cab">
+        <h2>Modelo de evolução</h2>
+        <button id="add-campo">+ Campo</button>
+      </div>
+      <p class="dica">Esses são os campos que aparecem toda vez que você cria uma evolução. Edite, reordene ou remova à vontade.</p>
+      <div id="lista-campos"></div>
+      <hr>
+      <h3>Backup</h3>
+      <p class="dica">Os dados ficam salvos neste navegador. Faça backup de vez em quando para não perder nada.</p>
+      <div class="linha">
+        <button id="exportar" class="sec">Baixar backup</button>
+        <label class="botao sec">Restaurar backup<input type="file" id="importar" accept=".json" hidden></label>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="dialogo"><form method="dialog" id="dialogo-form"></form></dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
