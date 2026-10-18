@@ -305,8 +305,10 @@ async function iniciarDados() {
   const db = window.claude?.use ? await window.claude.use('db') : null;
   if (db) {
     S.nuvem = true;
+    // Quem só tem acesso de visualização não enxerga nem grava os dados (regras do banco)
+    claude.use('user').then(u => { if (u && !u.canEdit()) { S.semAcesso = true; render(); } }).catch(() => {});
     store = {
-      put: (col, obj) => db.doc(col + '/' + obj.id).set(obj),
+      put: (col, obj) => db.doc(col + '/' + obj.id).set(JSON.parse(JSON.stringify(obj))),
       del: (col, id) => db.doc(col + '/' + id).delete(),
       modelo: m => db.doc('config/modelo').set({ campos: m }),
       config: c => db.doc('config/geral').set(c),
@@ -337,8 +339,14 @@ async function iniciarDados() {
   }
 }
 async function salvar(fn, msg) {
+  if (S.semAcesso) { toast('Não salvou: sua conta não tem acesso de editora.'); return; }
   try { await fn(); if (msg) toast(msg); }
-  catch (e) { toast(['not_granted', 'permission_denied', 'forbidden'].includes(e?.code) ? 'Você não tem permissão para editar.' : 'Não salvou. Tente de novo.'); }
+  catch (e) {
+    const c = e?.code;
+    if (c === 'invalid_argument' || c === 'revoked') { S.semAcesso = true; render(); toast('Não salvou: sua conta não tem acesso de editora.'); }
+    else if (c === 'quota_exceeded') toast('Não salvou: o espaço de armazenamento acabou.');
+    else toast('Não salvou. Verifique a internet e tente de novo.' + (c ? ` (${c})` : ''));
+  }
 }
 
 // ================= Agenda: sessões =================
@@ -400,10 +408,13 @@ function render() {
   const app = $('#app');
   if (S.erro) { app.innerHTML = `<div class="empty">${esc(S.erro)}</div>`; return; }
   if (!S.carregado) { app.innerHTML = '<div class="empty">Carregando seus dados…</div>'; return; }
+  const aviso = S.semAcesso
+    ? '<div class="item" style="background:var(--danger-soft);border-color:transparent;margin-bottom:16px"><strong>Você está só visualizando.</strong><span>Os pacientes não aparecem e nada é salvo. O dono da página precisa te convidar como <b>Editora</b> pelo botão Compartilhar. Confira também se você entrou com a conta convidada.</span></div>'
+    : !S.nuvem ? '<div class="item" style="background:var(--yellow-soft);border-color:transparent;margin-bottom:16px"><span>Você abriu fora do claude.ai: os dados ficam salvos só neste aparelho.</span></div>' : '';
   if (S.pid && !pac(S.pid)) S.pid = null;
   const ativo = document.activeElement;
   const foco = ativo && ativo.id && app.contains(ativo) ? { id: ativo.id, a: ativo.selectionStart, b: ativo.selectionEnd } : null;
-  app.innerHTML = S.aba === 'pacientes' && S.pid ? vPaciente() : ({ inicio: vInicio, agenda: vAgenda, pacientes: vPacientes, financeiro: vFinanceiro, ajustes: vAjustes })[S.aba]();
+  app.innerHTML = aviso + (S.aba === 'pacientes' && S.pid ? vPaciente() : ({ inicio: vInicio, agenda: vAgenda, pacientes: vPacientes, financeiro: vFinanceiro, ajustes: vAjustes })[S.aba]());
   if (foco) { const el = document.getElementById(foco.id); if (el) { el.focus(); try { el.setSelectionRange(foco.a, foco.b); } catch (e) {} } }
 }
 window.ir = (aba, extra = {}) => { S.aba = aba; if (aba === 'pacientes' && !extra.pid) S.pid = null; Object.assign(S, extra); render(); window.scrollTo(0, 0); };
