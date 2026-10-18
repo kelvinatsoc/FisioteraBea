@@ -3,70 +3,127 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: uma coluna calma, cabeçalho branco, navegação inferior no celular e superior no tablet */
+/* Layout: barra lateral no tablet, navegação inferior no celular; conteúdo numa coluna calma */
 :root {
-  --bg: #fbfcfb;
+  --bg: #f7f9f8;
   --surface: #ffffff;
   --fg: #17241c;
   --muted: #6c7a71;
-  --line: #e7ece8;
+  --line: #e5ebe7;
   --green: #1e7a46;
-  --green-soft: #eaf4ee;
+  --green-soft: #e8f3ec;
   --yellow: #e9b821;
-  --yellow-soft: #fdf5d9;
+  --yellow-soft: #fdf4d6;
   --danger: #b4382c;
+  --danger-soft: #fbe9e7;
+  --blue: #2c6aa0;
+  --blue-soft: #e6eff8;
   --font: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #101612; --surface: #161e19; --fg: #e8efe9; --muted: #93a398; --line: #26312a;
-  --green: #5cc189; --green-soft: #1b2c22; --yellow: #f0c94a; --yellow-soft: #2c2715; --danger: #ef7d70; color-scheme: dark } }
+  --bg: #0f1511; --surface: #161e19; --fg: #e8efe9; --muted: #93a398; --line: #26312a;
+  --green: #5cc189; --green-soft: #1b2c22; --yellow: #f0c94a; --yellow-soft: #2c2715;
+  --danger: #ef7d70; --danger-soft: #34201d; --blue: #7fb2e0; --blue-soft: #1a2633; color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #101612; --surface: #161e19; --fg: #e8efe9; --muted: #93a398; --line: #26312a;
-  --green: #5cc189; --green-soft: #1b2c22; --yellow: #f0c94a; --yellow-soft: #2c2715; --danger: #ef7d70; color-scheme: dark }
+  --bg: #0f1511; --surface: #161e19; --fg: #e8efe9; --muted: #93a398; --line: #26312a;
+  --green: #5cc189; --green-soft: #1b2c22; --yellow: #f0c94a; --yellow-soft: #2c2715;
+  --danger: #ef7d70; --danger-soft: #34201d; --blue: #7fb2e0; --blue-soft: #1a2633; color-scheme: dark }
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 16px; -webkit-tap-highlight-color: transparent; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
 
-.wrap { max-width: 860px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-
-header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
-header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 14px; }
+.shell { display: grid; grid-template-columns: 1fr; min-height: 100%; }
+aside.side { background: var(--surface); border-right: 1px solid var(--line); }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.15rem; letter-spacing: -.01em; }
-.brand svg { width: 30px; height: 30px; }
-.brand span b { color: var(--green); font-weight: 700; }
-
+.brand svg { width: 30px; height: 30px; flex: none; }
+.brand b { color: var(--green); }
 nav.tabs { display: flex; gap: 4px; }
-nav.tabs button { background: none; border: 0; color: var(--muted); font: 500 .95rem var(--font); padding: 8px 12px; border-radius: 999px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-nav.tabs button svg { width: 20px; height: 20px; }
+nav.tabs button { background: none; border: 0; color: var(--muted); font: 500 .95rem var(--font); padding: 10px 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+nav.tabs button svg { width: 21px; height: 21px; flex: none; }
 nav.tabs button.on { color: var(--green); background: var(--green-soft); }
 
-main { padding-block: 20px 110px; }
+.wrap { max-width: 900px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { padding-block: 20px 110px; min-width: 0; }
+.mobile-top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.mobile-top .wrap { padding-block: 12px; display: flex; justify-content: space-between; align-items: center; }
+
+@media (max-width: 799px) {
+  aside.side { display: contents; }
+  aside.side .brand { display: none; }
+  nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line); justify-content: space-around; padding: 6px max(6px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px)); }
+  nav.tabs button { flex-direction: column; gap: 2px; font-size: .7rem; padding: 6px 6px; }
+}
+@media (min-width: 800px) {
+  .shell { grid-template-columns: 220px 1fr; }
+  aside.side { position: sticky; top: 0; height: 100vh; padding: 22px 14px; display: flex; flex-direction: column; gap: 26px; }
+  aside.side .brand { padding: 0 8px; }
+  nav.tabs { flex-direction: column; }
+  .mobile-top { display: none; }
+  main { padding-block: 28px 60px; }
+}
+
 h2 { font-size: 1.5rem; margin: 0; letter-spacing: -.02em; text-wrap: balance; }
+h3 { margin: 0; font-size: 1.05rem; }
 .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
 .sub { color: var(--muted); font-size: .9rem; margin: 2px 0 0; }
 .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+.muted { color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+.section { margin-top: 26px; display: grid; gap: 10px; }
 
-button, .btn { font: 600 .92rem var(--font); border: 0; border-radius: 10px; padding: 10px 16px; cursor: pointer; background: var(--green); color: #fff; }
-:root:not([data-theme="light"]) button.primary-dark { color: #fff; }
+button, .btn { font: 600 .92rem var(--font); border: 0; border-radius: 10px; padding: 10px 16px; cursor: pointer; background: var(--green); color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
 .ghost { background: transparent; color: var(--green); border: 1px solid var(--line); }
 .link { background: none; color: var(--green); padding: 6px 4px; }
 .danger { background: none; color: var(--danger); padding: 6px 4px; }
 .small { padding: 7px 12px; font-size: .85rem; }
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+.wa { background: #1f9d55; color: #fff; }
+button:focus-visible, .btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
 
 input, select, textarea { font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; width: 100%; }
-textarea { min-height: 84px; resize: vertical; line-height: 1.45; }
+textarea { min-height: 80px; resize: vertical; line-height: 1.45; }
 .field { display: grid; gap: 6px; }
 .field > span { font-size: .85rem; font-weight: 600; color: var(--muted); }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-.row > .field { flex: 1 1 140px; min-width: 0; }
+.row > .field { flex: 1 1 150px; min-width: 0; }
+.search { margin-bottom: 14px; }
+
+/* Cartões de resumo */
+.stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+@media (min-width: 640px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: grid; gap: 4px; }
+.stat strong { font-size: 1.5rem; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.bar { height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--yellow); border-radius: 99px; }
+
+/* Listas */
+.list { display: grid; gap: 10px; }
+.item { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: grid; gap: 10px; min-width: 0; }
+.item.tap { cursor: pointer; }
+.item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.item-top > div { min-width: 0; }
+.time { font-variant-numeric: tabular-nums; color: var(--muted); font-size: .9rem; font-weight: 600; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--line); color: var(--fg); white-space: nowrap; }
+.st-agendado { background: var(--yellow-soft); }
+.st-confirmado { background: var(--blue-soft); color: var(--blue); }
+.st-realizado, .pill.green { background: var(--green-soft); color: var(--green); }
+.st-faltou, .pill.red { background: var(--danger-soft); color: var(--danger); }
+.st-justificada { background: var(--line); color: var(--muted); }
+.st-cancelado { background: var(--line); color: var(--muted); text-decoration: line-through; }
+.ex { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: .92rem; }
+.ex li { display: flex; justify-content: space-between; gap: 10px; border-top: 1px dashed var(--line); padding-top: 6px; }
+.ex li span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.empty { text-align: center; padding: 32px 16px; color: var(--muted); border: 1px dashed var(--line); border-radius: 16px; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--green-soft); color: var(--green); display: grid; place-items: center; font-weight: 700; flex: none; }
+.tline { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); font-size: .95rem; }
+.tline:first-child { border-top: 0; }
 
 /* Agenda */
-.days { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 20px; }
+.days { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 14px; }
 .day { background: none; color: var(--fg); border: 1px solid transparent; padding: 10px 0; border-radius: 14px; display: grid; gap: 2px; justify-items: center; }
-.day small { color: var(--muted); font-weight: 500; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; }
+.day small { color: var(--muted); font-weight: 500; font-size: .74rem; text-transform: uppercase; letter-spacing: .06em; }
 .day strong { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
 .day i { width: 5px; height: 5px; border-radius: 50%; background: transparent; }
 .day.has i { background: var(--yellow); }
@@ -75,27 +132,21 @@ textarea { min-height: 84px; resize: vertical; line-height: 1.45; }
 .day.today:not(.on) { border-color: var(--line); }
 .weeknav { display: flex; align-items: center; gap: 4px; color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
 .weeknav button { background: none; color: var(--muted); padding: 6px 10px; font-size: 1.1rem; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.status-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+.status-pick button { background: var(--surface); color: var(--fg); border: 1px solid var(--line); padding: 6px 10px; font-size: .82rem; font-weight: 500; border-radius: 999px; }
+.status-pick button.on { border-color: transparent; font-weight: 700; }
 
-.list { display: grid; gap: 10px; }
-.item { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: grid; gap: 10px; }
-.item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.item h3 { margin: 0; font-size: 1.05rem; }
-.time { font-variant-numeric: tabular-nums; color: var(--muted); font-size: .9rem; font-weight: 600; min-width: 46px; }
-.pill { display: inline-flex; align-items: center; gap: 6px; font-size: .8rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--yellow-soft); color: var(--fg); white-space: nowrap; }
-.pill.done { background: var(--green-soft); color: var(--green); }
-.pill.letter { background: var(--green-soft); color: var(--green); }
-.muted { color: var(--muted); }
-.ex { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: .92rem; }
-.ex li { display: flex; justify-content: space-between; gap: 10px; border-top: 1px dashed var(--line); padding-top: 6px; }
-.ex li span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
-.actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-.empty { text-align: center; padding: 40px 16px; color: var(--muted); border: 1px dashed var(--line); border-radius: 16px; }
-
-/* Treinos */
-.chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px; }
+/* Abas do paciente */
+.chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 18px; scrollbar-width: none; }
 .chip { background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; white-space: nowrap; font-weight: 500; }
 .chip.on { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.back { background: none; color: var(--muted); padding: 4px 0; margin-bottom: 8px; font-weight: 500; }
+.kv { display: grid; grid-template-columns: 130px 1fr; gap: 8px 12px; font-size: .95rem; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+
+/* Treinos */
 .ex-edit { display: grid; grid-template-columns: 1fr 64px 90px 80px 32px; gap: 6px; align-items: center; }
 .ex-edit input { padding: 9px 10px; font-size: .92rem; }
 .ex-edit .x { background: none; color: var(--muted); padding: 4px; font-size: 1.1rem; }
@@ -109,23 +160,27 @@ textarea { min-height: 84px; resize: vertical; line-height: 1.45; }
 .letter-badge { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--yellow); color: #1b1b1b; font-weight: 700; flex: none; }
 .tname { border: 0; padding: 4px 0; font-weight: 600; font-size: 1.05rem; background: none; }
 
-/* Evoluções */
-.evo dl { margin: 0; display: grid; gap: 10px; }
-.evo dt { font-size: .78rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
-.evo dd { margin: 2px 0 0; white-space: pre-wrap; line-height: 1.5; }
+/* Registros clínicos */
+.rec dl { margin: 0; display: grid; gap: 10px; }
+.rec dt { font-size: .76rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.rec dd { margin: 2px 0 0; white-space: pre-wrap; line-height: 1.5; overflow-wrap: anywhere; }
 .vitals { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .9rem; font-variant-numeric: tabular-nums; }
 .vitals b { color: var(--muted); font-weight: 600; margin-right: 4px; }
+.collapsed dl { display: none; }
 
 /* Modelo */
 .mf { display: grid; grid-template-columns: 1fr 130px auto auto auto; gap: 6px; align-items: center; }
 .mf button { background: none; color: var(--muted); padding: 6px 8px; }
 @media (max-width: 560px) { .mf { grid-template-columns: 1fr auto auto auto; } .mf select { grid-column: 1 / -1; grid-row: 2; } }
 
+/* Documento */
+.doc-preview { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; white-space: pre-wrap; line-height: 1.6; font-size: .95rem; }
+
 /* Folha (formulários) */
-.sheet-bg { position: fixed; inset: 0; background: rgba(10, 20, 14, .4); z-index: 20; display: flex; align-items: flex-end; justify-content: center; }
-.sheet { background: var(--surface); width: min(640px, 100%); max-height: 92%; overflow-y: auto; border-radius: 20px 20px 0 0; padding: 20px max(18px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px)); display: grid; gap: 14px; }
-@media (min-width: 700px) { .sheet-bg { align-items: center; } .sheet { border-radius: 20px; } }
-.sheet h3 { margin: 0; font-size: 1.2rem; }
+.sheet-bg { position: fixed; inset: 0; background: rgba(10, 20, 14, .45); z-index: 20; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: var(--surface); width: min(680px, 100%); max-height: 92%; overflow-y: auto; border-radius: 20px 20px 0 0; padding: 20px max(18px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px)); display: grid; gap: 14px; }
+@media (min-width: 800px) { .sheet-bg { align-items: center; } .sheet { border-radius: 20px; } }
+.sheet h3 { font-size: 1.2rem; }
 .sheet-foot { display: flex; justify-content: space-between; gap: 8px; align-items: center; position: sticky; bottom: calc(-20px - env(safe-area-inset-bottom, 0px)); background: var(--surface); padding-block: 12px; border-top: 1px solid var(--line); }
 .sheet-foot .row { margin-left: auto; }
 .weekpick { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -133,36 +188,33 @@ textarea { min-height: 84px; resize: vertical; line-height: 1.45; }
 .weekpick input { display: none; }
 .weekpick span { border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; cursor: pointer; font-weight: 500; font-size: .9rem; }
 .weekpick input:checked + span { background: var(--green); border-color: var(--green); color: #fff; }
+.switch { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+.switch input { width: 20px; height: 20px; accent-color: var(--green); }
 
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(90px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: .9rem; z-index: 30; }
-.banner { background: var(--yellow-soft); border-radius: 12px; padding: 10px 14px; font-size: .88rem; margin-bottom: 16px; }
-
-/* Navegação inferior no celular */
-@media (max-width: 699px) {
-  nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line); justify-content: space-around; padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); }
-  nav.tabs button { flex-direction: column; gap: 2px; font-size: .72rem; padding: 6px 8px; border-radius: 12px; }
-}
-@media (min-width: 700px) { nav.tabs button svg { display: none; } }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(90px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: .9rem; z-index: 30; max-width: calc(100% - 32px); }
 @media (prefers-reduced-motion: no-preference) { .sheet { animation: up .22s ease-out; } @keyframes up { from { transform: translateY(24px); opacity: .6; } } }
 </style>
 
-<header class="top">
-  <div class="wrap">
-    <div class="brand">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="none" stroke="var(--yellow)" stroke-width="2"/><path d="M16 6v20" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round"/><path d="M11 10c3 0 5 2 5 4s-2 4-5 4-3 2 0 4c2 1 5 1 5 3" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"/></svg>
-      <span>Fisio<b>Bea</b></span>
-    </div>
+<div class="shell">
+  <aside class="side">
+    <div class="brand" id="brand"></div>
     <nav class="tabs" id="tabs"></nav>
+  </aside>
+  <div style="min-width:0">
+    <div class="mobile-top"><div class="wrap"><div class="brand" id="brand2"></div><span class="muted" id="hoje-top" style="font-size:.85rem"></span></div></div>
+    <main class="wrap" id="app"></main>
   </div>
-</header>
-
-<main class="wrap" id="app"></main>
+</div>
 <div id="layer"></div>
 
 <script>
+// ================= Constantes =================
 const DIAS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const DIAS_LONGO = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 const LETRAS = 'ABCDEF'.split('');
+const STATUS = { agendado: 'Agendado', confirmado: 'Confirmado', realizado: 'Realizado', faltou: 'Faltou', justificada: 'Falta justificada', cancelado: 'Cancelado' };
+const NAO_CONTA = ['faltou', 'justificada', 'cancelado', 'remarcado'];
 const MODELO_PADRAO = [
   { rotulo: 'Queixa / como chegou', tipo: 'texto' },
   { rotulo: 'PA (mmHg)', tipo: 'linha' },
@@ -173,18 +225,41 @@ const MODELO_PADRAO = [
   { rotulo: 'Resposta ao tratamento', tipo: 'texto' },
   { rotulo: 'Plano para a próxima sessão', tipo: 'texto' },
 ];
+// Fichas de avaliação por área. Campos com "_" no início são linhas curtas.
+const BASE_INI = ['Queixa principal', 'História da doença atual (HDA)', 'História pregressa / comorbidades', 'Medicamentos em uso', 'Exames complementares'];
+const BASE_FIM = ['_Dor (EVA 0-10)', 'Diagnóstico cinético-funcional', 'Objetivos do tratamento', 'Plano de tratamento'];
+const AVALIACOES = {
+  inicial: { nome: 'Avaliação inicial', campos: [...BASE_INI, 'Hábitos de vida / atividade física', 'Inspeção e palpação', 'Amplitude de movimento', 'Força muscular', ...BASE_FIM] },
+  ortopedica: { nome: 'Ortopédica', campos: [...BASE_INI, 'Inspeção (postura, edema, cicatriz)', 'Palpação', 'Goniometria (ADM em graus)', 'Força muscular (0-5)', 'Testes especiais', 'Perimetria', ...BASE_FIM] },
+  neurologica: { nome: 'Neurológica', campos: [...BASE_INI, 'Nível de consciência / cognição', 'Tônus (Ashworth)', 'Reflexos', 'Sensibilidade', 'Coordenação', '_Escala de Berg (0-56)', 'Marcha', 'Transferências e AVDs', ...BASE_FIM] },
+  respiratoria: { nome: 'Respiratória', campos: [...BASE_INI, '_FR (irpm)', '_SpO2 (%)', 'Padrão e ritmo respiratório', 'Ausculta pulmonar', 'Tosse e secreção', '_Dispneia (Borg 0-10)', 'Cirtometria', '_Teste de caminhada de 6 min (m)', ...BASE_FIM] },
+  geriatrica: { nome: 'Geriátrica', campos: [...BASE_INI, 'Histórico de quedas (últimos 12 meses)', '_TUG (segundos)', '_Sentar e levantar em 30 s (repetições)', '_Escala de Berg (0-56)', 'AVDs (Katz) / AIVDs (Lawton)', 'Cognição / humor (GDS)', 'Ambiente domiciliar', ...BASE_FIM] },
+  pelvica: { nome: 'Pélvica', campos: [...BASE_INI, 'História obstétrica', 'Hábitos urinários e intestinais', 'Perdas urinárias (quando, quanto)', 'Função sexual', 'Avaliação perineal / PERFECT', 'Diário miccional', ...BASE_FIM] },
+  dor: { nome: 'Dor', campos: ['Localização da dor', '_Intensidade (EVA 0-10)', 'Característica (queimação, pontada, peso…)', 'Início e duração', 'Fatores de piora', 'Fatores de melhora', 'Impacto no sono e nas atividades', 'Objetivos do tratamento', 'Plano de tratamento'] },
+};
 const ICON = {
+  inicio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
   agenda: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
   pacientes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
-  treinos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></svg>',
-  evolucoes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/></svg>',
-  modelo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>',
+  financeiro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="2.5"/><path d="M7 6V4h10v2"/></svg>',
+  ajustes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>',
 };
-const ABAS = [['agenda', 'Agenda'], ['pacientes', 'Pacientes'], ['treinos', 'Treinos'], ['evolucoes', 'Evoluções'], ['modelo', 'Modelo']];
+const ABAS = [['inicio', 'Início'], ['agenda', 'Agenda'], ['pacientes', 'Pacientes'], ['financeiro', 'Financeiro'], ['ajustes', 'Ajustes']];
+const LOGO = '<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="none" stroke="var(--yellow)" stroke-width="2"/><path d="M16 6v20" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round"/><path d="M11 10c3 0 5 2 5 4s-2 4-5 4-3 2 0 4c2 1 5 1 5 3" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"/></svg><span>Fisio<b>Bea</b></span>';
+const CONFIG_PADRAO = {
+  profissional: 'Beatriz', registro: '', cidade: '', metaLucro: 0,
+  msgLembrete: 'Olá, {nome}! Passando para lembrar do seu atendimento de fisioterapia {dia} às {hora}. Posso confirmar sua presença?',
+};
 
-// ---------- Estado ----------
-const S = { aba: 'agenda', pacientes: [], evolucoes: [], modelo: MODELO_PADRAO, semana: 0, dia: null, pac: null, treinoIdx: 0, carregado: false, nuvem: false };
-let store = null; // camada de dados: nuvem (db) ou navegador
+// ================= Estado =================
+const S = {
+  aba: 'inicio', pid: null, sub: 'resumo', semana: 0, dia: null, treinoIdx: 0, mes: null, busca: '', mostrarInativos: false,
+  pacientes: [], evolucoes: [], avaliacoes: [], sessoes: [], pagamentos: [],
+  modelo: MODELO_PADRAO, config: { ...CONFIG_PADRAO }, carregado: false, nuvem: false, erro: null,
+};
+let ocultarNomes = false;
+try { ocultarNomes = localStorage.getItem('fisiobea-ocultar') === '1'; } catch (e) {}
+let store = null;
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -192,208 +267,470 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 const iso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 const deIso = s => { const [a, m, d] = s.split('-').map(Number); return new Date(a, m - 1, d); };
 const br = s => s ? s.split('-').reverse().join('/') : '';
+const hojeIso = () => iso(new Date());
+const reais = v => (Number(v) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 const pac = id => S.pacientes.find(p => p.id === id);
+const nome = p => !p ? '—' : ocultarNomes ? p.nome.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase() : p.nome;
+const primeiro = p => ocultarNomes ? nome(p) : (p.nome || '').split(' ')[0];
+const iniciais = p => (p.nome || '?').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
 const ordenar = l => l.slice().sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+const ativos = () => S.pacientes.filter(p => p.ativo !== false);
+const idade = n => { if (!n) return ''; const d = deIso(n), h = new Date(); let a = h.getFullYear() - d.getFullYear(); if (h < new Date(h.getFullYear(), d.getMonth(), d.getDate())) a--; return a; };
+const soDigitos = s => String(s || '').replace(/\D/g, '');
+const waLink = (fone, txt) => { let n = soDigitos(fone); if (n && n.length <= 11) n = '55' + n; return `https://wa.me/${n}?text=${encodeURIComponent(txt)}`; };
+const mesAtual = () => hojeIso().slice(0, 7);
 
 function toast(msg) {
   const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
-  document.body.appendChild(t); setTimeout(() => t.remove(), 2200);
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2400);
 }
 
-// ---------- Dados ----------
+// ================= Dados =================
+const COLECOES = ['pacientes', 'evolucoes', 'avaliacoes', 'sessoes', 'pagamentos'];
 async function iniciarDados() {
   for (let i = 0; i < 30 && !window.claude?.use; i++) await new Promise(r => setTimeout(r, 100));
   const db = window.claude?.use ? await window.claude.use('db') : null;
   if (db) {
     S.nuvem = true;
     store = {
-      salvarPaciente: p => db.doc('pacientes/' + p.id).set(p),
-      apagarPaciente: id => db.doc('pacientes/' + id).delete(),
-      salvarEvolucao: e => db.doc('evolucoes/' + e.id).set(e),
-      apagarEvolucao: id => db.doc('evolucoes/' + id).delete(),
-      salvarModelo: m => db.doc('config/modelo').set({ campos: m }),
+      put: (col, obj) => db.doc(col + '/' + obj.id).set(obj),
+      del: (col, id) => db.doc(col + '/' + id).delete(),
+      modelo: m => db.doc('config/modelo').set({ campos: m }),
+      config: c => db.doc('config/geral').set(c),
     };
-    const erro = () => { S.erro = 'Não foi possível carregar seus dados. Verifique sua conexão e recarregue a página.'; render(); };
-    db.collection('pacientes').onSnapshot(s => { S.pacientes = s.docs.map(d => ({ ...d.data(), id: d.id })); S.carregado = true; render(); }, erro);
-    db.collection('evolucoes').onSnapshot(s => { S.evolucoes = s.docs.map(d => ({ ...d.data(), id: d.id })); render(); }, erro);
+    const erro = () => { S.erro = 'Não foi possível carregar seus dados. Verifique a conexão e recarregue a página.'; render(); };
+    let prontos = 0;
+    COLECOES.forEach(col => db.collection(col).onSnapshot(s => {
+      S[col] = s.docs.map(d => ({ ...d.data(), id: d.id }));
+      if (!S['_' + col]) { S['_' + col] = 1; prontos++; }
+      S.carregado = prontos >= COLECOES.length; render();
+    }, erro));
     db.doc('config/modelo').onSnapshot(s => { if (s.exists && s.data().campos?.length) S.modelo = s.data().campos; render(); }, erro);
+    db.doc('config/geral').onSnapshot(s => { if (s.exists) S.config = { ...CONFIG_PADRAO, ...s.data() }; render(); }, erro);
   } else {
-    // fora do claude.ai: guarda no navegador
-    const KEY = 'fisiobea';
+    // Fora do claude.ai: guarda só neste navegador
+    const KEY = 'fisiobea-local';
     let d = {}; try { d = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
-    S.pacientes = d.pacientes || []; S.evolucoes = d.evolucoes || []; S.modelo = d.modelo || MODELO_PADRAO; S.carregado = true;
-    const gravar = () => { try { localStorage.setItem(KEY, JSON.stringify({ pacientes: S.pacientes, evolucoes: S.evolucoes, modelo: S.modelo })); } catch (e) {} };
-    const up = (lista, obj) => { const i = S[lista].findIndex(x => x.id === obj.id); i < 0 ? S[lista].push(obj) : (S[lista][i] = obj); gravar(); render(); };
+    COLECOES.forEach(c => S[c] = d[c] || []);
+    S.modelo = d.modelo || MODELO_PADRAO; S.config = { ...CONFIG_PADRAO, ...(d.config || {}) }; S.carregado = true;
+    const gravar = () => { try { const o = { modelo: S.modelo, config: S.config }; COLECOES.forEach(c => o[c] = S[c]); localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} };
     store = {
-      salvarPaciente: async p => up('pacientes', p),
-      apagarPaciente: async id => { S.pacientes = S.pacientes.filter(p => p.id !== id); gravar(); render(); },
-      salvarEvolucao: async e => up('evolucoes', e),
-      apagarEvolucao: async id => { S.evolucoes = S.evolucoes.filter(e => e.id !== id); gravar(); render(); },
-      salvarModelo: async m => { S.modelo = m; gravar(); render(); },
+      put: async (col, obj) => { const i = S[col].findIndex(x => x.id === obj.id); i < 0 ? S[col].push(obj) : (S[col][i] = obj); gravar(); render(); },
+      del: async (col, id) => { S[col] = S[col].filter(x => x.id !== id); gravar(); render(); },
+      modelo: async m => { S.modelo = m; gravar(); render(); },
+      config: async c => { S.config = c; gravar(); render(); },
     };
     render();
   }
 }
 async function salvar(fn, msg) {
   try { await fn(); if (msg) toast(msg); }
-  catch (e) { toast(e?.code === 'not_granted' || e?.code === 'permission_denied' ? 'Você não tem permissão para editar.' : 'Não salvou. Tente de novo.'); }
+  catch (e) { toast(['not_granted', 'permission_denied', 'forbidden'].includes(e?.code) ? 'Você não tem permissão para editar.' : 'Não salvou. Tente de novo.'); }
 }
 
-// ---------- Rodízio ----------
-// Conta as sessões desde o início do paciente e gira A → B → C → D...
-function treinoDoDia(p, dataIso) {
+// ================= Agenda: sessões =================
+// As sessões nascem dos dias fixos do paciente; mudanças (status, horário, remarcação) ficam em "sessoes".
+const sessaoId = (pid, data) => pid + '_' + data;
+function sessoesDoDia(di) {
+  const wd = deIso(di).getDay(), lista = [];
+  for (const p of ativos()) {
+    if (!(p.dias || []).includes(wd) || (p.inicio && di < p.inicio) || (p.fim && di > p.fim)) continue;
+    const id = sessaoId(p.id, di), salvo = S.sessoes.find(s => s.id === id);
+    lista.push({ id, pacienteId: p.id, data: di, horario: p.horario || '', status: 'agendado', ...(salvo || {}) });
+  }
+  for (const s of S.sessoes) if (s.avulsa && s.data === di && pac(s.pacienteId)) lista.push(s);
+  return lista.filter(s => s.status !== 'remarcado').sort((a, b) => (a.horario || '').localeCompare(b.horario || ''));
+}
+function sessoesEntre(ini, fim) { const out = []; for (let d = deIso(ini); iso(d) <= fim; d.setDate(d.getDate() + 1)) out.push(...sessoesDoDia(iso(d))); return out; }
+
+// Rodízio A → B → C…: conta só as sessões que aconteceram (faltas e cancelamentos não avançam o treino)
+function treinoDoDia(p, di) {
   const lista = p.treinos || [];
   if (!lista.length) return null;
-  const inicio = deIso(p.inicio || dataIso), alvo = deIso(dataIso);
-  if (alvo < inicio || !(p.dias || []).includes(alvo.getDay())) return null;
+  const salvo = S.sessoes.find(s => s.id === sessaoId(p.id, di) || (s.avulsa && s.pacienteId === p.id && s.data === di));
+  if (salvo?.treino) return lista.find(t => t.letra === salvo.treino) || null;
+  const inicio = p.inicio || di;
+  if (di < inicio) return null;
   let n = 0;
-  for (let d = new Date(inicio); d < alvo; d.setDate(d.getDate() + 1)) if (p.dias.includes(d.getDay())) n++;
+  for (let d = deIso(inicio); iso(d) < di; d.setDate(d.getDate() + 1)) {
+    const k = iso(d);
+    if (!(p.dias || []).includes(d.getDay())) continue;
+    const s = S.sessoes.find(x => x.id === sessaoId(p.id, k));
+    if (s && NAO_CONTA.includes(s.status)) continue;
+    n++;
+  }
   return lista[n % lista.length];
 }
 const prescricao = x => [x.series && x.series + 'x', x.reps, x.carga].filter(Boolean).join(' · ');
-
-// ---------- Navegação ----------
-function renderTabs() {
-  $('#tabs').innerHTML = ABAS.map(([k, n]) => `<button class="${S.aba === k ? 'on' : ''}" data-aba="${k}">${ICON[k]}${n}</button>`).join('');
+function mudarStatus(sess, status) {
+  const { id, pacienteId, data, horario, avulsa, treino, obs } = sess;
+  return salvar(() => store.put('sessoes', { id, pacienteId, data, horario, avulsa: !!avulsa, treino: treino || '', obs: obs || '', status }), STATUS[status]);
 }
-document.addEventListener('click', e => {
-  const b = e.target.closest('[data-aba]');
-  if (b) { S.aba = b.dataset.aba; render(); window.scrollTo(0, 0); }
-});
+window.statusSessao = (id, data, status) => { const s = sessoesDoDia(data).find(x => x.id === id); if (s) mudarStatus(s, status); fechar(); };
 
+// Pacotes: saldo = sessões compradas − sessões realizadas desde a compra
+function saldoPacote(p) {
+  const pacotes = S.pagamentos.filter(g => g.pacienteId === p.id && g.tipo === 'pacote' && g.status === 'pago').sort((a, b) => a.data.localeCompare(b.data));
+  if (!pacotes.length) return null;
+  const desde = pacotes[0].data;
+  const compradas = pacotes.reduce((s, g) => s + (Number(g.qtd) || 0), 0);
+  const usadas = sessoesEntre(desde, hojeIso()).filter(s => s.pacienteId === p.id && s.status === 'realizado').length;
+  return { compradas, usadas, saldo: compradas - usadas };
+}
+
+// ================= Navegação =================
 function render() {
-  renderTabs();
+  $('#brand').innerHTML = LOGO; $('#brand2').innerHTML = LOGO;
+  const h = new Date(); $('#hoje-top').textContent = `${DIAS[h.getDay()]}, ${h.getDate()} ${MESES[h.getMonth()].slice(0, 3)}`;
+  $('#tabs').innerHTML = ABAS.map(([k, n]) => `<button class="${S.aba === k ? 'on' : ''}" onclick="ir('${k}')">${ICON[k]}${n}</button>`).join('');
   const app = $('#app');
   if (S.erro) { app.innerHTML = `<div class="empty">${esc(S.erro)}</div>`; return; }
-  if (!S.carregado) { app.innerHTML = '<div class="empty">Carregando seus pacientes…</div>'; return; }
-  if (S.pac && !pac(S.pac)) S.pac = null;
-  if (!S.pac && S.pacientes.length) S.pac = ordenar(S.pacientes)[0].id;
-  app.innerHTML = ({ agenda: vAgenda, pacientes: vPacientes, treinos: vTreinos, evolucoes: vEvolucoes, modelo: vModelo })[S.aba]();
+  if (!S.carregado) { app.innerHTML = '<div class="empty">Carregando seus dados…</div>'; return; }
+  if (S.pid && !pac(S.pid)) S.pid = null;
+  const ativo = document.activeElement;
+  const foco = ativo && ativo.id && app.contains(ativo) ? { id: ativo.id, a: ativo.selectionStart, b: ativo.selectionEnd } : null;
+  app.innerHTML = S.aba === 'pacientes' && S.pid ? vPaciente() : ({ inicio: vInicio, agenda: vAgenda, pacientes: vPacientes, financeiro: vFinanceiro, ajustes: vAjustes })[S.aba]();
+  if (foco) { const el = document.getElementById(foco.id); if (el) { el.focus(); try { el.setSelectionRange(foco.a, foco.b); } catch (e) {} } }
+}
+window.ir = (aba, extra = {}) => { S.aba = aba; if (aba === 'pacientes' && !extra.pid) S.pid = null; Object.assign(S, extra); render(); window.scrollTo(0, 0); };
+window.abrirPaciente = (pid, sub = 'resumo') => ir('pacientes', { pid, sub, treinoIdx: 0 });
+window.alternarNomes = () => { ocultarNomes = !ocultarNomes; try { localStorage.setItem('fisiobea-ocultar', ocultarNomes ? '1' : '0'); } catch (e) {} render(); };
+
+// ================= Formulários =================
+function sheet(html, onSave, extra = '', rotulo = 'Salvar') {
+  $('#layer').innerHTML = `<div class="sheet-bg" onclick="if(event.target===this)fechar()"><form class="sheet" id="sheet">${html}
+    <div class="sheet-foot">${extra}<div class="row"><button type="button" class="ghost" onclick="fechar()">Cancelar</button>${onSave ? `<button type="submit">${rotulo}</button>` : ''}</div></div></form></div>`;
+  $('#sheet').onsubmit = e => { e.preventDefault(); if (onSave && onSave(new FormData(e.target)) !== false) fechar(); };
+}
+window.fechar = () => { $('#layer').innerHTML = ''; };
+window.confirmar = (msg, acao, botao = 'Excluir') => {
+  $('#layer').innerHTML = `<div class="sheet-bg"><div class="sheet"><h3>${esc(msg)}</h3><p class="muted" style="margin:0">Essa ação não pode ser desfeita.</p>
+    <div class="row" style="justify-content:flex-end"><button class="ghost" onclick="fechar()">Cancelar</button><button style="background:var(--danger)" id="ok">${botao}</button></div></div></div>`;
+  $('#ok').onclick = () => { fechar(); acao(); };
+};
+async function copiarTexto(txt, msg = 'Copiado') {
+  try { await navigator.clipboard.writeText(txt); toast(msg); } catch (e) { toast('Não deu para copiar neste aparelho'); }
 }
 
-// ---------- Agenda ----------
+// ================= Início =================
+function vInicio() {
+  const h = hojeIso(), hoje = sessoesDoDia(h), mes = mesAtual();
+  const recebido = S.pagamentos.filter(g => g.status === 'pago' && g.data.startsWith(mes)).reduce((s, g) => s + (Number(g.valor) || 0), 0);
+  const meta = Number(S.config.metaLucro) || 0;
+  const doMes = sessoesEntre(mes + '-01', h);
+  const faltas = doMes.filter(s => s.status === 'faltou').length;
+  const realizados = doMes.filter(s => s.status === 'realizado').length;
+  // Evoluções pendentes: sessões dos últimos 7 dias sem evolução e sem falta
+  const d7 = new Date(); d7.setDate(d7.getDate() - 7);
+  const ontem = new Date(); ontem.setDate(ontem.getDate() - 1);
+  const pend = sessoesEntre(iso(d7), iso(ontem)).filter(s => !NAO_CONTA.includes(s.status) && !S.evolucoes.some(e => e.pacienteId === s.pacienteId && e.data === s.data));
+  const niver = ativos().filter(p => p.nascimento && p.nascimento.slice(5, 7) === mes.slice(5, 7)).sort((a, b) => a.nascimento.slice(8).localeCompare(b.nascimento.slice(8)));
+  const pacotes = ativos().map(p => ({ p, s: saldoPacote(p) })).filter(x => x.s && x.s.saldo <= 2);
+  const pendentes = S.pagamentos.filter(g => g.status === 'pendente');
+  const hr = new Date().getHours();
+
+  return `
+  <div class="head"><div><h2>${hr < 12 ? 'Bom dia' : hr < 18 ? 'Boa tarde' : 'Boa noite'}, ${esc(S.config.profissional || 'Beatriz')}</h2>
+  <p class="sub">${DIAS_LONGO[new Date().getDay()]}, ${new Date().getDate()} de ${MESES[new Date().getMonth()]}</p></div>
+  <button class="ghost small" onclick="alternarNomes()">${ocultarNomes ? 'Mostrar nomes' : 'Ocultar nomes'}</button></div>
+
+  <div class="stats">
+    <div class="stat"><span class="label">Hoje</span><strong>${hoje.length}</strong><span class="muted" style="font-size:.85rem">atendimento${hoje.length === 1 ? '' : 's'}</span></div>
+    <div class="stat"><span class="label">Pacientes ativos</span><strong>${ativos().length}</strong><span class="muted" style="font-size:.85rem">${realizados} sessões no mês</span></div>
+    <div class="stat"><span class="label">Recebido no mês</span><strong style="font-size:1.25rem">${reais(recebido)}</strong>
+      ${meta ? `<div class="bar"><i style="width:${Math.min(100, recebido / meta * 100)}%"></i></div><span class="muted" style="font-size:.8rem">meta ${reais(meta)}</span>` : '<span class="muted" style="font-size:.8rem">defina uma meta em Ajustes</span>'}</div>
+    <div class="stat"><span class="label">Faltas no mês</span><strong>${faltas}</strong><span class="muted" style="font-size:.85rem">${doMes.length ? Math.round(faltas / doMes.length * 100) : 0}% das sessões</span></div>
+  </div>
+
+  <div class="section"><div class="row" style="justify-content:space-between"><h3>Atendimentos de hoje</h3><button class="link small" onclick="ir('agenda',{semana:0,dia:hojeIso()})">Ver agenda</button></div>
+    ${hoje.length ? `<div class="item">${hoje.map(s => { const p = pac(s.pacienteId), t = treinoDoDia(p, h); return `
+      <div class="tline"><div class="row" style="gap:12px;min-width:0"><span class="time">${esc(s.horario || '--:--')}</span><span style="min-width:0">${esc(nome(p))}${t ? ` <span class="muted">· Treino ${t.letra}</span>` : ''}</span></div>
+      <button class="pill st-${s.status}" style="border:0;cursor:pointer" onclick="escolherStatus('${s.id}','${s.data}')">${STATUS[s.status]}</button></div>`; }).join('')}</div>`
+      : '<div class="empty">Nenhum atendimento hoje.</div>'}
+  </div>
+
+  ${pend.length ? `<div class="section"><h3>Evoluções pendentes</h3><div class="item">${pend.slice(0, 8).map(s => `
+    <div class="tline"><span>${esc(nome(pac(s.pacienteId)))} <span class="muted num">· ${br(s.data).slice(0, 5)}</span></span><button class="small" onclick="novaEvolucao('${s.pacienteId}','${s.data}')">Evoluir</button></div>`).join('')}</div></div>` : ''}
+
+  ${pacotes.length || pendentes.length ? `<div class="section"><h3>Atenção</h3><div class="item">
+    ${pacotes.map(x => `<div class="tline"><span>${esc(nome(x.p))}</span><span class="pill ${x.s.saldo <= 0 ? 'red' : 'st-agendado'}">${x.s.saldo <= 0 ? 'Pacote acabou' : `Resta${x.s.saldo > 1 ? 'm' : ''} ${x.s.saldo} sess${x.s.saldo > 1 ? 'ões' : 'ão'}`}</span></div>`).join('')}
+    ${pendentes.slice(0, 5).map(g => `<div class="tline"><span>${esc(nome(pac(g.pacienteId)))} <span class="muted">· ${esc(g.descricao || 'Pagamento')}</span></span><span class="pill red num">${reais(g.valor)} pendente</span></div>`).join('')}
+  </div></div>` : ''}
+
+  ${niver.length ? `<div class="section"><h3>Aniversariantes de ${MESES[new Date().getMonth()]}</h3><div class="item">${niver.map(p => `
+    <div class="tline"><span>${esc(nome(p))} <span class="muted num">· ${br(p.nascimento).slice(0, 5)}</span></span>
+    ${p.celular ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(p.celular, `Feliz aniversário, ${p.nome.split(' ')[0]}! Muita saúde e um ótimo ano. Um abraço, ${S.config.profissional || 'Beatriz'}.`)}">Parabenizar</a>` : ''}</div>`).join('')}</div></div>` : ''}`;
+}
+
+// ================= Agenda =================
 function semanaDias() {
-  const hoje = new Date();
-  const seg = new Date(hoje);
+  const hoje = new Date(), seg = new Date(hoje);
   seg.setDate(hoje.getDate() - (hoje.getDay() === 0 ? -1 : hoje.getDay() - 1) + S.semana * 7);
   return [...Array(6)].map((_, i) => { const d = new Date(seg); d.setDate(seg.getDate() + i); return d; });
 }
 function vAgenda() {
-  const dias = semanaDias(), hoje = iso(new Date());
-  if (!S.dia || !dias.some(d => iso(d) === S.dia)) S.dia = (dias.find(d => iso(d) === hoje) || dias[0]) && iso(dias.find(d => iso(d) === hoje) || dias[0]);
-  const sel = deIso(S.dia);
-  const doDia = S.pacientes.filter(p => (p.dias || []).includes(sel.getDay())).sort((a, b) => (a.horario || '').localeCompare(b.horario || ''));
-  const meses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-
+  const dias = semanaDias(), hoje = hojeIso();
+  if (!S.dia || !dias.some(d => iso(d) === S.dia)) S.dia = iso(dias.find(d => iso(d) === hoje) || dias[0]);
+  const sel = deIso(S.dia), lista = sessoesDoDia(S.dia);
   return `
   <div class="head">
-    <div><h2>${DIAS_LONGO[sel.getDay()]}, ${sel.getDate()} de ${meses[sel.getMonth()]}</h2>
-    <p class="sub">${doDia.length ? doDia.length + ' atendimento' + (doDia.length > 1 ? 's' : '') : 'Nenhum atendimento'}</p></div>
-    <div class="weeknav"><button onclick="S.semana--;S.dia=null;render()" aria-label="Semana anterior">‹</button>${br(iso(dias[0])).slice(0, 5)} – ${br(iso(dias[5])).slice(0, 5)}<button onclick="S.semana++;S.dia=null;render()" aria-label="Próxima semana">›</button></div>
+    <div><h2>${DIAS_LONGO[sel.getDay()]}, ${sel.getDate()} de ${MESES[sel.getMonth()].slice(0, 3)}</h2>
+    <p class="sub">${lista.length ? lista.length + ' atendimento' + (lista.length > 1 ? 's' : '') : 'Nenhum atendimento'}</p></div>
+    <div class="row" style="gap:6px">
+      <div class="weeknav"><button onclick="S.semana--;S.dia=null;render()" aria-label="Semana anterior">‹</button><span class="num">${br(iso(dias[0])).slice(0, 5)} – ${br(iso(dias[5])).slice(0, 5)}</span><button onclick="S.semana++;S.dia=null;render()" aria-label="Próxima semana">›</button></div>
+      <button class="small" onclick="novoAgendamento('${S.dia}')">Agendar</button>
+    </div>
   </div>
   <div class="days">${dias.map(d => {
-    const di = iso(d), tem = S.pacientes.some(p => (p.dias || []).includes(d.getDay()));
+    const di = iso(d), tem = sessoesDoDia(di).length;
     return `<button class="day ${di === S.dia ? 'on' : ''} ${di === hoje ? 'today' : ''} ${tem ? 'has' : ''}" onclick="S.dia='${di}';render()"><small>${DIAS[d.getDay()]}</small><strong>${d.getDate()}</strong><i></i></button>`;
   }).join('')}</div>
-  <div class="list">${doDia.map(p => {
-    const t = treinoDoDia(p, S.dia);
-    const evo = S.evolucoes.find(e => e.pacienteId === p.id && e.data === S.dia);
-    return `<div class="item">
-      <div class="item-top">
-        <div class="row" style="gap:12px;align-items:flex-start">
-          <span class="time">${esc(p.horario || '--:--')}</span>
-          <div><h3>${esc(p.nome)}</h3><div class="muted" style="font-size:.88rem">${esc(p.diagnostico)}</div></div>
-        </div>
-        ${evo ? '<span class="pill done">✓ Evoluído</span>' : t ? `<span class="pill letter">Treino ${t.letra}</span>` : ''}
-      </div>
-      ${t ? `<div><div class="label" style="margin-bottom:4px">Treino ${t.letra}${t.nome ? ' · ' + esc(t.nome) : ''}</div>
-        <ul class="ex">${(t.exercicios || []).filter(x => x.nome).map(x => `<li><span>${esc(x.nome)}</span><span>${esc(prescricao(x))}</span></li>`).join('')}</ul></div>`
-        : '<div class="muted" style="font-size:.9rem">Nenhum treino montado ainda.</div>'}
-      <div class="actions">${evo
-        ? `<button class="ghost small" onclick="abrirEvolucao('${evo.id}')">Ver evolução</button>`
-        : `<button class="small" onclick="novaEvolucao('${p.id}','${S.dia}')">Evoluir</button>`}</div>
-    </div>`;
-  }).join('') || `<div class="empty">${S.pacientes.length ? 'Dia livre. Nenhum paciente agendado.' : 'Cadastre seus pacientes para ver a agenda.'}</div>`}</div>`;
+  <div class="legend">${Object.entries(STATUS).map(([k, v]) => `<span class="pill st-${k}">${v}</span>`).join('')}</div>
+  <div class="list">${lista.map(s => cartaoSessao(s)).join('') || `<div class="empty">${S.pacientes.length ? 'Dia livre.' : 'Cadastre seus pacientes para montar a agenda.'}</div>`}</div>`;
 }
-
-// ---------- Pacientes ----------
-function vPacientes() {
-  return `
-  <div class="head"><div><h2>Pacientes</h2><p class="sub">${S.pacientes.length} cadastrado${S.pacientes.length === 1 ? '' : 's'}</p></div>
-  <button onclick="editarPaciente()">Novo paciente</button></div>
-  <div class="list">${ordenar(S.pacientes).map(p => `
-    <div class="item">
-      <div class="item-top">
-        <div><h3>${esc(p.nome)}</h3><div class="muted" style="font-size:.9rem">${esc(p.diagnostico)}</div></div>
-        <button class="link" onclick="editarPaciente('${p.id}')">Editar</button>
+function cartaoSessao(s) {
+  const p = pac(s.pacienteId), t = treinoDoDia(p, s.data);
+  const evo = S.evolucoes.find(e => e.pacienteId === p.id && e.data === s.data);
+  const dataLonga = s.data === hojeIso() ? 'hoje' : `${DIAS_LONGO[deIso(s.data).getDay()].toLowerCase()} (${br(s.data).slice(0, 5)})`;
+  const lembrete = (S.config.msgLembrete || '').replace(/\{nome\}/g, (p.nome || '').split(' ')[0]).replace(/\{dia\}/g, dataLonga).replace(/\{hora\}/g, s.horario || '');
+  const ativa = !['faltou', 'justificada', 'cancelado'].includes(s.status);
+  return `<div class="item">
+    <div class="item-top">
+      <div class="row" style="gap:12px;align-items:flex-start;flex-wrap:nowrap">
+        <span class="time">${esc(s.horario || '--:--')}</span>
+        <div style="min-width:0"><h3 class="tap" style="cursor:pointer" onclick="abrirPaciente('${p.id}')">${esc(nome(p))}</h3><div class="muted" style="font-size:.88rem">${esc(p.diagnostico)}${s.avulsa ? ' · avulso' : ''}</div></div>
       </div>
-      <div class="row" style="gap:6px">${(p.dias || []).map(d => `<span class="pill letter">${DIAS[d]}</span>`).join('')}<span class="muted" style="font-size:.9rem;margin-left:4px">${esc(p.horario)}</span></div>
-      <div class="actions">
-        <button class="ghost small" onclick="S.pac='${p.id}';S.treinoIdx=0;S.aba='treinos';render()">${(p.treinos || []).length} treino${(p.treinos || []).length === 1 ? '' : 's'}</button>
-        <button class="ghost small" onclick="S.pac='${p.id}';S.aba='evolucoes';render()">${S.evolucoes.filter(e => e.pacienteId === p.id).length} evoluções</button>
-      </div>
-    </div>`).join('') || '<div class="empty">Nenhum paciente ainda. Toque em “Novo paciente” para começar.</div>'}</div>`;
+      <button class="pill st-${s.status}" style="border:0;cursor:pointer" onclick="escolherStatus('${s.id}','${s.data}')">${STATUS[s.status]} ▾</button>
+    </div>
+    ${ativa ? (t ? `<div><div class="label" style="margin-bottom:4px">Treino ${t.letra}${t.nome ? ' · ' + esc(t.nome) : ''}</div>
+      <ul class="ex">${(t.exercicios || []).filter(x => x.nome).map(x => `<li><span>${esc(x.nome)}</span><span>${esc(prescricao(x))}</span></li>`).join('')}</ul></div>`
+      : '<div class="muted" style="font-size:.9rem">Nenhum treino montado.</div>') : ''}
+    <div class="actions">
+      ${ativa ? (evo ? `<button class="ghost small" onclick="abrirEvolucao('${evo.id}')">✓ Ver evolução</button>` : `<button class="small" onclick="novaEvolucao('${p.id}','${s.data}')">Evoluir</button>`) : ''}
+      ${p.celular && s.status === 'agendado' ? `<a class="btn ghost small" target="_blank" rel="noopener" href="${waLink(p.celular, lembrete)}">Lembrete WhatsApp</a>` : ''}
+      <button class="link small" onclick="remarcar('${s.id}','${s.data}')">Remarcar</button>
+    </div>
+  </div>`;
 }
-
-function sheet(html, onSave, extra = '') {
-  $('#layer').innerHTML = `<div class="sheet-bg" onclick="if(event.target===this)fechar()"><form class="sheet" id="sheet">${html}
-    <div class="sheet-foot">${extra}<div class="row"><button type="button" class="ghost" onclick="fechar()">Cancelar</button><button type="submit">Salvar</button></div></div></form></div>`;
-  $('#sheet').onsubmit = e => { e.preventDefault(); onSave(new FormData(e.target)); fechar(); };
-}
-window.fechar = () => { $('#layer').innerHTML = ''; };
-// confirmação dentro da página (o navegador do claude.ai bloqueia confirm())
-window.confirmar = (msg, acao) => {
-  $('#layer').innerHTML = `<div class="sheet-bg"><div class="sheet"><h3>${esc(msg)}</h3><p class="muted" style="margin:0">Essa ação não pode ser desfeita.</p>
-    <div class="row" style="justify-content:flex-end"><button class="ghost" onclick="fechar()">Cancelar</button><button style="background:var(--danger)" id="ok">Excluir</button></div></div></div>`;
-  $('#ok').onclick = () => { fechar(); acao(); };
+window.escolherStatus = (id, data) => {
+  const s = sessoesDoDia(data).find(x => x.id === id), p = pac(s.pacienteId);
+  sheet(`<h3>${esc(nome(p))} · ${br(data)} ${esc(s.horario)}</h3><div class="label">Status do atendimento</div>
+    <div class="status-pick">${Object.entries(STATUS).map(([k, v]) => `<button type="button" class="${s.status === k ? 'on st-' + k : ''}" onclick="statusSessao('${id}','${data}','${k}')">${v}</button>`).join('')}</div>
+    <p class="sub" style="margin:0">Faltas e cancelamentos não avançam o rodízio de treinos.</p>`, null);
 };
+window.novoAgendamento = data => {
+  if (!ativos().length) return toast('Cadastre um paciente primeiro');
+  sheet(`<h3>Agendar atendimento avulso</h3>
+    <label class="field"><span>Paciente</span><select id="ag-p" name="pid">${ordenar(ativos()).map(p => `<option value="${p.id}">${esc(p.nome)}</option>`).join('')}</select></label>
+    <div class="row"><label class="field"><span>Data</span><input id="ag-d" type="date" name="data" required value="${data}"></label>
+    <label class="field"><span>Horário</span><input id="ag-h" type="time" name="horario" required></label></div>
+    <p class="sub" style="margin:0">Os dias fixos de cada paciente já aparecem sozinhos. Use isto para reposições e sessões extras.</p>`,
+    f => salvar(() => store.put('sessoes', { id: 'av-' + uid(), pacienteId: f.get('pid'), data: f.get('data'), horario: f.get('horario'), status: 'agendado', avulsa: true }), 'Agendado'));
+};
+window.remarcar = (id, data) => {
+  const s = sessoesDoDia(data).find(x => x.id === id);
+  sheet(`<h3>Remarcar · ${esc(nome(pac(s.pacienteId)))}</h3>
+    <div class="row"><label class="field"><span>Nova data</span><input id="rm-d" type="date" name="data" required value="${data}"></label>
+    <label class="field"><span>Novo horário</span><input id="rm-h" type="time" name="horario" required value="${esc(s.horario)}"></label></div>`,
+    f => salvar(async () => {
+      if (s.avulsa) return store.put('sessoes', { ...s, data: f.get('data'), horario: f.get('horario') });
+      await store.put('sessoes', { id: s.id, pacienteId: s.pacienteId, data: s.data, horario: s.horario, status: 'remarcado' });
+      await store.put('sessoes', { id: 'av-' + uid(), pacienteId: s.pacienteId, data: f.get('data'), horario: f.get('horario'), status: 'agendado', avulsa: true, treino: treinoDoDia(pac(s.pacienteId), s.data)?.letra || '' });
+    }, 'Atendimento remarcado'),
+    s.avulsa ? `<button type="button" class="danger" onclick="fechar();salvar(()=>store.del('sessoes','${s.id}'),'Agendamento excluído')">Excluir</button>` : '');
+};
+
+// ================= Pacientes =================
+function vPacientes() {
+  const q = S.busca.toLowerCase();
+  const lista = ordenar(S.pacientes).filter(p => (S.mostrarInativos ? p.ativo === false : p.ativo !== false) && (!q || (p.nome + ' ' + (p.diagnostico || '') + ' ' + (p.cpf || '')).toLowerCase().includes(q)));
+  const inativos = S.pacientes.filter(p => p.ativo === false).length;
+  return `
+  <div class="head"><div><h2>Pacientes</h2><p class="sub">${ativos().length} ativo${ativos().length === 1 ? '' : 's'}${inativos ? ` · ${inativos} inativo${inativos > 1 ? 's' : ''}` : ''}</p></div>
+  <button onclick="editarPaciente()">Novo paciente</button></div>
+  <input class="search" id="busca" placeholder="Buscar por nome, diagnóstico ou CPF" value="${esc(S.busca)}" oninput="S.busca=this.value;render()">
+  ${inativos ? `<div class="chips"><button class="chip ${!S.mostrarInativos ? 'on' : ''}" onclick="S.mostrarInativos=false;render()">Ativos</button><button class="chip ${S.mostrarInativos ? 'on' : ''}" onclick="S.mostrarInativos=true;render()">Inativos</button></div>` : ''}
+  <div class="list">${lista.map(p => {
+    const sp = saldoPacote(p);
+    return `<div class="item tap" onclick="abrirPaciente('${p.id}')">
+      <div class="row" style="gap:12px;flex-wrap:nowrap">
+        <span class="avatar">${esc(ocultarNomes ? '•' : iniciais(p))}</span>
+        <div style="flex:1;min-width:0"><h3>${esc(nome(p))}</h3><div class="muted" style="font-size:.88rem">${esc(p.diagnostico)}</div></div>
+        <div style="text-align:right;display:grid;gap:4px;justify-items:end">
+          <span class="muted num" style="font-size:.85rem">${(p.dias || []).map(d => DIAS[d]).join(' · ')} ${esc(p.horario)}</span>
+          ${sp ? `<span class="pill ${sp.saldo <= 0 ? 'red' : sp.saldo <= 2 ? 'st-agendado' : 'green'}">${sp.saldo} sess. no pacote</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('') || `<div class="empty">${S.pacientes.length ? 'Nenhum paciente encontrado.' : 'Nenhum paciente ainda. Toque em “Novo paciente”.'}</div>`}</div>`;
+}
 
 window.editarPaciente = id => {
-  const p = id ? pac(id) : { nome: '', diagnostico: '', dias: [], horario: '', inicio: iso(new Date()), obs: '', treinos: [] };
+  const p = id ? pac(id) : { nome: '', diagnostico: '', dias: [], horario: '', inicio: hojeIso(), obs: '', treinos: [], ativo: true };
+  const v = k => esc(p[k] || '');
   sheet(`
     <h3>${id ? 'Editar paciente' : 'Novo paciente'}</h3>
-    <label class="field"><span>Nome</span><input id="f-nome" name="nome" required value="${esc(p.nome)}"></label>
-    <label class="field"><span>Diagnóstico / objetivo</span><input id="f-diag" name="diagnostico" value="${esc(p.diagnostico)}"></label>
+    <label class="field"><span>Nome completo</span><input id="f-nome" name="nome" required value="${v('nome')}"></label>
+    <div class="row">
+      <label class="field"><span>Nascimento</span><input id="f-nasc" type="date" name="nascimento" value="${v('nascimento')}"></label>
+      <label class="field"><span>CPF</span><input id="f-cpf" name="cpf" inputmode="numeric" value="${v('cpf')}"></label>
+    </div>
+    <div class="row">
+      <label class="field"><span>Celular (WhatsApp)</span><input id="f-cel" type="tel" name="celular" placeholder="(11) 99999-9999" value="${v('celular')}"></label>
+      <label class="field"><span>E-mail</span><input id="f-mail" type="email" name="email" value="${v('email')}"></label>
+    </div>
+    <label class="field"><span>Endereço</span><input id="f-end" name="endereco" value="${v('endereco')}"></label>
+    <label class="field"><span>Responsável (se menor ou incapaz)</span><input id="f-resp" name="responsavel" value="${v('responsavel')}"></label>
+    <div class="row">
+      <label class="field"><span>Convênio</span><input id="f-conv" name="convenio" placeholder="Particular" value="${v('convenio')}"></label>
+      <label class="field"><span>Valor da sessão (R$)</span><input id="f-val" name="valorSessao" inputmode="decimal" value="${v('valorSessao')}"></label>
+    </div>
+    <label class="field"><span>Diagnóstico / objetivo</span><input id="f-diag" name="diagnostico" value="${v('diagnostico')}"></label>
+    <label class="field"><span>Médico / encaminhamento</span><input id="f-med" name="medico" value="${v('medico')}"></label>
     <div class="field"><span>Dias de atendimento</span><div class="weekpick">${[1, 2, 3, 4, 5, 6].map(d => `<label><input type="checkbox" name="dias" value="${d}" ${(p.dias || []).includes(d) ? 'checked' : ''}><span>${DIAS[d]}</span></label>`).join('')}</div></div>
     <div class="row">
-      <label class="field"><span>Horário</span><input id="f-hora" type="time" name="horario" value="${esc(p.horario)}"></label>
-      <label class="field"><span>Início do rodízio</span><input id="f-ini" type="date" name="inicio" value="${esc(p.inicio)}"></label>
+      <label class="field"><span>Horário</span><input id="f-hora" type="time" name="horario" value="${v('horario')}"></label>
+      <label class="field"><span>Início do tratamento</span><input id="f-ini" type="date" name="inicio" value="${v('inicio')}"></label>
     </div>
-    <p class="sub" style="margin:0">A partir dessa data os treinos se alternam a cada sessão: A, B, C, D…</p>
-    <label class="field"><span>Observações</span><textarea id="f-obs" name="obs">${esc(p.obs)}</textarea></label>`,
-    f => salvar(() => store.salvarPaciente({ ...p, id: p.id || uid(), nome: f.get('nome'), diagnostico: f.get('diagnostico'), dias: f.getAll('dias').map(Number), horario: f.get('horario'), inicio: f.get('inicio'), obs: f.get('obs') }), 'Paciente salvo'),
-    id ? `<button type="button" class="danger" onclick="confirmar('Excluir ${esc(p.nome)}?', () => excluirPaciente('${id}'))">Excluir</button>` : '');
+    <p class="sub" style="margin:0">A partir do início, os treinos se alternam a cada sessão realizada: A, B, C, D…</p>
+    <label class="field"><span>Observações</span><textarea id="f-obs" name="obs">${v('obs')}</textarea></label>`,
+    f => {
+      const campos = ['nome', 'nascimento', 'cpf', 'celular', 'email', 'endereco', 'responsavel', 'convenio', 'valorSessao', 'diagnostico', 'medico', 'horario', 'inicio', 'obs'];
+      const dados = Object.fromEntries(campos.map(k => [k, (f.get(k) || '').trim()]));
+      salvar(() => store.put('pacientes', { ...p, ...dados, id: p.id || uid(), dias: f.getAll('dias').map(Number) }), 'Paciente salvo');
+    },
+    id ? `<button type="button" class="danger" onclick="confirmar('Excluir ${esc(p.nome)} e todo o prontuário?', () => excluirPaciente('${id}'))">Excluir</button>` : '');
 };
 window.excluirPaciente = id => salvar(async () => {
-  for (const e of S.evolucoes.filter(e => e.pacienteId === id)) await store.apagarEvolucao(e.id);
-  await store.apagarPaciente(id);
+  for (const col of ['evolucoes', 'avaliacoes', 'sessoes', 'pagamentos']) for (const x of S[col].filter(x => x.pacienteId === id)) await store.del(col, x.id);
+  await store.del('pacientes', id); S.pid = null;
 }, 'Paciente excluído');
+window.alternarAtivo = id => { const p = pac(id); salvar(() => store.put('pacientes', { ...p, ativo: p.ativo === false, fim: p.ativo === false ? '' : hojeIso() }), p.ativo === false ? 'Paciente reativado' : 'Paciente inativado (alta)'); };
 
-function seletorPaciente() {
-  if (!S.pacientes.length) return '';
-  return `<div class="chips">${ordenar(S.pacientes).map(p => `<button class="chip ${p.id === S.pac ? 'on' : ''}" onclick="S.pac='${p.id}';S.treinoIdx=0;render()">${esc(p.nome.split(' ')[0])}</button>`).join('')}</div>`;
+// ---------- Prontuário do paciente ----------
+const SUBS = [['resumo', 'Resumo'], ['avaliacoes', 'Avaliações'], ['evolucoes', 'Evoluções'], ['treinos', 'Treinos'], ['financeiro', 'Financeiro'], ['documentos', 'Documentos']];
+function vPaciente() {
+  const p = pac(S.pid);
+  const corpo = { resumo: pResumo, avaliacoes: pAvaliacoes, evolucoes: pEvolucoes, treinos: pTreinos, financeiro: pFinanceiro, documentos: pDocumentos }[S.sub](p);
+  return `
+  <button class="back" onclick="S.pid=null;render()">‹ Pacientes</button>
+  <div class="head"><div class="row" style="gap:12px;flex-wrap:nowrap;min-width:0"><span class="avatar">${esc(ocultarNomes ? '•' : iniciais(p))}</span>
+    <div style="min-width:0"><h2>${esc(nome(p))}</h2><p class="sub">${[p.diagnostico, p.nascimento && idade(p.nascimento) + ' anos', p.ativo === false && 'Inativo'].filter(Boolean).map(esc).join(' · ')}</p></div></div>
+    ${p.celular ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(p.celular, '')}">WhatsApp</a>` : ''}
+  </div>
+  <div class="chips">${SUBS.map(([k, n]) => `<button class="chip ${S.sub === k ? 'on' : ''}" onclick="S.sub='${k}';render()">${n}</button>`).join('')}</div>
+  ${corpo}`;
+}
+function pResumo(p) {
+  const proximas = []; for (let i = 0, d = new Date(); i < 30 && proximas.length < 4; i++, d.setDate(d.getDate() + 1)) proximas.push(...sessoesDoDia(iso(d)).filter(s => s.pacienteId === p.id && !['cancelado'].includes(s.status)));
+  const hist = sessoesEntre(p.inicio || hojeIso(), hojeIso()).filter(s => s.pacienteId === p.id);
+  const sp = saldoPacote(p);
+  const ultAval = S.avaliacoes.filter(a => a.pacienteId === p.id).sort((a, b) => b.data.localeCompare(a.data))[0];
+  const objetivo = ultAval?.campos?.find(c => /objetivo/i.test(c.rotulo))?.valor;
+  const linha = (k, v) => v ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : '';
+  return `
+  <div class="stats">
+    <div class="stat"><span class="label">Sessões feitas</span><strong>${hist.filter(s => s.status === 'realizado').length}</strong></div>
+    <div class="stat"><span class="label">Faltas</span><strong>${hist.filter(s => s.status === 'faltou').length}</strong></div>
+    <div class="stat"><span class="label">Evoluções</span><strong>${S.evolucoes.filter(e => e.pacienteId === p.id).length}</strong></div>
+    <div class="stat"><span class="label">Pacote</span><strong>${sp ? sp.saldo : '—'}</strong><span class="muted" style="font-size:.8rem">${sp ? `de ${sp.compradas} sessões` : 'sem pacote'}</span></div>
+  </div>
+  ${objetivo ? `<div class="section"><h3>Objetivos do tratamento</h3><div class="item" style="white-space:pre-wrap">${esc(objetivo)}</div></div>` : ''}
+  <div class="section"><h3>Próximos atendimentos</h3>
+    ${proximas.length ? `<div class="item">${proximas.slice(0, 4).map(s => `<div class="tline"><span class="num">${DIAS[deIso(s.data).getDay()]} ${br(s.data).slice(0, 5)} · ${esc(s.horario)}</span><span class="pill st-${s.status}">${STATUS[s.status]}</span></div>`).join('')}</div>` : '<div class="empty">Sem atendimentos nos próximos 30 dias.</div>'}
+  </div>
+  <div class="section"><div class="row" style="justify-content:space-between"><h3>Dados cadastrais</h3><button class="link small" onclick="editarPaciente('${p.id}')">Editar</button></div>
+    <div class="item"><dl class="kv">
+      ${linha('Nascimento', p.nascimento && `${br(p.nascimento)} (${idade(p.nascimento)} anos)`)}${linha('CPF', p.cpf)}${linha('Celular', p.celular)}${linha('E-mail', p.email)}
+      ${linha('Endereço', p.endereco)}${linha('Responsável', p.responsavel)}${linha('Convênio', p.convenio)}${linha('Valor da sessão', p.valorSessao && reais(String(p.valorSessao).replace(',', '.')))}
+      ${linha('Encaminhamento', p.medico)}${linha('Dias', (p.dias || []).map(d => DIAS_LONGO[d]).join(', ') + (p.horario ? ' às ' + p.horario : ''))}${linha('Início', br(p.inicio))}${linha('Observações', p.obs)}
+    </dl></div>
+    <div>${p.ativo === false
+      ? `<button class="ghost small" onclick="alternarAtivo('${p.id}')">Reativar paciente</button>`
+      : `<button class="ghost small" onclick="confirmar('Dar alta e inativar este paciente?', () => alternarAtivo('${p.id}'), 'Inativar')">Dar alta / inativar</button>`}</div>
+  </div>`;
 }
 
-// ---------- Treinos ----------
-// Edição de treino: muda o objeto local na hora e salva o paciente com um pequeno atraso
-let timerTreino = null;
-function salvarTreinosDepois(p) { clearTimeout(timerTreino); timerTreino = setTimeout(() => salvar(() => store.salvarPaciente(p)), 700); }
+// ---------- Avaliações ----------
+function cartaoRegistro(r, tipo) {
+  const campos = (r.campos || []).filter(c => c.valor);
+  const vit = campos.filter(c => c.tipo === 'linha');
+  const resto = campos.filter(c => c.tipo !== 'linha');
+  return `<div class="item rec">
+    <div class="item-top"><div class="row" style="gap:8px"><strong class="num">${br(r.data)}</strong>${r.titulo ? `<span class="pill green">${esc(r.titulo)}</span>` : ''}${r.treino ? `<span class="pill green">Treino ${esc(r.treino)}</span>` : ''}</div>
+      <div class="row" style="gap:2px"><button class="link small" onclick="copiarRegistro('${tipo}','${r.id}')">Copiar</button><button class="link small" onclick="${tipo === 'evolucoes' ? 'abrirEvolucao' : 'abrirAvaliacao'}('${r.id}')">Editar</button></div></div>
+    ${vit.length ? `<div class="vitals">${vit.map(c => `<span><b>${esc(c.rotulo.replace(/\s*\(.*\)/, ''))}</b>${esc(c.valor)}</span>`).join('')}</div>` : ''}
+    <dl>${resto.map(c => `<div><dt>${esc(c.rotulo)}</dt><dd>${esc(c.valor)}</dd></div>`).join('')}</dl>
+  </div>`;
+}
+window.copiarRegistro = (col, id) => {
+  const r = S[col].find(x => x.id === id), p = pac(r.pacienteId);
+  copiarTexto(`${p.nome} · ${br(r.data)}${r.titulo ? ' · ' + r.titulo : ''}${r.treino ? ' · Treino ' + r.treino : ''}\n\n` + r.campos.filter(c => c.valor).map(c => `${c.rotulo}: ${c.valor}`).join('\n'), 'Texto copiado');
+};
+function pAvaliacoes(p) {
+  const lista = S.avaliacoes.filter(a => a.pacienteId === p.id).sort((a, b) => b.data.localeCompare(a.data));
+  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="muted">${lista.length} avaliação(ões)</span><button class="small" onclick="novaAvaliacao('${p.id}')">Nova avaliação</button></div>
+  <div class="list">${lista.map(a => cartaoRegistro(a, 'avaliacoes')).join('') || '<div class="empty">Nenhuma avaliação. Escolha uma ficha: inicial, ortopédica, neurológica, respiratória, geriátrica, pélvica ou dor.</div>'}</div>`;
+}
+window.novaAvaliacao = pid => {
+  sheet(`<h3>Qual ficha de avaliação?</h3><div class="list">${Object.entries(AVALIACOES).map(([k, a]) => `
+    <button type="button" class="ghost" style="justify-content:space-between" onclick="formAvaliacao({pacienteId:'${pid}',data:hojeIso(),tipo:'${k}',titulo:'${a.nome}',campos:AVALIACOES['${k}'].campos.map(c=>({rotulo:c.replace(/^_/,''),tipo:c[0]==='_'?'linha':'texto',valor:''}))})">${a.nome}<span class="muted" style="font-weight:400">${a.campos.length} campos</span></button>`).join('')}</div>`, null);
+};
+function formRegistro(r, titulo, onSave, extraTopo = '', excluir = '') {
+  sheet(`<h3>${titulo} · ${esc(nome(pac(r.pacienteId)))}</h3>
+    <div class="row"><label class="field"><span>Data</span><input id="r-data" type="date" name="data" required value="${r.data}"></label>${extraTopo}</div>
+    <div class="row">${r.campos.map((c, i) => c.tipo === 'linha' ? `<label class="field" style="flex:1 1 130px"><span>${esc(c.rotulo)}</span><input id="r${i}" name="c${i}" value="${esc(c.valor)}"></label>` : '').join('')}</div>
+    ${r.campos.map((c, i) => c.tipo !== 'linha' ? `<label class="field"><span>${esc(c.rotulo)}</span><textarea id="r${i}" name="c${i}">${esc(c.valor)}</textarea></label>` : '').join('')}`,
+    f => { r.data = f.get('data'); if (f.has('treino')) r.treino = f.get('treino'); r.campos = r.campos.map((c, i) => ({ ...c, valor: f.get('c' + i) || '' })); onSave(r); }, excluir);
+}
+window.formAvaliacao = a => formRegistro(a, a.titulo, x => salvar(() => store.put('avaliacoes', { ...x, id: x.id || uid() }), 'Avaliação salva'), '',
+  a.id ? `<button type="button" class="danger" onclick="confirmar('Excluir esta avaliação?', () => salvar(() => store.del('avaliacoes','${a.id}'), 'Avaliação excluída'))">Excluir</button>` : '');
+window.abrirAvaliacao = id => formAvaliacao(JSON.parse(JSON.stringify(S.avaliacoes.find(x => x.id === id))));
 
-function vTreinos() {
-  const p = pac(S.pac);
-  if (!p) return '<div class="head"><h2>Treinos</h2></div><div class="empty">Cadastre um paciente primeiro.</div>';
+// ---------- Evoluções ----------
+function pEvolucoes(p) {
+  const lista = S.evolucoes.filter(e => e.pacienteId === p.id).sort((a, b) => b.data.localeCompare(a.data));
+  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="muted">${lista.length} evolução(ões)</span><button class="small" onclick="novaEvolucao('${p.id}',hojeIso())">Nova evolução</button></div>
+  <div class="list">${lista.map(e => cartaoRegistro(e, 'evolucoes')).join('') || '<div class="empty">Nenhuma evolução ainda. Use “Evoluir” na agenda.</div>'}</div>`;
+}
+function formEvolucao(e, onSave) {
+  const p = pac(e.pacienteId);
+  formRegistro(e, 'Evolução', onSave,
+    `<label class="field"><span>Treino</span><select id="r-treino" name="treino"><option value="">Nenhum</option>${(p.treinos || []).map(t => `<option ${t.letra === e.treino ? 'selected' : ''}>${t.letra}</option>`).join('')}</select></label>`,
+    e.id ? `<button type="button" class="danger" onclick="confirmar('Excluir esta evolução?', () => salvar(() => store.del('evolucoes','${e.id}'), 'Evolução excluída'))">Excluir</button>` : '');
+}
+window.novaEvolucao = (pid, data) => {
+  const p = pac(pid), t = treinoDoDia(p, data);
+  const e = { pacienteId: pid, data, treino: t ? t.letra : '', campos: S.modelo.map(c => ({ ...c, valor: '' })) };
+  const conduta = e.campos.find(c => /conduta|exerc/i.test(c.rotulo));
+  if (conduta && t) conduta.valor = (t.exercicios || []).filter(x => x.nome).map(x => `${x.nome}${prescricao(x) ? ' — ' + prescricao(x) : ''}`).join('\n');
+  formEvolucao(e, ev => salvar(async () => {
+    await store.put('evolucoes', { ...ev, id: uid() });
+    // Evoluir marca o atendimento como realizado
+    const s = sessoesDoDia(ev.data).find(x => x.pacienteId === pid);
+    if (s && s.status !== 'realizado') await store.put('sessoes', { id: s.id, pacienteId: pid, data: s.data, horario: s.horario, avulsa: !!s.avulsa, treino: ev.treino || '', status: 'realizado' });
+  }, 'Evolução salva'));
+};
+window.abrirEvolucao = id => {
+  const e = JSON.parse(JSON.stringify(S.evolucoes.find(x => x.id === id)));
+  formEvolucao(e, ev => salvar(() => store.put('evolucoes', ev), 'Evolução atualizada'));
+};
+
+// ---------- Treinos ----------
+let timerTreino = null;
+function salvarTreinosDepois(p) { clearTimeout(timerTreino); timerTreino = setTimeout(() => salvar(() => store.put('pacientes', p)), 700); }
+function pTreinos(p) {
   const lista = p.treinos || [];
   S.treinoIdx = Math.min(S.treinoIdx, Math.max(0, lista.length - 1));
   const t = lista[S.treinoIdx];
+  const hoje = treinoDoDia(p, hojeIso());
   return `
-  <div class="head"><div><h2>Treinos</h2><p class="sub">${esc(p.nome)} · ${(p.dias || []).map(d => DIAS[d]).join(', ') || 'sem dias definidos'}</p></div></div>
-  ${seletorPaciente()}
   <div class="row" style="margin-bottom:14px;gap:6px">
     ${lista.map((x, i) => `<button class="${i === S.treinoIdx ? '' : 'ghost'} small" onclick="S.treinoIdx=${i};render()">Treino ${x.letra}</button>`).join('')}
     ${lista.length < LETRAS.length ? `<button class="link small" onclick="addTreino()">+ Treino ${LETRAS[lista.length]}</button>` : ''}
   </div>
   ${t ? `<div class="item">
-    <div class="row" style="gap:10px"><span class="letter-badge">${t.letra}</span>
+    <div class="row" style="gap:10px;flex-wrap:nowrap"><span class="letter-badge">${t.letra}</span>
       <input id="t-nome" class="tname" style="flex:1;min-width:0" placeholder="Dê um nome (ex.: Membros inferiores)" value="${esc(t.nome)}" oninput="campoTreino('nome',this.value)"></div>
     <div class="ex-edit ex-head"><span>Exercício</span><span>Séries</span><span>Reps/tempo</span><span>Carga</span><span></span></div>
     ${(t.exercicios || []).map((x, i) => `<div class="ex-edit ex-block">
@@ -403,108 +740,239 @@ function vTreinos() {
       <input id="e${i}c" placeholder="Carga" value="${esc(x.carga)}" oninput="campoEx(${i},'carga',this.value)">
       <button class="x" aria-label="Remover exercício" onclick="removerEx(${i})">×</button>
     </div>`).join('')}
+    <label class="field"><span>Orientações</span><textarea id="t-obs" placeholder="Ex.: descanso de 60 s entre séries, gelo após o treino" oninput="campoTreino('obs',this.value)">${esc(t.obs)}</textarea></label>
     <div class="actions" style="justify-content:space-between">
-      <button class="ghost small" onclick="addEx()">+ Exercício</button>
+      <div class="row" style="gap:6px"><button class="ghost small" onclick="addEx()">+ Exercício</button>
+      ${p.celular ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(p.celular, textoTreino(p, t))}">Enviar pelo WhatsApp</a>` : `<button class="ghost small" onclick="copiarTexto(textoTreino(pac('${p.id}'),pac('${p.id}').treinos[${S.treinoIdx}]),'Treino copiado')">Copiar treino</button>`}</div>
       <div class="row" style="gap:4px"><button class="link small" onclick="duplicarTreino()">Duplicar</button><button class="danger small" onclick="confirmar('Excluir o treino ${t.letra}?', excluirTreino)">Excluir</button></div>
     </div>
-  </div>` : '<div class="empty">Nenhum treino ainda. Toque em “+ Treino A”.</div>'}`;
+  </div>
+  ${hoje ? `<p class="sub">Próximo no rodízio hoje: Treino ${hoje.letra}.</p>` : ''}` : '<div class="empty">Nenhum treino ainda. Toque em “+ Treino A”.</div>'}`;
 }
-const pAtual = () => pac(S.pac);
+window.textoTreino = (p, t) => `Olá, ${(p.nome || '').split(' ')[0]}! Segue seu treino ${t.letra}${t.nome ? ' (' + t.nome + ')' : ''}:\n\n` +
+  (t.exercicios || []).filter(x => x.nome).map((x, i) => `${i + 1}. ${x.nome}${prescricao(x) ? ' — ' + prescricao(x) : ''}`).join('\n') + (t.obs ? `\n\n${t.obs}` : '') + `\n\n${S.config.profissional || 'Beatriz'} · Fisioterapia`;
+const pAtual = () => pac(S.pid);
 const reletrar = p => p.treinos.forEach((t, i) => t.letra = LETRAS[i]);
 const novoEx = () => ({ nome: '', series: '', reps: '', carga: '' });
 window.campoTreino = (c, v) => { const p = pAtual(); p.treinos[S.treinoIdx][c] = v; salvarTreinosDepois(p); };
 window.campoEx = (i, c, v) => { const p = pAtual(); p.treinos[S.treinoIdx].exercicios[i][c] = v; salvarTreinosDepois(p); };
-function mudarTreinos(fn) { const p = pAtual(); p.treinos = p.treinos || []; fn(p); reletrar(p); render(); clearTimeout(timerTreino); salvar(() => store.salvarPaciente(p)); }
-window.addTreino = () => mudarTreinos(p => { p.treinos.push({ nome: '', exercicios: [novoEx(), novoEx()] }); S.treinoIdx = p.treinos.length - 1; });
+function mudarTreinos(fn) { const p = pAtual(); p.treinos = p.treinos || []; fn(p); reletrar(p); render(); clearTimeout(timerTreino); salvar(() => store.put('pacientes', p)); }
+window.addTreino = () => mudarTreinos(p => { p.treinos.push({ nome: '', obs: '', exercicios: [novoEx(), novoEx()] }); S.treinoIdx = p.treinos.length - 1; });
 window.duplicarTreino = () => mudarTreinos(p => { if (p.treinos.length >= LETRAS.length) return; p.treinos.push(JSON.parse(JSON.stringify(p.treinos[S.treinoIdx]))); S.treinoIdx = p.treinos.length - 1; });
 window.excluirTreino = () => mudarTreinos(p => p.treinos.splice(S.treinoIdx, 1));
 window.addEx = () => mudarTreinos(p => p.treinos[S.treinoIdx].exercicios.push(novoEx()));
 window.removerEx = i => mudarTreinos(p => p.treinos[S.treinoIdx].exercicios.splice(i, 1));
 
-// ---------- Evoluções ----------
-const VITAIS = /^(PA|FC|SpO2|Dor|FR|Temp)/i;
-function vEvolucoes() {
-  const p = pac(S.pac);
-  if (!p) return '<div class="head"><h2>Evoluções</h2></div><div class="empty">Cadastre um paciente primeiro.</div>';
-  const lista = S.evolucoes.filter(e => e.pacienteId === p.id).sort((a, b) => b.data.localeCompare(a.data));
+// ---------- Financeiro do paciente ----------
+function pFinanceiro(p) {
+  const lista = S.pagamentos.filter(g => g.pacienteId === p.id).sort((a, b) => b.data.localeCompare(a.data));
+  const pago = lista.filter(g => g.status === 'pago').reduce((s, g) => s + (Number(g.valor) || 0), 0);
+  const pend = lista.filter(g => g.status === 'pendente').reduce((s, g) => s + (Number(g.valor) || 0), 0);
+  const sp = saldoPacote(p);
   return `
-  <div class="head"><div><h2>Evoluções</h2><p class="sub">${esc(p.nome)} · ${lista.length} registro${lista.length === 1 ? '' : 's'}</p></div>
-  <button onclick="novaEvolucao('${p.id}','${iso(new Date())}')">Nova evolução</button></div>
-  ${seletorPaciente()}
-  <div class="list">${lista.map(e => {
-    const campos = e.campos || [];
-    const vit = campos.filter(c => c.valor && VITAIS.test(c.rotulo));
-    const resto = campos.filter(c => c.valor && !VITAIS.test(c.rotulo));
-    return `<div class="item evo">
-      <div class="item-top"><div class="row" style="gap:8px"><strong style="font-variant-numeric:tabular-nums">${br(e.data)}</strong>${e.treino ? `<span class="pill letter">Treino ${esc(e.treino)}</span>` : ''}</div>
-        <div class="row" style="gap:2px"><button class="link small" onclick="copiar('${e.id}')">Copiar</button><button class="link small" onclick="abrirEvolucao('${e.id}')">Editar</button></div></div>
-      ${vit.length ? `<div class="vitals">${vit.map(c => `<span><b>${esc(c.rotulo.replace(/\s*\(.*\)/, ''))}</b>${esc(c.valor)}</span>`).join('')}</div>` : ''}
-      <dl>${resto.map(c => `<div><dt>${esc(c.rotulo)}</dt><dd>${esc(c.valor)}</dd></div>`).join('')}</dl>
-    </div>`;
-  }).join('') || '<div class="empty">Nenhuma evolução ainda. Use “Evoluir” na agenda ou “Nova evolução”.</div>'}</div>`;
-}
-
-function formEvolucao(e, onSave) {
-  const p = pac(e.pacienteId);
-  sheet(`
-    <h3>Evolução · ${esc(p.nome)}</h3>
-    <div class="row">
-      <label class="field"><span>Data</span><input id="v-data" type="date" name="data" required value="${e.data}"></label>
-      <label class="field"><span>Treino</span><select id="v-treino" name="treino"><option value="">Nenhum</option>${(p.treinos || []).map(t => `<option ${t.letra === e.treino ? 'selected' : ''}>${t.letra}</option>`).join('')}</select></label>
-    </div>
-    <div class="row">${e.campos.map((c, i) => c.tipo === 'linha'
-      ? `<label class="field" style="flex:1 1 120px"><span>${esc(c.rotulo)}</span><input id="v${i}" name="c${i}" value="${esc(c.valor)}"></label>` : '').join('')}</div>
-    ${e.campos.map((c, i) => c.tipo !== 'linha'
-      ? `<label class="field"><span>${esc(c.rotulo)}</span><textarea id="v${i}" name="c${i}">${esc(c.valor)}</textarea></label>` : '').join('')}`,
-    f => { e.data = f.get('data'); e.treino = f.get('treino'); e.campos = e.campos.map((c, i) => ({ ...c, valor: f.get('c' + i) || '' })); onSave(e); },
-    e.id ? `<button type="button" class="danger" onclick="confirmar('Excluir esta evolução?', () => salvar(() => store.apagarEvolucao('${e.id}'), 'Evolução excluída'))">Excluir</button>` : '');
-}
-window.novaEvolucao = (pid, data) => {
-  const p = pac(pid), t = treinoDoDia(p, data);
-  const e = { pacienteId: pid, data, treino: t ? t.letra : '', campos: S.modelo.map(c => ({ ...c, valor: '' })) };
-  const conduta = e.campos.find(c => /conduta|exerc/i.test(c.rotulo));
-  if (conduta && t) conduta.valor = (t.exercicios || []).filter(x => x.nome).map(x => `${x.nome}${prescricao(x) ? ' — ' + prescricao(x) : ''}`).join('\n');
-  formEvolucao(e, ev => salvar(() => store.salvarEvolucao({ ...ev, id: uid() }), 'Evolução salva'));
-};
-window.abrirEvolucao = id => {
-  const e = JSON.parse(JSON.stringify(S.evolucoes.find(x => x.id === id)));
-  formEvolucao(e, ev => salvar(() => store.salvarEvolucao(ev), 'Evolução atualizada'));
-};
-window.copiar = async id => {
-  const e = S.evolucoes.find(x => x.id === id);
-  const txt = `${pac(e.pacienteId).nome} · ${br(e.data)}${e.treino ? ' · Treino ' + e.treino : ''}\n\n` + e.campos.filter(c => c.valor).map(c => `${c.rotulo}: ${c.valor}`).join('\n');
-  try { await navigator.clipboard.writeText(txt); toast('Evolução copiada'); }
-  catch (err) { toast('Não deu para copiar neste aparelho'); }
-};
-
-// ---------- Modelo ----------
-let modeloRascunho = null;
-function vModelo() {
-  const m = modeloRascunho || S.modelo;
-  return `
-  <div class="head"><div><h2>Modelo de evolução</h2><p class="sub">Esses campos aparecem em toda evolução nova.</p></div>
-  ${modeloRascunho ? '<div class="row"><button class="ghost" onclick="modeloRascunho=null;render()">Descartar</button><button onclick="salvarModelo()">Salvar modelo</button></div>' : ''}</div>
-  <div class="list">
-    ${m.map((c, i) => `<div class="mf">
-      <input id="m${i}" value="${esc(c.rotulo)}" oninput="editarModelo(${i},'rotulo',this.value,false)">
-      <select id="mt${i}" onchange="editarModelo(${i},'tipo',this.value)"><option value="linha" ${c.tipo === 'linha' ? 'selected' : ''}>Linha curta</option><option value="texto" ${c.tipo !== 'linha' ? 'selected' : ''}>Texto longo</option></select>
-      <button aria-label="Subir" onclick="moverModelo(${i},-1)">↑</button>
-      <button aria-label="Descer" onclick="moverModelo(${i},1)">↓</button>
-      <button aria-label="Remover" onclick="mexerModelo(l=>l.splice(${i},1))">×</button>
-    </div>`).join('')}
-    <div><button class="ghost small" onclick="mexerModelo(l=>l.push({rotulo:'Novo campo',tipo:'texto'}))">+ Campo</button></div>
+  <div class="stats">
+    <div class="stat"><span class="label">Total pago</span><strong style="font-size:1.2rem">${reais(pago)}</strong></div>
+    <div class="stat"><span class="label">Pendente</span><strong style="font-size:1.2rem;color:${pend ? 'var(--danger)' : 'inherit'}">${reais(pend)}</strong></div>
+    <div class="stat"><span class="label">Pacote</span><strong>${sp ? sp.saldo : '—'}</strong><span class="muted" style="font-size:.8rem">${sp ? `${sp.usadas} de ${sp.compradas} usadas` : 'sem pacote'}</span></div>
+    <div class="stat"><span class="label">Valor da sessão</span><strong style="font-size:1.2rem">${p.valorSessao ? reais(String(p.valorSessao).replace(',', '.')) : '—'}</strong></div>
   </div>
-  <p class="sub" style="margin-top:24px">${S.nuvem ? 'Seus dados ficam salvos na sua conta e aparecem iguais no celular e no tablet.' : 'Abra pelo link do claude.ai para sincronizar entre aparelhos.'}</p>`;
+  <div class="row" style="margin-top:16px;gap:8px"><button class="small" onclick="novoPagamento('${p.id}','sessao')">Registrar pagamento</button><button class="ghost small" onclick="novoPagamento('${p.id}','pacote')">Vender pacote</button></div>
+  <div class="section">${lista.length ? `<div class="item">${lista.map(linhaPagamento).join('')}</div>` : '<div class="empty">Nenhum pagamento registrado.</div>'}</div>`;
 }
-function mexerModelo(fn, rerender = true) { modeloRascunho = modeloRascunho || JSON.parse(JSON.stringify(S.modelo)); fn(modeloRascunho); if (rerender) render(); }
-window.mexerModelo = mexerModelo;
-window.editarModelo = (i, k, v, re = true) => {
-  const tinha = !!modeloRascunho;
-  mexerModelo(l => l[i][k] = v, re || !tinha);
-  if (!tinha) { const el = $('#m' + i); if (el) { el.focus(); el.setSelectionRange(v.length, v.length); } }
+function linhaPagamento(g) {
+  const p = pac(g.pacienteId);
+  return `<div class="tline" style="align-items:center">
+    <div style="min-width:0"><div>${esc(g.descricao || (g.tipo === 'pacote' ? `Pacote ${g.qtd} sessões` : 'Sessão'))}${S.aba === 'financeiro' && p ? ` <span class="muted">· ${esc(nome(p))}</span>` : ''}</div>
+    <div class="muted num" style="font-size:.82rem">${br(g.data)}${g.forma ? ' · ' + esc(g.forma) : ''}</div></div>
+    <div class="row" style="gap:8px;flex-wrap:nowrap"><span class="num" style="font-weight:600">${reais(g.valor)}</span>
+    <button class="pill ${g.status === 'pago' ? 'green' : 'red'}" style="border:0;cursor:pointer" onclick="editarPagamento('${g.id}')">${g.status === 'pago' ? 'Pago' : 'Pendente'}</button></div>
+  </div>`;
+}
+function formPagamento(g) {
+  const p = pac(g.pacienteId);
+  sheet(`<h3>${g.tipo === 'pacote' ? 'Pacote de sessões' : 'Pagamento'}${p ? ' · ' + esc(nome(p)) : ''}</h3>
+    ${!p ? `<label class="field"><span>Paciente</span><select id="g-p" name="pid">${ordenar(S.pacientes).map(x => `<option value="${x.id}">${esc(x.nome)}</option>`).join('')}</select></label>` : ''}
+    <div class="row">
+      ${g.tipo === 'pacote' ? `<label class="field"><span>Sessões no pacote</span><input id="g-q" name="qtd" inputmode="numeric" required value="${esc(g.qtd || 10)}"></label>` : ''}
+      <label class="field"><span>Valor (R$)</span><input id="g-v" name="valor" inputmode="decimal" required value="${esc(g.valor ? String(g.valor).replace('.', ',') : '')}"></label>
+      <label class="field"><span>Data</span><input id="g-d" type="date" name="data" required value="${g.data}"></label>
+    </div>
+    <label class="field"><span>Descrição</span><input id="g-desc" name="descricao" value="${esc(g.descricao)}" placeholder="${g.tipo === 'pacote' ? 'Pacote 10 sessões' : 'Sessão de fisioterapia'}"></label>
+    <div class="row">
+      <label class="field"><span>Forma</span><select id="g-f" name="forma">${['Pix', 'Dinheiro', 'Cartão de crédito', 'Cartão de débito', 'Transferência', 'Convênio'].map(f => `<option ${g.forma === f ? 'selected' : ''}>${f}</option>`).join('')}</select></label>
+      <label class="field"><span>Situação</span><select id="g-s" name="status"><option value="pago" ${g.status !== 'pendente' ? 'selected' : ''}>Pago</option><option value="pendente" ${g.status === 'pendente' ? 'selected' : ''}>Pendente</option></select></label>
+    </div>`,
+    f => {
+      const valor = Number(String(f.get('valor')).replace(/\./g, '').replace(',', '.'));
+      if (!valor) { toast('Informe um valor válido'); return false; }
+      salvar(() => store.put('pagamentos', { ...g, id: g.id || uid(), pacienteId: g.pacienteId || f.get('pid'), valor, data: f.get('data'), descricao: f.get('descricao'), forma: f.get('forma'), status: f.get('status'), qtd: g.tipo === 'pacote' ? Number(f.get('qtd')) || 0 : undefined }), 'Pagamento salvo');
+    },
+    g.id ? `<button type="button" class="danger" onclick="confirmar('Excluir este lançamento?', () => salvar(() => store.del('pagamentos','${g.id}'), 'Lançamento excluído'))">Excluir</button>` : '');
+}
+window.novoPagamento = (pid, tipo) => {
+  const p = pac(pid), v = p?.valorSessao ? Number(String(p.valorSessao).replace(',', '.')) : '';
+  formPagamento({ pacienteId: pid || '', tipo, data: hojeIso(), status: 'pago', valor: tipo === 'pacote' && v ? v * 10 : v, qtd: 10, forma: 'Pix', descricao: '' });
 };
+window.editarPagamento = id => formPagamento(JSON.parse(JSON.stringify(S.pagamentos.find(g => g.id === id))));
+
+// ---------- Documentos ----------
+const DOCS = {
+  atestado: { nome: 'Atestado de comparecimento', precisa: ['data', 'hora'] },
+  declaracao: { nome: 'Declaração de tratamento', precisa: [] },
+  recibo: { nome: 'Recibo', precisa: ['valor'] },
+  relatorio: { nome: 'Relatório fisioterapêutico', precisa: [] },
+  alta: { nome: 'Relatório de alta', precisa: [] },
+};
+function dataExtenso(di) { const d = deIso(di); return `${d.getDate()} de ${MESES[d.getMonth()]} de ${d.getFullYear()}`; }
+function textoDocumento(tipo, p, o) {
+  const prof = S.config.profissional || 'Beatriz', reg = S.config.registro ? `\nCREFITO ${S.config.registro}` : '';
+  const ass = `\n\n${S.config.cidade ? S.config.cidade + ', ' : ''}${dataExtenso(hojeIso())}.\n\n\n_______________________________\n${prof}\nFisioterapeuta${reg}`;
+  const doc = p.cpf ? `, CPF ${p.cpf}` : '';
+  const sess = sessoesEntre(p.inicio || hojeIso(), hojeIso()).filter(s => s.pacienteId === p.id && s.status === 'realizado').length;
+  const aval = S.avaliacoes.filter(a => a.pacienteId === p.id).sort((a, b) => b.data.localeCompare(a.data))[0];
+  const campo = re => aval?.campos?.find(c => re.test(c.rotulo))?.valor || '';
+  const evos = S.evolucoes.filter(e => e.pacienteId === p.id).sort((a, b) => a.data.localeCompare(b.data));
+  const ultima = evos[evos.length - 1];
+  const resp = ultima?.campos?.find(c => /resposta/i.test(c.rotulo))?.valor || '';
+  if (tipo === 'atestado') return `ATESTADO DE COMPARECIMENTO\n\nAtesto, para os devidos fins, que ${p.nome}${doc} esteve em atendimento fisioterapêutico no dia ${br(o.data)}${o.hora ? `, no período das ${o.hora}` : ''}.${ass}`;
+  if (tipo === 'declaracao') return `DECLARAÇÃO\n\nDeclaro que ${p.nome}${doc} está em tratamento fisioterapêutico sob meus cuidados desde ${br(p.inicio) || '—'}${p.diagnostico ? `, em razão de ${p.diagnostico}` : ''}, com frequência de ${(p.dias || []).length} vez(es) por semana (${(p.dias || []).map(d => DIAS_LONGO[d].toLowerCase()).join(', ')}).${ass}`;
+  if (tipo === 'recibo') return `RECIBO\n\nRecebi de ${p.responsavel || p.nome}${p.responsavel ? '' : doc} a quantia de ${reais(o.valor)} referente a ${o.ref || 'atendimento(s) de fisioterapia'}${p.responsavel ? `, prestado(s) a ${p.nome}` : ''}.${ass}`;
+  if (tipo === 'relatorio') return `RELATÓRIO FISIOTERAPÊUTICO\n\nPaciente: ${p.nome}${p.nascimento ? ` (${idade(p.nascimento)} anos)` : ''}\nDiagnóstico: ${p.diagnostico || '—'}\nInício do tratamento: ${br(p.inicio) || '—'}\nSessões realizadas: ${sess}\n\nAvaliação (${aval ? br(aval.data) : '—'}):\n${campo(/queixa/i) || '—'}\n\nDiagnóstico cinético-funcional:\n${campo(/cinético/i) || '—'}\n\nObjetivos:\n${campo(/objetivo/i) || '—'}\n\nConduta:\n${campo(/plano/i) || '—'}\n\nEvolução:\n${resp || '—'}${ass}`;
+  if (tipo === 'alta') return `RELATÓRIO DE ALTA FISIOTERAPÊUTICA\n\nPaciente: ${p.nome}\nDiagnóstico: ${p.diagnostico || '—'}\nPeríodo: ${br(p.inicio) || '—'} a ${br(hojeIso())}\nSessões realizadas: ${sess}\n\nObjetivos iniciais:\n${campo(/objetivo/i) || '—'}\n\nCondição na alta:\n${resp || '—'}\n\nOrientações:\nManter os exercícios domiciliares orientados e retornar em caso de piora dos sintomas.${ass}`;
+}
+function pDocumentos(p) {
+  return `<p class="sub" style="margin:0 0 12px">Gere o texto, ajuste se precisar e envie pelo WhatsApp, copie ou baixe.</p>
+  <div class="list">${Object.entries(DOCS).map(([k, d]) => `<button class="ghost" style="justify-content:space-between" onclick="gerarDocumento('${p.id}','${k}')">${d.nome}<span>›</span></button>`).join('')}</div>`;
+}
+window.gerarDocumento = (pid, tipo) => {
+  const p = pac(pid), d = DOCS[tipo];
+  const extras = d.precisa.length ? `<div class="row">
+    ${d.precisa.includes('data') ? `<label class="field"><span>Data do atendimento</span><input id="d-data" type="date" value="${hojeIso()}" oninput="atualizarDoc()"></label>` : ''}
+    ${d.precisa.includes('hora') ? `<label class="field"><span>Horário</span><input id="d-hora" placeholder="08:00 às 09:00" value="${esc(p.horario ? p.horario + ' às ' + String(Number(p.horario.slice(0, 2)) + 1).padStart(2, '0') + p.horario.slice(2) : '')}" oninput="atualizarDoc()"></label>` : ''}
+    ${d.precisa.includes('valor') ? `<label class="field"><span>Valor (R$)</span><input id="d-valor" inputmode="decimal" value="${esc(p.valorSessao || '')}" oninput="atualizarDoc()"></label><label class="field"><span>Referente a</span><input id="d-ref" placeholder="atendimentos de fisioterapia" oninput="atualizarDoc()"></label>` : ''}
+  </div>` : '';
+  sheet(`<h3>${d.nome}</h3>${extras}<textarea id="d-txt" style="min-height:320px;line-height:1.55"></textarea>
+    <div class="actions">
+      ${p.celular ? `<a class="btn wa small" id="d-wa" target="_blank" rel="noopener" href="#">Enviar pelo WhatsApp</a>` : ''}
+      <button type="button" class="ghost small" onclick="copiarTexto($('#d-txt').value,'Documento copiado')">Copiar</button>
+      <button type="button" class="ghost small" onclick="baixarDocumento('${esc(d.nome)} - ${esc(p.nome)}')">Baixar</button>
+    </div>`, null);
+  window.atualizarDoc = () => {
+    const o = { data: $('#d-data')?.value, hora: $('#d-hora')?.value, valor: Number(String($('#d-valor')?.value || '0').replace(',', '.')), ref: $('#d-ref')?.value };
+    $('#d-txt').value = textoDocumento(tipo, p, o); sincWa();
+  };
+  const sincWa = () => { const a = $('#d-wa'); if (a) a.href = waLink(p.celular, $('#d-txt').value); };
+  $('#d-txt').oninput = sincWa;
+  atualizarDoc();
+};
+window.baixarDocumento = async titulo => {
+  const txt = $('#d-txt').value;
+  const html = `<!doctype html><meta charset="utf-8"><title>${esc(titulo)}</title><body style="font-family:Georgia,serif;max-width:640px;margin:60px auto;line-height:1.7;white-space:pre-wrap;font-size:15px">${esc(txt)}</body>`;
+  const dl = window.claude?.use ? await window.claude.use('downloads') : null;
+  if (!dl) return copiarTexto(txt, 'Download indisponível aqui. Texto copiado.');
+  try { await dl.save({ filename: titulo.replace(/[\\/:*?"<>|]/g, '') + '.html', data: new Blob([html], { type: 'text/html' }) }); }
+  catch (e) { if (e?.code !== 'cancelled' && e?.code !== 'declined') toast('Não foi possível baixar'); }
+};
+
+// ================= Financeiro geral =================
+function vFinanceiro() {
+  const mes = S.mes || mesAtual(), [a, m] = mes.split('-').map(Number);
+  const doMes = S.pagamentos.filter(g => g.data.startsWith(mes)).sort((x, y) => y.data.localeCompare(x.data));
+  const recebido = doMes.filter(g => g.status === 'pago').reduce((s, g) => s + (Number(g.valor) || 0), 0);
+  const pendente = S.pagamentos.filter(g => g.status === 'pendente').reduce((s, g) => s + (Number(g.valor) || 0), 0);
+  const meta = Number(S.config.metaLucro) || 0;
+  const ses = sessoesEntre(mes + '-01', iso(new Date(a, m, 0)) < hojeIso() ? iso(new Date(a, m, 0)) : hojeIso());
+  const realizadas = ses.filter(s => s.status === 'realizado').length;
+  // Últimos 6 meses
+  const meses = [...Array(6)].map((_, i) => { const d = new Date(a, m - 1 - (5 - i), 1); return iso(d).slice(0, 7); });
+  const tot = meses.map(k => S.pagamentos.filter(g => g.status === 'pago' && g.data.startsWith(k)).reduce((s, g) => s + (Number(g.valor) || 0), 0));
+  const max = Math.max(meta, ...tot, 1);
+  const porForma = {}; doMes.filter(g => g.status === 'pago').forEach(g => porForma[g.forma || 'Outro'] = (porForma[g.forma || 'Outro'] || 0) + Number(g.valor));
+  const mudaMes = d => { const x = new Date(a, m - 1 + d, 1); return iso(x).slice(0, 7); };
+  return `
+  <div class="head"><div><h2>Financeiro</h2><p class="sub">${MESES[m - 1]} de ${a}</p></div>
+    <div class="row" style="gap:6px"><div class="weeknav"><button onclick="S.mes='${mudaMes(-1)}';render()" aria-label="Mês anterior">‹</button><span>${MESES[m - 1].slice(0, 3)}</span><button onclick="S.mes='${mudaMes(1)}';render()" aria-label="Próximo mês">›</button></div>
+    <button class="small" onclick="novoPagamento('','sessao')">Lançar</button></div></div>
+  <div class="stats">
+    <div class="stat"><span class="label">Recebido</span><strong style="font-size:1.25rem">${reais(recebido)}</strong></div>
+    <div class="stat"><span class="label">A receber</span><strong style="font-size:1.25rem;color:${pendente ? 'var(--danger)' : 'inherit'}">${reais(pendente)}</strong><span class="muted" style="font-size:.8rem">todos os meses</span></div>
+    <div class="stat"><span class="label">Sessões realizadas</span><strong>${realizadas}</strong><span class="muted" style="font-size:.8rem">${realizadas ? reais(recebido / realizadas) + ' por sessão' : ''}</span></div>
+    <div class="stat"><span class="label">Meta do mês</span><strong style="font-size:1.25rem">${meta ? Math.round(recebido / meta * 100) + '%' : '—'}</strong>
+      ${meta ? `<div class="bar"><i style="width:${Math.min(100, recebido / meta * 100)}%"></i></div>` : '<button class="link small" style="justify-self:start;padding:0" onclick="ir(\'ajustes\')">Definir meta</button>'}</div>
+  </div>
+  <div class="section"><h3>Últimos 6 meses</h3>
+    <div class="item"><svg viewBox="0 0 600 180" style="width:100%;height:auto" role="img" aria-label="Recebido por mês">
+      ${meta ? `<line x1="0" x2="600" y1="${150 - meta / max * 130}" y2="${150 - meta / max * 130}" stroke="var(--yellow)" stroke-dasharray="4 4"/><text x="596" y="${144 - meta / max * 130}" text-anchor="end" font-size="11" fill="var(--muted)">meta</text>` : ''}
+      ${tot.map((v, i) => { const h = v / max * 130, x = i * 100 + 25; return `<rect x="${x}" y="${150 - h}" width="50" height="${Math.max(h, 1)}" rx="6" fill="${meses[i] === mes ? 'var(--green)' : 'var(--green-soft)'}"/>
+        <text x="${x + 25}" y="168" text-anchor="middle" font-size="12" fill="var(--muted)">${MESES[Number(meses[i].slice(5)) - 1].slice(0, 3)}</text>
+        ${v ? `<text x="${x + 25}" y="${144 - h}" text-anchor="middle" font-size="11" fill="var(--fg)">${Math.round(v).toLocaleString('pt-BR')}</text>` : ''}`; }).join('')}
+    </svg></div>
+  </div>
+  ${Object.keys(porForma).length ? `<div class="section"><h3>Por forma de pagamento</h3><div class="item">${Object.entries(porForma).sort((x, y) => y[1] - x[1]).map(([f, v]) => `<div class="tline"><span>${esc(f)}</span><span class="num">${reais(v)}</span></div>`).join('')}</div></div>` : ''}
+  <div class="section"><h3>Lançamentos do mês</h3>${doMes.length ? `<div class="item">${doMes.map(linhaPagamento).join('')}</div>` : '<div class="empty">Nenhum lançamento neste mês.</div>'}</div>`;
+}
+
+// ================= Ajustes =================
+let modeloRascunho = null;
+function vAjustes() {
+  const m = modeloRascunho || S.modelo, c = S.config;
+  return `
+  <div class="head"><h2>Ajustes</h2></div>
+  <div class="item" style="gap:14px">
+    <h3>Seus dados</h3>
+    <div class="row">
+      <label class="field"><span>Nome nos documentos</span><input id="c-prof" value="${esc(c.profissional)}" onchange="mudarConfig('profissional',this.value)"></label>
+      <label class="field"><span>CREFITO</span><input id="c-reg" value="${esc(c.registro)}" onchange="mudarConfig('registro',this.value)"></label>
+      <label class="field"><span>Cidade</span><input id="c-cid" value="${esc(c.cidade)}" onchange="mudarConfig('cidade',this.value)"></label>
+    </div>
+    <label class="field"><span>Meta de faturamento mensal (R$)</span><input id="c-meta" inputmode="decimal" value="${esc(c.metaLucro || '')}" onchange="mudarConfig('metaLucro',Number(this.value.replace(/\\./g,'').replace(',','.'))||0)"></label>
+    <label class="field"><span>Mensagem de lembrete (WhatsApp)</span><textarea id="c-msg" onchange="mudarConfig('msgLembrete',this.value)">${esc(c.msgLembrete)}</textarea></label>
+    <p class="sub" style="margin:0">Use {nome}, {dia} e {hora}: eles são trocados pelos dados de cada atendimento.</p>
+  </div>
+
+  <div class="section">
+    <div class="row" style="justify-content:space-between"><div><h3>Modelo de evolução</h3><p class="sub">Esses campos aparecem em toda evolução nova.</p></div>
+    ${modeloRascunho ? '<div class="row"><button class="ghost small" onclick="modeloRascunho=null;render()">Descartar</button><button class="small" onclick="salvarModelo()">Salvar modelo</button></div>' : ''}</div>
+    <div class="list">
+      ${m.map((x, i) => `<div class="mf">
+        <input id="m${i}" value="${esc(x.rotulo)}" oninput="editarModelo(${i},'rotulo',this.value)">
+        <select id="mt${i}" onchange="editarModelo(${i},'tipo',this.value)"><option value="linha" ${x.tipo === 'linha' ? 'selected' : ''}>Linha curta</option><option value="texto" ${x.tipo !== 'linha' ? 'selected' : ''}>Texto longo</option></select>
+        <button aria-label="Subir" onclick="moverModelo(${i},-1)">↑</button>
+        <button aria-label="Descer" onclick="moverModelo(${i},1)">↓</button>
+        <button aria-label="Remover" onclick="mexerModelo(l=>l.splice(${i},1))">×</button>
+      </div>`).join('')}
+      <div><button class="ghost small" onclick="mexerModelo(l=>l.push({rotulo:'Novo campo',tipo:'texto'}))">+ Campo</button></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Importar pacientes</h3>
+    <p class="sub" style="margin:0">Planilha salva como CSV, com as colunas: nome; celular; nascimento (dd/mm/aaaa); cpf; diagnóstico.</p>
+    <label class="btn ghost small" style="justify-self:start">Escolher arquivo CSV<input type="file" accept=".csv,text/csv" hidden onchange="importarCSV(this.files[0])"></label>
+  </div>
+
+  <div class="section">
+    <h3>Privacidade</h3>
+    <label class="switch"><input type="checkbox" ${ocultarNomes ? 'checked' : ''} onchange="alternarNomes()"> Ocultar nomes dos pacientes neste aparelho</label>
+    <p class="sub" style="margin:0">${S.nuvem ? 'Seus dados ficam salvos na sua conta e aparecem iguais no celular e no tablet. Só quem você convidar como editora consegue ver.' : 'Abra pelo link do claude.ai para sincronizar entre aparelhos.'}</p>
+  </div>`;
+}
+window.mudarConfig = (k, v) => { const c = { ...S.config, [k]: v }; S.config = c; salvar(() => store.config(c), 'Salvo'); };
+function mexerModelo(fn, re = true) { modeloRascunho = modeloRascunho || JSON.parse(JSON.stringify(S.modelo)); fn(modeloRascunho); if (re) render(); }
+window.mexerModelo = mexerModelo;
+window.editarModelo = (i, k, v) => mexerModelo(l => l[i][k] = v);
 window.moverModelo = (i, d) => mexerModelo(l => { const j = i + d; if (j >= 0 && j < l.length) [l[i], l[j]] = [l[j], l[i]]; });
-window.salvarModelo = () => { const m = modeloRascunho; modeloRascunho = null; S.modelo = m; render(); salvar(() => store.salvarModelo(m), 'Modelo salvo'); };
+window.salvarModelo = () => { const m = modeloRascunho; modeloRascunho = null; S.modelo = m; render(); salvar(() => store.modelo(m), 'Modelo salvo'); };
+window.importarCSV = async arq => {
+  if (!arq) return;
+  const txt = await arq.text();
+  const linhas = txt.split(/\r?\n/).map(l => l.split(/[;,\t]/).map(c => c.trim().replace(/^"|"$/g, ''))).filter(l => l[0]);
+  if (linhas.length && /nome/i.test(linhas[0][0])) linhas.shift();
+  const nasc = s => { const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s || ''); return m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : ''; };
+  await salvar(async () => {
+    for (const l of linhas) await store.put('pacientes', { id: uid(), nome: l[0], celular: l[1] || '', nascimento: nasc(l[2]), cpf: l[3] || '', diagnostico: l[4] || '', dias: [], horario: '', inicio: hojeIso(), treinos: [], ativo: true });
+  }, `${linhas.length} paciente(s) importado(s)`);
+};
 
 render();
 iniciarDados();
