@@ -11,5 +11,6 @@ Site pessoal da Beatriz para planejar atendimentos de fisioterapia.
 - **Backup**: baixar e restaurar os dados em arquivo `.json`.
 
 ## Como usar
-Abra o arquivo `index.html` no navegador. Não precisa instalar nada.
+Versão online (celular e tablet, dados sincronizados): https://claude.ai/artifact/6ePfmpM8kyJr34v1zmBe2v — código em `fisiobea.html`.
+A versão `index.html` funciona offline, salvando só no navegador.
 Os dados ficam salvos no próprio navegador, então faça backup com frequência (aba **Modelo → Baixar backup**).
