@@ -233,12 +233,71 @@ nav.tabs button.on { background: transparent; }
 .tab-ind { position: absolute; left: 0; top: 0; z-index: 0; border-radius: 999px; background: var(--green-soft); pointer-events: none; }
 @media (max-width: 799px) { .tab-ind { border-radius: 14px; } }
 
-/* Movimento: só transform e opacity (leve em celular simples) e nada para quem pede menos movimento */
+/* Onda do toque: mostra onde o dedo encostou */
+button, .btn, .item.tap { position: relative; }
+.onda-caixa { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; }
+.onda { position: absolute; border-radius: 50%; background: currentColor; opacity: 0; pointer-events: none; }
+.chip { flex: none; }
+
+/* Botão de salvar que vira ✓ */
+button.salvando, button.salvo { padding: 0; display: inline-grid; place-items: center; }
+button .roda { width: 20px; height: 20px; border-radius: 50%; border: 2.5px solid color-mix(in srgb, currentColor 30%, transparent); border-top-color: currentColor; }
+button .ok { width: 22px; height: 22px; }
+button .ok path { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+button.salvo { background: var(--green-2); }
+
+/* Carregando: formas da tela com brilho */
+.osso { border-radius: 16px; background: var(--surface); border: 1px solid var(--line); }
+.esqueleto { display: grid; gap: 12px; }
+.esqueleto .o-tit { height: 34px; width: 55%; border-radius: 10px; }
+.esqueleto .o-sub { height: 14px; width: 35%; border-radius: 8px; }
+.esqueleto .o-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
+@media (min-width: 640px) { .esqueleto .o-stats { grid-template-columns: repeat(4, 1fr); } }
+.esqueleto .o-stat { height: 92px; }
+.esqueleto .o-item { height: 74px; }
+
+/* Anel do pacote */
+.stat-anel { display: flex; align-items: center; gap: 12px; }
+.anel { width: 58px; height: 58px; flex: none; }
+.anel svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
+.anel circle { fill: none; stroke-width: 7; }
+.anel .f { stroke: var(--line); }
+.anel .v { stroke: var(--green); stroke-linecap: round; }
+.anel .v.pouco { stroke: var(--rust); } .anel .v.fim { stroke: var(--danger); }
+
+/* Deslizar o atendimento para marcar */
+.swipe { position: relative; border-radius: 16px; touch-action: pan-y; }
+.swipe > .item { position: relative; z-index: 1; }
+.swipe-acao { position: absolute; inset: 0; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; padding: 0 22px; font-weight: 700; font-size: .92rem; opacity: 0; }
+.swipe-acao .ok { color: var(--green); } .swipe-acao .fal { color: var(--danger); }
+.swipe.dir .swipe-acao { opacity: 1; background: var(--green-soft); } .swipe.dir .fal { visibility: hidden; }
+.swipe.esq .swipe-acao { opacity: 1; background: var(--danger-soft); } .swipe.esq .ok { visibility: hidden; }
+.swipe.arrastando { user-select: none; -webkit-user-select: none; }
+.dica-swipe { font-size: .8rem; color: var(--muted); margin: -6px 0 12px; }
+
+/* Menu de status que nasce do botão */
+.pop { position: fixed; z-index: 40; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 6px; display: grid; gap: 2px; min-width: 200px; box-shadow: 0 18px 40px -12px rgba(18, 60, 46, .45); transform-origin: var(--origem, top right); }
+.pop button { background: none; color: var(--fg); border-radius: 10px; padding: 10px 12px; font-weight: 500; justify-content: flex-start; gap: 10px; }
+.pop button:hover, .pop button.on { background: var(--bg); }
+.pop button.on { font-weight: 700; }
+.pop i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.pop .sub { padding: 4px 12px 6px; font-size: .78rem; margin: 0; }
+.cor-agendado { background: var(--rust); } .cor-confirmado { background: var(--blue); } .cor-realizado { background: var(--green); }
+.cor-faltou { background: var(--danger); } .cor-justificada { background: var(--muted); } .cor-cancelado { background: var(--line); }
+
+/* Aviso com Desfazer */
+.toast.desfazer { display: flex; align-items: center; gap: 14px; padding: 6px 6px 6px 16px; overflow: hidden; }
+.toast.desfazer button { background: transparent; color: inherit; text-decoration: underline; text-underline-offset: 3px; padding: 6px 12px; font-weight: 700; }
+.toast.desfazer i { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: currentColor; opacity: .45; transform-origin: left; animation: tempo 5s linear forwards; }
+@keyframes tempo { to { transform: scaleX(0); } }
+
+/* Troca de tema: a animação do círculo é feita pelo script */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 </style>
 <!-- Animações num estilo separado: o app pode desligar trocando o atributo media -->
 <style id="movimento">
   :root { --mola: cubic-bezier(.22, 1.2, .36, 1); --suave: cubic-bezier(.2, .8, .2, 1); }
-  .tab-ind.pronto { transition: transform .42s var(--mola), width .42s var(--mola), height .42s var(--mola); }
+  .tab-ind.pronto { transition: transform .3s var(--mola), width .3s var(--mola), height .3s var(--mola); }
   nav.tabs button { transition: color .25s; }
   nav.tabs button.on svg { animation: pulo .45s var(--mola); }
   @keyframes pulo { 0% { transform: scale(1); } 40% { transform: scale(1.22) translateY(-2px); } 100% { transform: scale(1); } }
@@ -285,6 +344,55 @@ nav.tabs button.on { background: transparent; }
   .login-box > * { animation: entra .6s var(--suave) both; }
   .login-box > :nth-child(2) { animation-delay: .1s; } .login-box > :nth-child(3) { animation-delay: .2s; }
   @keyframes arco { from { clip-path: inset(100% 0 0 0 round 999px 999px 24px 24px); transform: scale(1.06); } to { clip-path: inset(0 0 0 0 round 999px 999px 24px 24px); } }
+
+  /* Onda do toque */
+  .onda { animation: onda .55s var(--suave) forwards; }
+  @keyframes onda { from { transform: scale(0); opacity: .22; } to { transform: scale(1); opacity: 0; } }
+
+  /* Botão que vira ✓ */
+  button.salvando, button.salvo { transition: width .4s var(--suave), background-color .3s; }
+  button .roda { animation: gira .7s linear infinite; }
+  button .ok path { stroke-dasharray: 30; stroke-dashoffset: 30; animation: risca .38s var(--suave) .05s forwards; }
+  button.salvo { animation: pulsa .5s var(--mola); }
+  @keyframes gira { to { transform: rotate(1turn); } }
+  @keyframes risca { to { stroke-dashoffset: 0; } }
+  @keyframes pulsa { 40% { transform: scale(1.14); } }
+
+  /* Carregando com brilho */
+  .osso { background: linear-gradient(100deg, var(--surface) 30%, var(--bg) 50%, var(--surface) 70%) 0 0 / 300% 100%; animation: brilho 1.3s linear infinite; }
+  @keyframes brilho { from { background-position: 100% 0; } to { background-position: -50% 0; } }
+
+  /* Anel do pacote enche ao abrir a tela */
+  .entra .anel .v { animation: enche 1s var(--suave) .15s both; }
+  @keyframes enche { from { stroke-dashoffset: var(--c); } }
+
+  /* Gráfico: barras sobem uma depois da outra */
+  .grafico .barra { transform-box: fill-box; transform-origin: bottom; }
+  .entra .grafico .barra { animation: cresce .8s var(--mola) both; }
+  .entra .grafico .val { animation: aparece .4s ease-out .7s both; }
+  @keyframes cresce { from { transform: scaleY(0); } }
+  @keyframes aparece { from { opacity: 0; } }
+
+  /* Deslizar para marcar */
+  .swipe > .item { transition: transform .45s var(--mola); }
+  .swipe-acao { transition: opacity .2s, background-color .2s; }
+  .swipe-acao span { transition: transform .3s var(--mola); }
+  .swipe.passou .swipe-acao span { transform: scale(1.18); }
+
+  /* Status que mudou dá um pulinho */
+  .pill.troca { animation: pulsa .5s var(--mola); }
+
+  /* Menu de status brota do botão, opções entram uma a uma */
+  .pop { animation: brota .34s var(--mola) both; }
+  .pop.fecha { animation: some .16s ease-in both; }
+  .pop > * { animation: entra .32s var(--suave) both; }
+  .pop > :nth-child(2) { animation-delay: .03s; } .pop > :nth-child(3) { animation-delay: .06s; } .pop > :nth-child(4) { animation-delay: .09s; }
+  .pop > :nth-child(5) { animation-delay: .12s; } .pop > :nth-child(n+6) { animation-delay: .15s; }
+  @keyframes brota { from { transform: scale(.55); opacity: 0; } }
+  @keyframes some { to { transform: scale(.9); opacity: 0; } }
+
+  /* Prontuário: o cabeçalho chega voando do cartão, então não entra junto com o resto */
+  .entra.voando > .head { animation: none; }
 </style>
 
 </head>
@@ -366,7 +474,18 @@ function aplicarTema() {
 }
 aplicarTema();
 const escuroAgora = () => tema === 'dark' || (tema === 'auto' && (TEMA_HOST === 'dark' || (!TEMA_HOST && matchMedia('(prefers-color-scheme: dark)').matches)));
-window.mudarTema = t => { tema = t; try { localStorage.setItem('fisiobea-tema', t); } catch (e) {} aplicarTema(); render(); };
+// O tema novo se espalha num círculo a partir de onde a pessoa tocou (View Transitions; sem suporte, troca direto)
+window.mudarTema = t => {
+  tema = t; try { localStorage.setItem('fisiobea-tema', t); } catch (e) {}
+  const troca = () => { aplicarTema(); render(); };
+  if (semAnim() || !document.startViewTransition) return troca();
+  const x = ultimoToque?.x ?? innerWidth - 40, y = ultimoToque?.y ?? 40;
+  const raio = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+  const vt = document.startViewTransition(troca);
+  vt.ready.then(() => document.documentElement.animate(
+    { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${raio}px at ${x}px ${y}px)`] },
+    { duration: 650, easing: 'cubic-bezier(.2, .8, .2, 1)', pseudoElement: '::view-transition-new(root)' })).catch(() => {});
+};
 window.alternarTema = () => mudarTema(escuroAgora() ? 'light' : 'dark');
 // Animações: ligadas por padrão (o Windows costuma desligar "efeitos de animação" e os sites obedecem).
 // Em Ajustes dá para desligar ou seguir a configuração do aparelho.
@@ -376,6 +495,23 @@ const semAnim = () => animacao === 'desligadas' || (animacao === 'aparelho' && m
 const aplicarAnim = () => { const st = document.getElementById('movimento'); if (st) st.media = semAnim() ? 'not all' : 'all'; };
 aplicarAnim();
 window.mudarAnim = v => { animacao = v; try { localStorage.setItem('fisiobea-anim', v); } catch (e) {} aplicarAnim(); render(); };
+const espera = ms => new Promise(r => setTimeout(r, ms));
+// Vibração curta em ações importantes (só Android; iPhone ignora)
+const vibrar = ms => { if (!semAnim() && navigator.userActivation?.hasBeenActive !== false) try { navigator.vibrate?.(ms); } catch (e) {} };
+// Último toque: de onde nasce a onda, o círculo do tema e o "voo" do cartão
+let ultimoToque = null;
+document.addEventListener('pointerdown', e => {
+  const alvo = e.target.closest('button, .btn, .item.tap');
+  ultimoToque = { el: e.target, x: e.clientX, y: e.clientY, t: Date.now() };
+  if (!alvo || alvo.disabled || semAnim()) return;
+  const r = alvo.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2.4;
+  // A onda fica numa caixa própria com o mesmo arredondado do botão, para não cortar o texto
+  const caixa = document.createElement('span'), o = document.createElement('span');
+  caixa.className = 'onda-caixa'; o.className = 'onda';
+  o.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
+  caixa.appendChild(o); alvo.appendChild(caixa);
+  setTimeout(() => caixa.remove(), 600);
+}, { passive: true, capture: true });
 let ocultarNomes = false;
 try { ocultarNomes = localStorage.getItem('fisiobea-ocultar') === '1'; } catch (e) {}
 let store = null;
@@ -514,13 +650,19 @@ async function iniciar() {
 const VITALICIO = '9999-12-31'; // acesso sem mensalidade (mesmo valor da API)
 const diasRestantes = ate => ate === VITALICIO ? Infinity : ate ? Math.round((deIso(ate) - deIso(hojeIso())) / 864e5) + 1 : null;
 
-async function salvar(fn, msg) {
-  try { await fn(); if (msg) toast(msg); }
-  catch (e) {
-    if (e.status === 401) return;
-    toast(e.status ? 'Não salvou: ' + e.message : 'Não salvou. Verifique a internet e tente de novo.');
-    carregarDados();
-  }
+// Guarda o último salvamento para o formulário esperar e mostrar o ✓ só quando der certo
+let pendenteSalvar = null;
+function salvar(fn, msg) {
+  pendenteSalvar = (async () => {
+    try { await fn(); if (msg) toast(msg); return true; }
+    catch (e) {
+      if (e.status === 401) return false;
+      toast(e.status ? 'Não salvou: ' + e.message : 'Não salvou. Verifique a internet e tente de novo.');
+      carregarDados();
+      return false;
+    }
+  })();
+  return pendenteSalvar;
 }
 
 // ================= Agenda: sessões =================
@@ -563,6 +705,12 @@ function mudarStatus(sess, status) {
 }
 window.statusSessao = (id, data, status) => { const s = sessoesDoDia(data).find(x => x.id === id); if (s) mudarStatus(s, status); fechar(); };
 
+// Anel do pacote: a parte cheia são as sessões já usadas
+function anelPacote(sp) {
+  const c = +(2 * Math.PI * 24).toFixed(2), uso = Math.min(1, Math.max(0, sp.usadas / (sp.compradas || 1)));
+  const cls = sp.saldo <= 0 ? 'fim' : sp.saldo <= 2 ? 'pouco' : '';
+  return `<span class="anel" aria-hidden="true"><svg viewBox="0 0 58 58"><circle class="f" cx="29" cy="29" r="24"/><circle class="v ${cls}" cx="29" cy="29" r="24" style="--c:${c};stroke-dasharray:${c};stroke-dashoffset:${(c * (1 - uso)).toFixed(2)}"/></svg></span>`;
+}
 // Pacotes: saldo = sessões compradas − sessões realizadas desde a compra
 function saldoPacote(p) {
   const pacotes = S.pagamentos.filter(g => g.pacienteId === p.id && g.tipo === 'pacote' && g.status === 'pago').sort((a, b) => a.data.localeCompare(b.data));
@@ -589,7 +737,7 @@ function render() {
   moverIndicador();
   const app = $('#app');
   if (S.erro) { app.innerHTML = `<div class="empty">${esc(S.erro)}</div>`; return; }
-  if (!S.carregado) { app.innerHTML = '<div class="empty">Carregando seus dados…</div>'; return; }
+  if (!S.carregado) { app.innerHTML = esqueleto(); return; }
   const resta = S.usuario?.role === 'admin' ? null : diasRestantes(S.usuario?.valido_ate);
   const aviso = resta !== null && resta <= 5
     ? `<div class="item" style="background:var(--yellow-soft);border-color:transparent;margin-bottom:16px"><span>Sua assinatura vence ${resta <= 1 ? '<b>hoje</b>' : `em <b>${resta} dias</b> (${br(S.usuario.valido_ate)})`}. Renove para não perder o acesso.</span></div>` : '';
@@ -598,6 +746,8 @@ function render() {
   const foco = ativo && ativo.id && app.contains(ativo) ? { id: ativo.id, a: ativo.selectionStart, b: ativo.selectionEnd } : null;
   app.innerHTML = aviso + (S.aba === 'pacientes' && S.pid ? vPaciente() : ({ inicio: vInicio, agenda: vAgenda, pacientes: vPacientes, financeiro: vFinanceiro, ajustes: vAjustes, usuarios: vUsuarios })[S.aba]());
   if (foco) { const el = document.getElementById(foco.id); if (el) { el.focus(); try { el.setSelectionRange(foco.a, foco.b); } catch (e) {} } }
+  // O status que acabou de mudar dá um pulinho para confirmar o toque
+  if (realceStatus) { [...app.querySelectorAll('.pill[data-sid]')].filter(b => b.dataset.sid === realceStatus).forEach(b => b.classList.add('troca')); realceStatus = null; }
   // Animação de entrada só quando muda de tela (não a cada digitação ou salvamento)
   const tela = [S.aba, S.pid, S.pid && S.sub, S.aba === 'agenda' && S.dia + S.semana, S.aba === 'financeiro' && S.mes, S.aba === 'pacientes' && S.mostrarInativos].join('|');
   if (tela !== ultimaTela) {
@@ -609,13 +759,75 @@ function render() {
   }
 }
 let ultimaTela = '', timerEntra = null;
+// Enquanto carrega: formas da tela com brilho, no lugar de um texto parado
+const esqueleto = () => `<div class="esqueleto" aria-label="Carregando" role="status">
+  <div class="osso o-tit"></div><div class="osso o-sub"></div>
+  <div class="o-stats">${'<div class="osso o-stat"></div>'.repeat(4)}</div>
+  ${'<div class="osso o-item"></div>'.repeat(3)}</div>`;
 function moverIndicador() {
   const nav = $('#tabs'), ind = nav.querySelector('.tab-ind'), b = nav.querySelector('button.on');
   if (!ind || !b || !b.offsetWidth) return;
-  ind.style.width = b.offsetWidth + 'px'; ind.style.height = b.offsetHeight + 'px';
-  ind.style.transform = `translate(${b.offsetLeft}px, ${b.offsetTop}px)`;
+  const alvo = { x: b.offsetLeft, y: b.offsetTop, w: b.offsetWidth, h: b.offsetHeight };
+  const pos = r => { ind.style.width = r.w + 'px'; ind.style.height = r.h + 'px'; ind.style.transform = `translate(${r.x}px, ${r.y}px)`; };
+  const mudouAba = indAtual && (indAtual.x !== alvo.x || indAtual.y !== alvo.y);
+  clearTimeout(timerGota);
+  if (!mudouAba || !ind.classList.contains('pronto') || semAnim()) pos(alvo);
+  else {
+    // Como uma gota: primeiro estica até cobrir as duas abas, depois encolhe na aba nova
+    const x1 = Math.min(indAtual.x, alvo.x), y1 = Math.min(indAtual.y, alvo.y);
+    pos({ x: x1, y: y1, w: Math.max(indAtual.x + indAtual.w, alvo.x + alvo.w) - x1, h: Math.max(indAtual.y + indAtual.h, alvo.y + alvo.h) - y1 });
+    timerGota = setTimeout(() => pos(alvo), 160);
+  }
+  indAtual = alvo;
   if (!ind.classList.contains('pronto')) setTimeout(() => ind.classList.add('pronto'), 60);
 }
+let indAtual = null, timerGota = null;
+// Deslizar o atendimento: direita = Realizado, esquerda = Faltou.
+// Só vira arrasto quando o movimento é claramente horizontal, para não atrapalhar a rolagem da tela.
+let arrasto = null, suprimirClique = false;
+document.addEventListener('pointerdown', e => {
+  const sw = e.target.closest('#app .swipe');
+  if (!sw || e.button > 0 || e.target.closest('input, select, textarea, a')) return;
+  arrasto = { sw, card: sw.querySelector(':scope > .item'), x: e.clientX, y: e.clientY, dx: 0, modo: null, passou: false, id: e.pointerId };
+});
+document.addEventListener('pointermove', e => {
+  const a = arrasto;
+  if (!a || e.pointerId !== a.id) return;
+  const dx = e.clientX - a.x, dy = e.clientY - a.y;
+  if (!a.modo) {
+    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.4) { a.modo = 'h'; a.sw.classList.add('arrastando'); try { a.sw.setPointerCapture(e.pointerId); } catch (x) {} }
+    else if (Math.abs(dy) > 10) { arrasto = null; return; }
+    else return;
+  }
+  // Resistência depois do ponto de confirmação, para parecer elástico
+  const w = a.sw.offsetWidth, lim = w * .32, ex = Math.abs(dx) > lim ? Math.sign(dx) * (lim + (Math.abs(dx) - lim) * .45) : dx;
+  a.dx = dx;
+  a.card.style.transition = 'none';
+  a.card.style.transform = `translateX(${ex}px)`;
+  a.sw.classList.toggle('dir', dx > 0); a.sw.classList.toggle('esq', dx < 0);
+  const passou = Math.abs(dx) > lim;
+  if (passou !== a.passou) { a.passou = passou; a.sw.classList.toggle('passou', passou); if (passou) vibrar(10); }
+}, { passive: true });
+function fimArrasto() {
+  const a = arrasto; arrasto = null;
+  if (!a || a.modo !== 'h') return;
+  suprimirClique = true; setTimeout(() => { suprimirClique = false; }, 80);
+  a.sw.classList.remove('arrastando');
+  a.card.style.transition = '';
+  if (!a.passou) { a.card.style.transform = ''; a.sw.classList.remove('dir', 'esq'); return; }
+  const w = a.sw.offsetWidth, status = a.dx > 0 ? 'realizado' : 'faltou';
+  a.card.style.transform = `translateX(${a.dx > 0 ? w : -w}px)`;
+  setTimeout(() => {
+    const s = sessoesDoDia(a.sw.dataset.data).find(x => x.id === a.sw.dataset.sid);
+    if (!s) return render();
+    realceStatus = s.id;
+    if (s.status === status) render(); else mudarStatus(s, status);
+  }, semAnim() ? 0 : 230);
+}
+document.addEventListener('pointerup', fimArrasto);
+document.addEventListener('pointercancel', fimArrasto);
+document.addEventListener('click', e => { if (suprimirClique) { e.stopPropagation(); e.preventDefault(); } }, true);
+
 // Reposiciona quando o tamanho dos botões muda (fonte carregou, girou o celular, trocou de layout)
 const obsMenu = window.ResizeObserver ? new ResizeObserver(() => moverIndicador()) : { disconnect() {}, observe() {} };
 addEventListener('resize', moverIndicador);
@@ -639,23 +851,104 @@ function contarNumeros(raiz) {
   });
 }
 window.ir = (aba, extra = {}) => { S.aba = aba; if (aba === 'pacientes' && !extra.pid) S.pid = null; Object.assign(S, extra); render(); window.scrollTo(0, 0); };
-window.abrirPaciente = (pid, sub = 'resumo') => ir('pacientes', { pid, sub, treinoIdx: 0 });
+// Abrir paciente: a foto e o nome "voam" do cartão tocado até o topo do prontuário (técnica FLIP)
+window.abrirPaciente = (pid, sub = 'resumo') => {
+  const toque = ultimoToque && Date.now() - ultimoToque.t < 1000 ? ultimoToque.el : null;
+  const origem = toque?.closest?.('.swipe, .item');
+  const ra = origem?.querySelector('.avatar')?.getBoundingClientRect(), rn = origem?.querySelector('h3')?.getBoundingClientRect();
+  ir('pacientes', { pid, sub, treinoIdx: 0 });
+  if (semAnim() || !ra) return;
+  const app = $('#app');
+  app.classList.add('voando'); setTimeout(() => app.classList.remove('voando'), 900);
+  voar(ra, app.querySelector('.head .avatar'), false);
+  if (rn) voar(rn, app.querySelector('.head h2'), true);
+};
+function voar(de, el, texto) {
+  if (!el) return;
+  const b = el.getBoundingClientRect();
+  const sx = texto ? de.height / b.height : de.width / b.width, sy = texto ? sx : de.height / b.height;
+  el.animate([
+    { transform: `translate(${de.left - b.left}px, ${de.top - b.top}px) scale(${sx}, ${sy})`, transformOrigin: 'top left' },
+    { transform: 'none', transformOrigin: 'top left' },
+  ], { duration: 560, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+}
 window.alternarNomes = () => { ocultarNomes = !ocultarNomes; try { localStorage.setItem('fisiobea-ocultar', ocultarNomes ? '1' : '0'); } catch (e) {} render(); };
 
 // ================= Formulários =================
 function sheet(html, onSave, extra = '', rotulo = 'Salvar') {
   $('#layer').innerHTML = `<div class="sheet-bg" onclick="if(event.target===this)fechar()"><form class="sheet" id="sheet">${html}
     <div class="sheet-foot">${extra}<div class="row"><button type="button" class="ghost" onclick="fechar()">Cancelar</button>${onSave ? `<button type="submit">${rotulo}</button>` : ''}</div></div></form></div>`;
-  $('#sheet').onsubmit = e => { e.preventDefault(); if (onSave && onSave(new FormData(e.target)) !== false) fechar(); };
+  $('#sheet').onsubmit = async e => {
+    e.preventDefault();
+    if (!onSave) return;
+    const painel = e.target.closest('.sheet-bg'), btn = e.submitter || e.target.querySelector('button[type=submit]');
+    pendenteSalvar = null;
+    if (onSave(new FormData(e.target)) === false) return;
+    if (!btn || semAnim()) return fechar(painel);
+    // O botão encolhe, gira enquanto salva e vira ✓ quando o servidor confirma
+    const texto = btn.innerHTML, w = btn.offsetWidth, h = btn.offsetHeight;
+    btn.style.width = w + 'px'; btn.style.height = h + 'px'; void btn.offsetWidth;
+    btn.classList.add('salvando'); btn.disabled = true; btn.style.width = h + 'px';
+    btn.innerHTML = '<i class="roda"></i>';
+    const ok = await (pendenteSalvar || Promise.resolve(true));
+    if (!ok) { btn.classList.remove('salvando'); btn.disabled = false; btn.style.width = btn.style.height = ''; btn.innerHTML = texto; return; }
+    btn.classList.replace('salvando', 'salvo');
+    btn.innerHTML = '<svg class="ok" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    vibrar(15);
+    await espera(550);
+    fechar(painel);
+  };
 }
 // Fecha com animação; remove só aquele painel, para não apagar um novo que abra logo em seguida
-window.fechar = () => {
-  const bg = $('#layer .sheet-bg');
-  if (!bg) return;
+window.fechar = (qual) => {
+  const bg = qual instanceof Element ? qual : $('#layer .sheet-bg');
+  if (!bg || !bg.isConnected) return;
   if (semAnim()) return bg.remove();
   bg.classList.add('saindo'); bg.style.pointerEvents = 'none';
   setTimeout(() => bg.remove(), 220);
 };
+// Excluir com "Desfazer": o item some na hora, mas só é apagado no servidor depois de 5 segundos.
+// Se a pessoa sair do app antes disso, a exclusão é enviada na hora.
+let exclusao = null;
+window.excluirComDesfazer = (col, id, msg) => {
+  fechar();
+  efetivarExclusao();
+  const obj = S[col].find(x => x.id === id); if (!obj) return;
+  const el = [...document.querySelectorAll('[data-reg]')].find(x => x.dataset.reg === col + ':' + id);
+  let tirou = false;
+  const tirar = () => { if (tirou) return; tirou = true; S[col] = S[col].filter(x => x.id !== id); render(); };
+  if (el && !semAnim()) {
+    el.style.overflow = 'hidden';
+    el.animate([{ height: el.offsetHeight + 'px', opacity: 1 }, { height: '0px', opacity: 0, paddingTop: '0px', paddingBottom: '0px', marginTop: '0px', borderWidth: '0px' }], { duration: 320, easing: 'ease-in', fill: 'forwards' }).onfinish = tirar;
+    setTimeout(tirar, 380); // garante a remoção mesmo se o navegador pausar a animação
+  } else tirar();
+  vibrar(12);
+  exclusao = { col, id, obj, timer: setTimeout(efetivarExclusao, 5000) };
+  avisoDesfazer(msg, () => {
+    if (!exclusao) return;
+    clearTimeout(exclusao.timer); putLocal(col, exclusao.obj); exclusao = null;
+    render(); toast('Restaurado');
+  });
+};
+function efetivarExclusao() {
+  const x = exclusao; if (!x) return;
+  exclusao = null; clearTimeout(x.timer); fecharAvisoDesfazer();
+  salvar(() => api(`doc/${x.col}/${encodeURIComponent(x.id)}`, { method: 'DELETE', keepalive: true }));
+}
+function avisoDesfazer(msg, desfazer) {
+  fecharAvisoDesfazer();
+  const t = document.createElement('div');
+  t.className = 'toast desfazer'; t.id = 'aviso-desfazer'; t.setAttribute('role', 'status');
+  t.innerHTML = `<span>${esc(msg)}</span><button type="button">Desfazer</button><i></i>`;
+  t.querySelector('button').onclick = () => { fecharAvisoDesfazer(); desfazer(); };
+  document.body.appendChild(t);
+}
+function fecharAvisoDesfazer() {
+  const t = $('#aviso-desfazer'); if (!t) return;
+  t.id = ''; t.classList.add('sai'); setTimeout(() => t.remove(), 250);
+}
+addEventListener('pagehide', efetivarExclusao);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') efetivarExclusao(); });
 window.confirmar = (msg, acao, botao = 'Excluir') => {
   $('#layer').innerHTML = `<div class="sheet-bg"><div class="sheet"><h3>${esc(msg)}</h3><p class="muted" style="margin:0">Essa ação não pode ser desfeita.</p>
     <div class="row" style="justify-content:flex-end"><button class="ghost" onclick="fechar()">Cancelar</button><button style="background:var(--danger)" id="ok">${botao}</button></div></div></div>`;
@@ -698,7 +991,7 @@ function vInicio() {
   <div class="section"><div class="row" style="justify-content:space-between"><h3>Atendimentos de hoje</h3><button class="link small" onclick="ir('agenda',{semana:0,dia:hojeIso()})">Ver agenda</button></div>
     ${hoje.length ? `<div class="item">${hoje.map(s => { const p = pac(s.pacienteId), t = treinoDoDia(p, h); return `
       <div class="tline"><div class="row" style="gap:12px;min-width:0"><span class="time">${esc(s.horario || '--:--')}</span><span style="min-width:0">${esc(nome(p))}${t ? ` <span class="muted">· Treino ${t.letra}</span>` : ''}</span></div>
-      <button class="pill st-${s.status}" style="border:0;cursor:pointer" onclick="escolherStatus('${s.id}','${s.data}')">${STATUS[s.status]}</button></div>`; }).join('')}</div>`
+      <button class="pill st-${s.status}" data-sid="${esc(s.id)}" style="border:0;cursor:pointer" onclick="escolherStatus('${s.id}','${s.data}')">${STATUS[s.status]}</button></div>`; }).join('')}</div>`
       : '<div class="empty">Nenhum atendimento hoje.</div>'}
   </div>
 
@@ -739,6 +1032,7 @@ function vAgenda() {
     return `<button class="day ${di === S.dia ? 'on' : ''} ${di === hoje ? 'today' : ''} ${tem ? 'has' : ''}" onclick="S.dia='${di}';render()"><small>${DIAS[d.getDay()]}</small><strong>${d.getDate()}</strong><i></i></button>`;
   }).join('')}</div>
   <div class="legend">${Object.entries(STATUS).map(([k, v]) => `<span class="pill st-${k}">${v}</span>`).join('')}</div>
+  ${lista.length ? '<p class="dica-swipe">Dica: arraste um atendimento para a direita para marcar como realizado, ou para a esquerda para falta.</p>' : ''}
   <div class="list">${lista.map(s => cartaoSessao(s)).join('') || `<div class="empty">${S.pacientes.length ? 'Dia livre.' : 'Cadastre seus pacientes para montar a agenda.'}</div>`}</div>`;
 }
 function cartaoSessao(s) {
@@ -747,14 +1041,16 @@ function cartaoSessao(s) {
   const dataLonga = s.data === hojeIso() ? 'hoje' : `${DIAS_LONGO[deIso(s.data).getDay()].toLowerCase()} (${br(s.data).slice(0, 5)})`;
   const lembrete = (S.config.msgLembrete || '').replace(/\{nome\}/g, (p.nome || '').split(' ')[0]).replace(/\{dia\}/g, dataLonga).replace(/\{hora\}/g, s.horario || '');
   const ativa = !['faltou', 'justificada', 'cancelado'].includes(s.status);
-  return `<div class="item">
+  return `<div class="swipe" data-sid="${esc(s.id)}" data-data="${s.data}"${s.avulsa ? ` data-reg="sessoes:${esc(s.id)}"` : ''}>
+  <div class="swipe-acao" aria-hidden="true"><span class="ok">✓ Realizado</span><span class="fal">Faltou ✕</span></div>
+  <div class="item">
     <div class="item-top">
       <div class="row" style="gap:12px;align-items:flex-start;flex-wrap:nowrap">
         <span class="time">${esc(s.horario || '--:--')}</span>
         ${avatar(p)}
         <div style="min-width:0"><h3 class="tap" style="cursor:pointer" onclick="abrirPaciente('${p.id}')">${esc(nome(p))}</h3><div class="muted" style="font-size:.88rem">${esc(p.diagnostico)}${s.avulsa ? ' · avulso' : ''}</div></div>
       </div>
-      <button class="pill st-${s.status}" style="border:0;cursor:pointer" onclick="escolherStatus('${s.id}','${s.data}')">${STATUS[s.status]} ▾</button>
+      <button class="pill st-${s.status}" data-sid="${esc(s.id)}" style="border:0;cursor:pointer" onclick="escolherStatus('${s.id}','${s.data}')">${STATUS[s.status]} ▾</button>
     </div>
     ${ativa ? (t ? `<div><div class="label" style="margin-bottom:4px">Treino ${t.letra}${t.nome ? ' · ' + esc(t.nome) : ''}</div>
       <ul class="ex">${(t.exercicios || []).filter(x => x.nome).map(x => `<li><span>${esc(x.nome)}</span><span>${esc(prescricao(x))}</span></li>`).join('')}</ul></div>`
@@ -764,14 +1060,45 @@ function cartaoSessao(s) {
       ${p.celular && s.status === 'agendado' ? `<a class="btn ghost small" target="_blank" rel="noopener" href="${waLink(p.celular, lembrete)}">Lembrete WhatsApp</a>` : ''}
       <button class="link small" onclick="remarcar('${s.id}','${s.data}')">Remarcar</button>
     </div>
-  </div>`;
+  </div></div>`;
 }
 window.escolherStatus = (id, data) => {
   const s = sessoesDoDia(data).find(x => x.id === id), p = pac(s.pacienteId);
-  sheet(`<h3>${esc(nome(p))} · ${br(data)} ${esc(s.horario)}</h3><div class="label">Status do atendimento</div>
-    <div class="status-pick">${Object.entries(STATUS).map(([k, v]) => `<button type="button" class="${s.status === k ? 'on st-' + k : ''}" onclick="statusSessao('${id}','${data}','${k}')">${v}</button>`).join('')}</div>
-    <p class="sub" style="margin:0">Faltas e cancelamentos não avançam o rodízio de treinos.</p>`, null);
+  const ancora = [...document.querySelectorAll('.pill[data-sid]')].find(b => b.dataset.sid === id);
+  if (!ancora) return sheet(`<h3>${esc(nome(p))} · ${br(data)} ${esc(s.horario)}</h3><div class="label">Status do atendimento</div>
+    <div class="status-pick">${Object.entries(STATUS).map(([k, v]) => `<button type="button" class="${s.status === k ? 'on st-' + k : ''}" onclick="statusSessao('${id}','${data}','${k}')">${v}</button>`).join('')}</div>`, null);
+  fecharPop();
+  const pop = document.createElement('div');
+  pop.className = 'pop'; pop.id = 'pop-status'; pop.setAttribute('role', 'menu');
+  pop.innerHTML = Object.entries(STATUS).map(([k, v]) => `<button type="button" role="menuitem" class="${s.status === k ? 'on' : ''}" data-k="${k}"><i class="cor-${k}"></i>${v}</button>`).join('')
+    + '<p class="sub">Faltas e cancelamentos não avançam o rodízio de treinos.</p>';
+  document.body.appendChild(pop);
+  // Abre embaixo do botão; se não couber, abre em cima. A origem da animação é o próprio botão
+  const r = ancora.getBoundingClientRect(), ph = pop.offsetHeight, pw = pop.offsetWidth;
+  const embaixo = r.bottom + 8 + ph < innerHeight - 70;
+  const top = embaixo ? r.bottom + 8 : Math.max(8, r.top - 8 - ph), left = Math.min(Math.max(8, r.right - pw), innerWidth - pw - 8);
+  pop.style.top = top + 'px'; pop.style.left = left + 'px';
+  pop.style.setProperty('--origem', `${r.left + r.width / 2 - left}px ${embaixo ? '0px' : ph + 'px'}`);
+  pop.onclick = ev => {
+    const b = ev.target.closest('button'); if (!b) return;
+    fecharPop();
+    if (b.dataset.k === s.status) return;
+    realceStatus = id; vibrar(10);
+    mudarStatus(s, b.dataset.k);
+  };
+  pop.querySelector('button.on, button')?.focus({ preventScroll: true });
+  setTimeout(() => { addEventListener('pointerdown', foraDoPop, true); addEventListener('scroll', fecharPop, { passive: true, once: true }); addEventListener('keydown', escPop); }, 0);
 };
+function foraDoPop(e) { if (!e.target.closest('#pop-status')) fecharPop(); }
+function escPop(e) { if (e.key === 'Escape') fecharPop(); }
+function fecharPop() {
+  removeEventListener('pointerdown', foraDoPop, true); removeEventListener('keydown', escPop);
+  const p = $('#pop-status'); if (!p) return;
+  p.id = '';
+  if (semAnim()) return p.remove();
+  p.classList.add('fecha'); setTimeout(() => p.remove(), 170);
+}
+let realceStatus = null;
 window.novoAgendamento = data => {
   if (!ativos().length) return toast('Cadastre um paciente primeiro');
   sheet(`<h3>Agendar atendimento avulso</h3>
@@ -791,7 +1118,7 @@ window.remarcar = (id, data) => {
       await store.put('sessoes', { id: s.id, pacienteId: s.pacienteId, data: s.data, horario: s.horario, status: 'remarcado' });
       await store.put('sessoes', { id: 'av-' + uid(), pacienteId: s.pacienteId, data: f.get('data'), horario: f.get('horario'), status: 'agendado', avulsa: true, treino: treinoDoDia(pac(s.pacienteId), s.data)?.letra || '' });
     }, 'Atendimento remarcado'),
-    s.avulsa ? `<button type="button" class="danger" onclick="fechar();salvar(()=>store.del('sessoes','${s.id}'),'Agendamento excluído')">Excluir</button>` : '');
+    s.avulsa ? `<button type="button" class="danger" onclick="excluirComDesfazer('sessoes','${s.id}','Agendamento excluído')">Excluir</button>` : '');
 };
 
 // ================= Pacientes =================
@@ -911,7 +1238,7 @@ function pResumo(p) {
     <div class="stat"><span class="label">Sessões feitas</span><strong>${hist.filter(s => s.status === 'realizado').length}</strong></div>
     <div class="stat"><span class="label">Faltas</span><strong>${hist.filter(s => s.status === 'faltou').length}</strong></div>
     <div class="stat"><span class="label">Evoluções</span><strong>${S.evolucoes.filter(e => e.pacienteId === p.id).length}</strong></div>
-    <div class="stat"><span class="label">Pacote</span><strong>${sp ? sp.saldo : '—'}</strong><span class="muted" style="font-size:.8rem">${sp ? `de ${sp.compradas} sessões` : 'sem pacote'}</span></div>
+    <div class="stat"><span class="label">Pacote</span>${sp ? `<div class="stat-anel">${anelPacote(sp)}<div><strong>${sp.saldo}</strong><span class="muted" style="display:block;font-size:.8rem">restam de ${sp.compradas}</span></div></div>` : '<strong>—</strong><span class="muted" style="font-size:.8rem">sem pacote</span>'}</div>
   </div>
   ${objetivo ? `<div class="section"><h3>Objetivos do tratamento</h3><div class="item" style="white-space:pre-wrap">${esc(objetivo)}</div></div>` : ''}
   <div class="section"><h3>Próximos atendimentos</h3>
@@ -934,7 +1261,7 @@ function cartaoRegistro(r, tipo) {
   const campos = (r.campos || []).filter(c => c.valor);
   const vit = campos.filter(c => c.tipo === 'linha');
   const resto = campos.filter(c => c.tipo !== 'linha');
-  return `<div class="item rec">
+  return `<div class="item rec" data-reg="${tipo}:${esc(r.id)}">
     <div class="item-top"><div class="row" style="gap:8px"><strong class="num">${br(r.data)}</strong>${r.titulo ? `<span class="pill green">${esc(r.titulo)}</span>` : ''}${r.treino ? `<span class="pill green">Treino ${esc(r.treino)}</span>` : ''}</div>
       <div class="row" style="gap:2px"><button class="link small" onclick="copiarRegistro('${tipo}','${r.id}')">Copiar</button><button class="link small" onclick="${tipo === 'evolucoes' ? 'abrirEvolucao' : 'abrirAvaliacao'}('${r.id}')">Editar</button></div></div>
     ${vit.length ? `<div class="vitals">${vit.map(c => `<span><b>${esc(c.rotulo.replace(/\s*\(.*\)/, ''))}</b>${esc(c.valor)}</span>`).join('')}</div>` : ''}
@@ -962,7 +1289,7 @@ function formRegistro(r, titulo, onSave, extraTopo = '', excluir = '') {
     f => { r.data = f.get('data'); if (f.has('treino')) r.treino = f.get('treino'); r.campos = r.campos.map((c, i) => ({ ...c, valor: f.get('c' + i) || '' })); onSave(r); }, excluir);
 }
 window.formAvaliacao = a => formRegistro(a, a.titulo, x => salvar(() => store.put('avaliacoes', { ...x, id: x.id || uid() }), 'Avaliação salva'), '',
-  a.id ? `<button type="button" class="danger" onclick="confirmar('Excluir esta avaliação?', () => salvar(() => store.del('avaliacoes','${a.id}'), 'Avaliação excluída'))">Excluir</button>` : '');
+  a.id ? `<button type="button" class="danger" onclick="excluirComDesfazer('avaliacoes','${a.id}','Avaliação excluída')">Excluir</button>` : '');
 window.abrirAvaliacao = id => formAvaliacao(JSON.parse(JSON.stringify(S.avaliacoes.find(x => x.id === id))));
 
 // ---------- Evoluções ----------
@@ -975,7 +1302,7 @@ function formEvolucao(e, onSave) {
   const p = pac(e.pacienteId);
   formRegistro(e, 'Evolução', onSave,
     `<label class="field"><span>Treino</span><select id="r-treino" name="treino"><option value="">Nenhum</option>${(p.treinos || []).map(t => `<option ${t.letra === e.treino ? 'selected' : ''}>${t.letra}</option>`).join('')}</select></label>`,
-    e.id ? `<button type="button" class="danger" onclick="confirmar('Excluir esta evolução?', () => salvar(() => store.del('evolucoes','${e.id}'), 'Evolução excluída'))">Excluir</button>` : '');
+    e.id ? `<button type="button" class="danger" onclick="excluirComDesfazer('evolucoes','${e.id}','Evolução excluída')">Excluir</button>` : '');
 }
 window.novaEvolucao = (pid, data) => {
   const p = pac(pid), t = treinoDoDia(p, data);
@@ -1051,7 +1378,7 @@ function pFinanceiro(p) {
   <div class="stats">
     <div class="stat"><span class="label">Total pago</span><strong style="font-size:1.2rem">${reais(pago)}</strong></div>
     <div class="stat"><span class="label">Pendente</span><strong style="font-size:1.2rem;color:${pend ? 'var(--danger)' : 'inherit'}">${reais(pend)}</strong></div>
-    <div class="stat"><span class="label">Pacote</span><strong>${sp ? sp.saldo : '—'}</strong><span class="muted" style="font-size:.8rem">${sp ? `${sp.usadas} de ${sp.compradas} usadas` : 'sem pacote'}</span></div>
+    <div class="stat"><span class="label">Pacote</span>${sp ? `<div class="stat-anel">${anelPacote(sp)}<div><strong>${sp.saldo}</strong><span class="muted" style="display:block;font-size:.8rem">${sp.usadas} de ${sp.compradas} usadas</span></div></div>` : '<strong>—</strong><span class="muted" style="font-size:.8rem">sem pacote</span>'}</div>
     <div class="stat"><span class="label">Valor da sessão</span><strong style="font-size:1.2rem">${p.valorSessao ? reais(String(p.valorSessao).replace(',', '.')) : '—'}</strong></div>
   </div>
   <div class="row" style="margin-top:16px;gap:8px"><button class="small" onclick="novoPagamento('${p.id}','sessao')">Registrar pagamento</button><button class="ghost small" onclick="novoPagamento('${p.id}','pacote')">Vender pacote</button></div>
@@ -1059,7 +1386,7 @@ function pFinanceiro(p) {
 }
 function linhaPagamento(g) {
   const p = pac(g.pacienteId);
-  return `<div class="tline" style="align-items:center">
+  return `<div class="tline" data-reg="pagamentos:${esc(g.id)}" style="align-items:center">
     <div style="min-width:0"><div>${esc(g.descricao || (g.tipo === 'pacote' ? `Pacote ${g.qtd} sessões` : 'Sessão'))}${S.aba === 'financeiro' && p ? ` <span class="muted">· ${esc(nome(p))}</span>` : ''}</div>
     <div class="muted num" style="font-size:.82rem">${br(g.data)}${g.forma ? ' · ' + esc(g.forma) : ''}</div></div>
     <div class="row" style="gap:8px;flex-wrap:nowrap"><span class="num" style="font-weight:600">${reais(g.valor)}</span>
@@ -1085,7 +1412,7 @@ function formPagamento(g) {
       if (!valor) { toast('Informe um valor válido'); return false; }
       salvar(() => store.put('pagamentos', { ...g, id: g.id || uid(), pacienteId: g.pacienteId || f.get('pid'), valor, data: f.get('data'), descricao: f.get('descricao'), forma: f.get('forma'), status: f.get('status'), qtd: g.tipo === 'pacote' ? Number(f.get('qtd')) || 0 : undefined }), 'Pagamento salvo');
     },
-    g.id ? `<button type="button" class="danger" onclick="confirmar('Excluir este lançamento?', () => salvar(() => store.del('pagamentos','${g.id}'), 'Lançamento excluído'))">Excluir</button>` : '');
+    g.id ? `<button type="button" class="danger" onclick="excluirComDesfazer('pagamentos','${g.id}','Lançamento excluído')">Excluir</button>` : '');
 }
 window.novoPagamento = (pid, tipo) => {
   const p = pac(pid), v = p?.valorSessao ? Number(String(p.valorSessao).replace(',', '.')) : '';
@@ -1180,11 +1507,11 @@ function vFinanceiro() {
       ${meta ? `<div class="bar"><i style="width:${Math.min(100, recebido / meta * 100)}%"></i></div>` : '<button class="link small" style="justify-self:start;padding:0" onclick="ir(\'ajustes\')">Definir meta</button>'}</div>
   </div>
   <div class="section"><h3>Últimos 6 meses</h3>
-    <div class="item"><svg viewBox="0 0 600 180" style="width:100%;height:auto" role="img" aria-label="Recebido por mês">
+    <div class="item"><svg class="grafico" viewBox="0 0 600 180" style="width:100%;height:auto" role="img" aria-label="Recebido por mês">
       ${meta ? `<line x1="0" x2="600" y1="${150 - meta / max * 130}" y2="${150 - meta / max * 130}" stroke="var(--yellow)" stroke-dasharray="4 4"/><text x="596" y="${144 - meta / max * 130}" text-anchor="end" font-size="11" fill="var(--muted)">meta</text>` : ''}
-      ${tot.map((v, i) => { const h = v / max * 130, x = i * 100 + 25; return `<rect x="${x}" y="${150 - h}" width="50" height="${Math.max(h, 1)}" rx="6" fill="${meses[i] === mes ? 'var(--green)' : 'var(--green-soft)'}"/>
+      ${tot.map((v, i) => { const h = v / max * 130, x = i * 100 + 25; return `<rect class="barra" style="animation-delay:${i * 80}ms" x="${x}" y="${150 - h}" width="50" height="${Math.max(h, 1)}" rx="6" fill="${meses[i] === mes ? 'var(--green)' : 'var(--green-soft)'}"/>
         <text x="${x + 25}" y="168" text-anchor="middle" font-size="12" fill="var(--muted)">${MESES[Number(meses[i].slice(5)) - 1].slice(0, 3)}</text>
-        ${v ? `<text x="${x + 25}" y="${144 - h}" text-anchor="middle" font-size="11" fill="var(--fg)">${Math.round(v).toLocaleString('pt-BR')}</text>` : ''}`; }).join('')}
+        ${v ? `<text class="val" x="${x + 25}" y="${144 - h}" text-anchor="middle" font-size="11" fill="var(--fg)">${Math.round(v).toLocaleString('pt-BR')}</text>` : ''}`; }).join('')}
     </svg></div>
   </div>
   ${Object.keys(porForma).length ? `<div class="section"><h3>Por forma de pagamento</h3><div class="item">${Object.entries(porForma).sort((x, y) => y[1] - x[1]).map(([f, v]) => `<div class="tline"><span>${esc(f)}</span><span class="num">${reais(v)}</span></div>`).join('')}</div></div>` : ''}
@@ -1288,7 +1615,7 @@ const situacao = u => {
 };
 function vUsuarios() {
   if (S.usuario?.role !== 'admin') return '<div class="empty">Apenas a administradora vê esta página.</div>';
-  if (!S.admin) { carregarAdmin(); return '<div class="empty">Carregando assinantes…</div>'; }
+  if (!S.admin) { carregarAdmin(); return esqueleto(); }
   const A = S.admin, assin = A.usuarios.filter(u => u.role !== 'admin');
   const cont = k => assin.filter(u => situacao(u).k === k).length;
   const novos = A.pedidos.filter(p => p.status === 'novo').length;
