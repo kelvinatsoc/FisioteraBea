@@ -170,36 +170,36 @@ header.rolou { box-shadow: 0 10px 30px -22px rgba(18, 60, 46, .5); }
 </style>
 <!-- Animações num estilo separado: o app pode desligar trocando o atributo media -->
 <style id="movimento">
-  :root { --suave: cubic-bezier(.2, .8, .2, 1); --mola: cubic-bezier(.22, 1.2, .36, 1); }
-  .hero .wrap > div:first-child > * { animation: sobe .8s var(--suave) both; }
+  :root { --suave: cubic-bezier(.22, 1, .36, 1); --mola: cubic-bezier(.22, 1, .36, 1); --leve: cubic-bezier(.4, 0, .2, 1); } /* sem passar do ponto */
+  .hero .wrap > div:first-child > * { animation: sobe 1s var(--suave) both; }
   .hero .wrap > div:first-child > :nth-child(2) { animation-delay: .08s; }
   .hero .wrap > div:first-child > :nth-child(3) { animation-delay: .18s; }
   .hero .wrap > div:first-child > :nth-child(4) { animation-delay: .28s; }
   .hero .wrap > div:first-child > :nth-child(5) { animation-delay: .36s; }
-  .arco img { animation: arco 1.1s var(--suave) .15s both; }
-  .arco .selo { animation: sobe .7s var(--mola) .9s both; }
-  .grifo path { stroke-dasharray: 220; stroke-dashoffset: 220; animation: risco .9s var(--suave) .7s forwards; }
-  @keyframes sobe { from { opacity: 0; transform: translateY(18px); } }
-  @keyframes arco { from { clip-path: inset(100% 0 0 0 round 999px 999px 24px 24px); transform: scale(1.08); } to { clip-path: inset(0 0 0 0 round 999px 999px 24px 24px); transform: none; } }
+  .arco img { animation: arco 1.4s var(--suave) .15s both; }
+  .arco .selo { animation: sobe .9s var(--suave) 1s both; }
+  .grifo path { stroke-dasharray: 220; stroke-dashoffset: 220; animation: risco 1.2s var(--suave) .8s forwards; }
+  @keyframes sobe { from { opacity: 0; transform: translateY(12px); } }
+  @keyframes arco { from { clip-path: inset(100% 0 0 0 round 999px 999px 24px 24px); transform: scale(1.04); } to { clip-path: inset(0 0 0 0 round 999px 999px 24px 24px); transform: none; } }
   @keyframes risco { to { stroke-dashoffset: 0; } }
 
-  html.rv [data-rv] { opacity: 0; transform: translateY(26px); transition: opacity .8s var(--suave), transform .8s var(--suave); transition-delay: calc(var(--d, 0) * 90ms); }
+  html.rv [data-rv] { opacity: 0; transform: translateY(16px); transition: opacity 1s var(--suave), transform 1.1s var(--suave); transition-delay: calc(var(--d, 0) * 100ms); }
   html.rv [data-rv].visto { opacity: 1; transform: none; }
-  html.rv .domicilio .fotos img[data-rv] { transform: translateY(40px) scale(.96); }
+  html.rv .domicilio .fotos img[data-rv] { transform: translateY(24px) scale(.985); }
   html.rv .domicilio .fotos img[data-rv].visto { transform: none; }
-  html.rv .ph-card[data-rv] { transform: translateY(16px) scale(.97); }
+  html.rv .ph-card[data-rv] { transform: translateY(10px) scale(.99); }
 
-  .btn { transition: transform .2s var(--suave), background-color .25s, box-shadow .25s; }
+  .btn { transition: transform .4s var(--leve), background-color .4s var(--leve), box-shadow .4s var(--leve); }
   .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -14px rgba(18, 60, 46, .6); }
-  .btn:active { transform: scale(.96); }
-  .link-sub { transition: text-underline-offset .2s; }
+  .btn:active { transform: scale(.98); }
+  .link-sub { transition: text-underline-offset .35s var(--leve); }
   .link-sub:hover { text-underline-offset: 7px; }
-  .func .ic { transition: transform .35s var(--mola), background-color .3s; }
-  .func:hover .ic { transform: rotate(-8deg) scale(1.1); }
+  .func .ic { transition: transform .6s var(--suave), background-color .4s var(--leve); }
+  .func:hover .ic { transform: rotate(-4deg) scale(1.05); }
   .historia img { transition: transform 1.2s var(--suave); }
   .historia:hover img { transform: scale(1.03); }
-  details summary::after { transition: transform .3s var(--mola); }
-  details[open] p { animation: sobe .4s var(--suave) both; }
+  details summary::after { transition: transform .45s var(--suave); }
+  details[open] p { animation: sobe .6s var(--suave) both; }
 </style>
 <style>
 details summary::after { content: "+"; }

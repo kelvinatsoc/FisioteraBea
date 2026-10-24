@@ -296,100 +296,101 @@ button.salvo { background: var(--green-2); }
 </style>
 <!-- Animações num estilo separado: o app pode desligar trocando o atributo media -->
 <style id="movimento">
-  :root { --mola: cubic-bezier(.22, 1.2, .36, 1); --suave: cubic-bezier(.2, .8, .2, 1); }
-  .tab-ind.pronto { transition: transform .3s var(--mola), width .3s var(--mola), height .3s var(--mola); }
-  nav.tabs button { transition: color .25s; }
-  nav.tabs button.on svg { animation: pulo .45s var(--mola); }
-  @keyframes pulo { 0% { transform: scale(1); } 40% { transform: scale(1.22) translateY(-2px); } 100% { transform: scale(1); } }
+  /* Tudo desacelera devagar e para no lugar, sem passar do ponto: movimento contínuo, sem "batidas" */
+  :root { --suave: cubic-bezier(.22, 1, .36, 1); --leve: cubic-bezier(.4, 0, .2, 1); }
+  .tab-ind.pronto { transition: transform .5s var(--suave), width .5s var(--suave), height .5s var(--suave); }
+  nav.tabs button { transition: color .35s var(--leve); }
+  nav.tabs button.on svg { animation: pulo .7s var(--leve); }
+  @keyframes pulo { 50% { transform: scale(1.07) translateY(-1px); } }
 
-  button, .btn, .chip, .day, .pill, .status-pick button, .weekpick span { transition: transform .18s var(--suave), background-color .25s, color .25s, border-color .25s, box-shadow .25s, opacity .2s; }
-  button:active, .btn:active, .chip:active, .weekpick span:active { transform: scale(.95); }
-  .item { transition: transform .25s var(--suave), box-shadow .25s, border-color .25s; }
-  .item.tap:active { transform: scale(.985); }
+  button, .btn, .chip, .day, .pill, .status-pick button, .weekpick span { transition: transform .35s var(--leve), background-color .35s var(--leve), color .35s var(--leve), border-color .35s var(--leve), box-shadow .35s var(--leve), opacity .3s var(--leve); }
+  button:active, .btn:active, .chip:active, .weekpick span:active { transform: scale(.98); }
+  .item { transition: transform .4s var(--leve), box-shadow .4s var(--leve), border-color .4s var(--leve); }
+  .item.tap:active { transform: scale(.993); }
   @media (hover: hover) {
-    .item.tap:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -18px rgba(18, 60, 46, .35); border-color: transparent; }
+    .item.tap:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -20px rgba(18, 60, 46, .3); border-color: transparent; }
     button:not(.link):not(.danger):not(.back):not(.x):hover, .btn:hover { transform: translateY(-1px); }
     nav.tabs button:hover { transform: none; color: var(--fg); }
   }
 
-  /* Troca de tela: o conteúdo sobe e aparece em sequência */
-  .entra > *, .entra .list > *, .entra .stats > * { animation: entra .5s var(--suave) both; }
-  .entra > :nth-child(2) { animation-delay: .05s; } .entra > :nth-child(3) { animation-delay: .1s; } .entra > :nth-child(4) { animation-delay: .15s; } .entra > :nth-child(n+5) { animation-delay: .2s; }
-  .entra .list > :nth-child(1), .entra .stats > :nth-child(1) { animation-delay: .08s; }
-  .entra .list > :nth-child(2), .entra .stats > :nth-child(2) { animation-delay: .13s; }
-  .entra .list > :nth-child(3), .entra .stats > :nth-child(3) { animation-delay: .18s; }
-  .entra .list > :nth-child(4), .entra .stats > :nth-child(4) { animation-delay: .23s; }
-  .entra .list > :nth-child(5) { animation-delay: .28s; } .entra .list > :nth-child(n+6) { animation-delay: .32s; }
-  @keyframes entra { from { opacity: 0; transform: translateY(14px); } }
-  .entra .day.on, .entra .chip.on { animation: pop .45s var(--mola) both; }
-  @keyframes pop { 0% { transform: scale(.85); } 100% { transform: scale(1); } }
+  /* Troca de tela: o conteúdo aparece subindo bem pouco, em sequência */
+  .entra > *, .entra .list > *, .entra .stats > * { animation: entra .7s var(--suave) both; }
+  .entra > :nth-child(2) { animation-delay: .06s; } .entra > :nth-child(3) { animation-delay: .12s; } .entra > :nth-child(4) { animation-delay: .18s; } .entra > :nth-child(n+5) { animation-delay: .22s; }
+  .entra .list > :nth-child(1), .entra .stats > :nth-child(1) { animation-delay: .1s; }
+  .entra .list > :nth-child(2), .entra .stats > :nth-child(2) { animation-delay: .16s; }
+  .entra .list > :nth-child(3), .entra .stats > :nth-child(3) { animation-delay: .22s; }
+  .entra .list > :nth-child(4), .entra .stats > :nth-child(4) { animation-delay: .28s; }
+  .entra .list > :nth-child(5) { animation-delay: .34s; } .entra .list > :nth-child(n+6) { animation-delay: .38s; }
+  @keyframes entra { from { opacity: 0; transform: translateY(8px); } }
+  .entra .day.on, .entra .chip.on { animation: pop .6s var(--suave) both; }
+  @keyframes pop { from { transform: scale(.96); opacity: .6; } }
 
-  /* Painel de baixo (formulários): sobe com mola e desce ao fechar */
-  .sheet-bg { animation: fundo .25s ease-out both; }
-  .sheet { animation: sobe .42s var(--mola) both; }
-  .sheet-bg.saindo { animation: fundo .2s ease-in reverse both; }
-  .sheet-bg.saindo .sheet { animation: desce .22s ease-in both; }
+  /* Painel de baixo (formulários): sobe deslizando e desce ao fechar */
+  .sheet-bg { animation: fundo .4s var(--leve) both; }
+  .sheet { animation: sobe .55s var(--suave) both; }
+  .sheet-bg.saindo { animation: fundo .3s var(--leve) reverse both; }
+  .sheet-bg.saindo .sheet { animation: desce .3s var(--leve) both; }
   @keyframes fundo { from { opacity: 0; } }
-  @keyframes sobe { from { transform: translateY(60px); opacity: 0; } }
-  @keyframes desce { to { transform: translateY(60px); opacity: 0; } }
-  @media (min-width: 800px) { @keyframes sobe { from { transform: translateY(24px) scale(.97); opacity: 0; } } @keyframes desce { to { transform: translateY(16px) scale(.98); opacity: 0; } } }
+  @keyframes sobe { from { transform: translateY(40px); opacity: 0; } }
+  @keyframes desce { to { transform: translateY(40px); opacity: 0; } }
+  @media (min-width: 800px) { @keyframes sobe { from { transform: translateY(16px) scale(.985); opacity: 0; } } @keyframes desce { to { transform: translateY(12px) scale(.99); opacity: 0; } } }
 
-  .toast { animation: aviso .4s var(--mola) both; }
-  .toast.sai { animation: avisoSai .25s ease-in both; }
-  @keyframes aviso { from { transform: translate(-50%, 20px) scale(.9); opacity: 0; } }
-  @keyframes avisoSai { to { transform: translate(-50%, 10px); opacity: 0; } }
+  .toast { animation: aviso .5s var(--suave) both; }
+  .toast.sai { animation: avisoSai .3s var(--leve) both; }
+  @keyframes aviso { from { transform: translate(-50%, 12px); opacity: 0; } }
+  @keyframes avisoSai { to { transform: translate(-50%, 8px); opacity: 0; } }
 
   /* Entrada: a foto em arco se revela e o formulário sobe */
-  .login-foto img { animation: arco .9s var(--suave) both; }
-  .login-box > * { animation: entra .6s var(--suave) both; }
-  .login-box > :nth-child(2) { animation-delay: .1s; } .login-box > :nth-child(3) { animation-delay: .2s; }
-  @keyframes arco { from { clip-path: inset(100% 0 0 0 round 999px 999px 24px 24px); transform: scale(1.06); } to { clip-path: inset(0 0 0 0 round 999px 999px 24px 24px); } }
+  .login-foto img { animation: arco 1.2s var(--suave) both; }
+  .login-box > * { animation: entra .8s var(--suave) both; }
+  .login-box > :nth-child(2) { animation-delay: .12s; } .login-box > :nth-child(3) { animation-delay: .24s; }
+  @keyframes arco { from { clip-path: inset(100% 0 0 0 round 999px 999px 24px 24px); transform: scale(1.03); } to { clip-path: inset(0 0 0 0 round 999px 999px 24px 24px); } }
 
-  /* Onda do toque */
-  .onda { animation: onda .55s var(--suave) forwards; }
-  @keyframes onda { from { transform: scale(0); opacity: .22; } to { transform: scale(1); opacity: 0; } }
+  /* Onda do toque: clareia de leve e se espalha devagar */
+  .onda { animation: onda .9s var(--suave) forwards; }
+  @keyframes onda { from { transform: scale(.25); opacity: .1; } to { transform: scale(1); opacity: 0; } }
 
   /* Botão que vira ✓ */
-  button.salvando, button.salvo { transition: width .4s var(--suave), background-color .3s; }
-  button .roda { animation: gira .7s linear infinite; }
-  button .ok path { stroke-dasharray: 30; stroke-dashoffset: 30; animation: risca .38s var(--suave) .05s forwards; }
-  button.salvo { animation: pulsa .5s var(--mola); }
+  button.salvando, button.salvo { transition: width .5s var(--suave), background-color .4s var(--leve); }
+  button .roda { animation: gira .9s linear infinite; }
+  button .ok path { stroke-dasharray: 30; stroke-dashoffset: 30; animation: risca .5s var(--suave) .05s forwards; }
+  button.salvo { animation: pulsa .7s var(--leve); }
   @keyframes gira { to { transform: rotate(1turn); } }
   @keyframes risca { to { stroke-dashoffset: 0; } }
-  @keyframes pulsa { 40% { transform: scale(1.14); } }
+  @keyframes pulsa { 50% { transform: scale(1.04); } }
 
   /* Carregando com brilho */
-  .osso { background: linear-gradient(100deg, var(--surface) 30%, var(--bg) 50%, var(--surface) 70%) 0 0 / 300% 100%; animation: brilho 1.3s linear infinite; }
+  .osso { background: linear-gradient(100deg, var(--surface) 30%, var(--bg) 50%, var(--surface) 70%) 0 0 / 300% 100%; animation: brilho 1.6s linear infinite; }
   @keyframes brilho { from { background-position: 100% 0; } to { background-position: -50% 0; } }
 
   /* Anel do pacote enche ao abrir a tela */
-  .entra .anel .v { animation: enche 1s var(--suave) .15s both; }
+  .entra .anel .v { animation: enche 1.2s var(--suave) .15s both; }
   @keyframes enche { from { stroke-dashoffset: var(--c); } }
 
   /* Gráfico: barras sobem uma depois da outra */
   .grafico .barra { transform-box: fill-box; transform-origin: bottom; }
-  .entra .grafico .barra { animation: cresce .8s var(--mola) both; }
-  .entra .grafico .val { animation: aparece .4s ease-out .7s both; }
+  .entra .grafico .barra { animation: cresce 1s var(--suave) both; }
+  .entra .grafico .val { animation: aparece .5s var(--leve) .8s both; }
   @keyframes cresce { from { transform: scaleY(0); } }
   @keyframes aparece { from { opacity: 0; } }
 
   /* Deslizar para marcar */
-  .swipe > .item { transition: transform .45s var(--mola); }
-  .swipe-acao { transition: opacity .2s, background-color .2s; }
-  .swipe-acao span { transition: transform .3s var(--mola); }
-  .swipe.passou .swipe-acao span { transform: scale(1.18); }
+  .swipe > .item { transition: transform .5s var(--suave); }
+  .swipe-acao { transition: opacity .3s var(--leve), background-color .3s var(--leve); }
+  .swipe-acao span { transition: transform .4s var(--suave); }
+  .swipe.passou .swipe-acao span { transform: scale(1.06); }
 
-  /* Status que mudou dá um pulinho */
-  .pill.troca { animation: pulsa .5s var(--mola); }
+  /* Status que mudou se destaca de leve */
+  .pill.troca { animation: pulsa .7s var(--leve); }
 
-  /* Menu de status brota do botão, opções entram uma a uma */
-  .pop { animation: brota .34s var(--mola) both; }
-  .pop.fecha { animation: some .16s ease-in both; }
-  .pop > * { animation: entra .32s var(--suave) both; }
+  /* Menu de status aparece a partir do botão, opções entram uma a uma */
+  .pop { animation: brota .4s var(--suave) both; }
+  .pop.fecha { animation: some .22s var(--leve) both; }
+  .pop > * { animation: entra .45s var(--suave) both; }
   .pop > :nth-child(2) { animation-delay: .03s; } .pop > :nth-child(3) { animation-delay: .06s; } .pop > :nth-child(4) { animation-delay: .09s; }
   .pop > :nth-child(5) { animation-delay: .12s; } .pop > :nth-child(n+6) { animation-delay: .15s; }
-  @keyframes brota { from { transform: scale(.55); opacity: 0; } }
-  @keyframes some { to { transform: scale(.9); opacity: 0; } }
+  @keyframes brota { from { transform: scale(.92); opacity: 0; } }
+  @keyframes some { to { transform: scale(.97); opacity: 0; } }
 
   /* Prontuário: o cabeçalho chega voando do cartão, então não entra junto com o resto */
   .entra.voando > .head { animation: none; }
@@ -484,7 +485,7 @@ window.mudarTema = t => {
   const vt = document.startViewTransition(troca);
   vt.ready.then(() => document.documentElement.animate(
     { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${raio}px at ${x}px ${y}px)`] },
-    { duration: 650, easing: 'cubic-bezier(.2, .8, .2, 1)', pseudoElement: '::view-transition-new(root)' })).catch(() => {});
+    { duration: 800, easing: 'cubic-bezier(.22, 1, .36, 1)', pseudoElement: '::view-transition-new(root)' })).catch(() => {});
 };
 window.alternarTema = () => mudarTema(escuroAgora() ? 'light' : 'dark');
 // Animações: ligadas por padrão (o Windows costuma desligar "efeitos de animação" e os sites obedecem).
@@ -510,7 +511,7 @@ document.addEventListener('pointerdown', e => {
   caixa.className = 'onda-caixa'; o.className = 'onda';
   o.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
   caixa.appendChild(o); alvo.appendChild(caixa);
-  setTimeout(() => caixa.remove(), 600);
+  setTimeout(() => caixa.remove(), 950);
 }, { passive: true, capture: true });
 let ocultarNomes = false;
 try { ocultarNomes = localStorage.getItem('fisiobea-ocultar') === '1'; } catch (e) {}
@@ -754,7 +755,7 @@ function render() {
     ultimaTela = tela;
     clearTimeout(timerEntra);
     app.classList.remove('entra'); void app.offsetWidth; app.classList.add('entra');
-    timerEntra = setTimeout(() => app.classList.remove('entra'), 900);
+    timerEntra = setTimeout(() => app.classList.remove('entra'), 1300);
     contarNumeros(app);
   }
 }
@@ -776,7 +777,7 @@ function moverIndicador() {
     // Como uma gota: primeiro estica até cobrir as duas abas, depois encolhe na aba nova
     const x1 = Math.min(indAtual.x, alvo.x), y1 = Math.min(indAtual.y, alvo.y);
     pos({ x: x1, y: y1, w: Math.max(indAtual.x + indAtual.w, alvo.x + alvo.w) - x1, h: Math.max(indAtual.y + indAtual.h, alvo.y + alvo.h) - y1 });
-    timerGota = setTimeout(() => pos(alvo), 160);
+    timerGota = setTimeout(() => pos(alvo), 220);
   }
   indAtual = alvo;
   if (!ind.classList.contains('pronto')) setTimeout(() => ind.classList.add('pronto'), 60);
@@ -822,7 +823,7 @@ function fimArrasto() {
     if (!s) return render();
     realceStatus = s.id;
     if (s.status === status) render(); else mudarStatus(s, status);
-  }, semAnim() ? 0 : 230);
+  }, semAnim() ? 0 : 300);
 }
 document.addEventListener('pointerup', fimArrasto);
 document.addEventListener('pointercancel', fimArrasto);
@@ -840,7 +841,7 @@ function contarNumeros(raiz) {
     if (!m) return;
     const alvo = Number(m[2].replace(/\./g, '') + (m[3] ? '.' + m[3].slice(1) : ''));
     if (!alvo) return;
-    const ini = performance.now(), dur = 700;
+    const ini = performance.now(), dur = 1000;
     const passo = t => {
       if (!el.isConnected) return;
       const k = Math.min(1, (t - ini) / dur), v = alvo * (1 - Math.pow(1 - k, 3));
@@ -859,7 +860,7 @@ window.abrirPaciente = (pid, sub = 'resumo') => {
   ir('pacientes', { pid, sub, treinoIdx: 0 });
   if (semAnim() || !ra) return;
   const app = $('#app');
-  app.classList.add('voando'); setTimeout(() => app.classList.remove('voando'), 900);
+  app.classList.add('voando'); setTimeout(() => app.classList.remove('voando'), 1300);
   voar(ra, app.querySelector('.head .avatar'), false);
   if (rn) voar(rn, app.querySelector('.head h2'), true);
 };
@@ -870,7 +871,7 @@ function voar(de, el, texto) {
   el.animate([
     { transform: `translate(${de.left - b.left}px, ${de.top - b.top}px) scale(${sx}, ${sy})`, transformOrigin: 'top left' },
     { transform: 'none', transformOrigin: 'top left' },
-  ], { duration: 560, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+  ], { duration: 650, easing: 'cubic-bezier(.22, 1, .36, 1)' });
 }
 window.alternarNomes = () => { ocultarNomes = !ocultarNomes; try { localStorage.setItem('fisiobea-ocultar', ocultarNomes ? '1' : '0'); } catch (e) {} render(); };
 
@@ -894,8 +895,7 @@ function sheet(html, onSave, extra = '', rotulo = 'Salvar') {
     if (!ok) { btn.classList.remove('salvando'); btn.disabled = false; btn.style.width = btn.style.height = ''; btn.innerHTML = texto; return; }
     btn.classList.replace('salvando', 'salvo');
     btn.innerHTML = '<svg class="ok" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-    vibrar(15);
-    await espera(550);
+    await espera(650);
     fechar(painel);
   };
 }
@@ -905,7 +905,7 @@ window.fechar = (qual) => {
   if (!bg || !bg.isConnected) return;
   if (semAnim()) return bg.remove();
   bg.classList.add('saindo'); bg.style.pointerEvents = 'none';
-  setTimeout(() => bg.remove(), 220);
+  setTimeout(() => bg.remove(), 310);
 };
 // Excluir com "Desfazer": o item some na hora, mas só é apagado no servidor depois de 5 segundos.
 // Se a pessoa sair do app antes disso, a exclusão é enviada na hora.
@@ -919,10 +919,9 @@ window.excluirComDesfazer = (col, id, msg) => {
   const tirar = () => { if (tirou) return; tirou = true; S[col] = S[col].filter(x => x.id !== id); render(); };
   if (el && !semAnim()) {
     el.style.overflow = 'hidden';
-    el.animate([{ height: el.offsetHeight + 'px', opacity: 1 }, { height: '0px', opacity: 0, paddingTop: '0px', paddingBottom: '0px', marginTop: '0px', borderWidth: '0px' }], { duration: 320, easing: 'ease-in', fill: 'forwards' }).onfinish = tirar;
-    setTimeout(tirar, 380); // garante a remoção mesmo se o navegador pausar a animação
+    el.animate([{ height: el.offsetHeight + 'px', opacity: 1 }, { height: '0px', opacity: 0, paddingTop: '0px', paddingBottom: '0px', marginTop: '0px', borderWidth: '0px' }], { duration: 420, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'forwards' }).onfinish = tirar;
+    setTimeout(tirar, 480); // garante a remoção mesmo se o navegador pausar a animação
   } else tirar();
-  vibrar(12);
   exclusao = { col, id, obj, timer: setTimeout(efetivarExclusao, 5000) };
   avisoDesfazer(msg, () => {
     if (!exclusao) return;
@@ -1083,7 +1082,7 @@ window.escolherStatus = (id, data) => {
     const b = ev.target.closest('button'); if (!b) return;
     fecharPop();
     if (b.dataset.k === s.status) return;
-    realceStatus = id; vibrar(10);
+    realceStatus = id;
     mudarStatus(s, b.dataset.k);
   };
   pop.querySelector('button.on, button')?.focus({ preventScroll: true });
@@ -1096,7 +1095,7 @@ function fecharPop() {
   const p = $('#pop-status'); if (!p) return;
   p.id = '';
   if (semAnim()) return p.remove();
-  p.classList.add('fecha'); setTimeout(() => p.remove(), 170);
+  p.classList.add('fecha'); setTimeout(() => p.remove(), 230);
 }
 let realceStatus = null;
 window.novoAgendamento = data => {
