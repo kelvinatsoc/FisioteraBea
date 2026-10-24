@@ -1,10 +1,13 @@
 // API do FisioBea (Cloudflare Pages Functions + D1)
-// Rotas:
-//   POST /api/cadastro {nome, email, senha}     POST /api/login {email, senha}
-//   POST /api/sair                              GET  /api/eu
-//   GET  /api/dados                             PUT/DELETE /api/doc/:col/:id
-//   POST /api/senha {atual, nova}
-//   Admin: GET /api/admin/usuarios, PATCH /api/admin/usuarios/:id {ativo, role, senha}
+// Públicas:  GET /api/status            POST /api/instalar {nome, email, senha} (só enquanto não há nenhuma conta)
+//            POST /api/login {email, senha}   POST /api/pedido {nome, email, telefone, mensagem}
+// Logada:    POST /api/sair   GET /api/eu   POST /api/senha {atual, nova}
+//            GET /api/dados   PUT/DELETE /api/doc/:col/:id
+// Admin:     GET /api/admin/resumo
+//            GET/POST /api/admin/usuarios          PATCH /api/admin/usuarios/:id
+//            POST /api/admin/usuarios/:id/pagamento {valor, dias, data, forma}
+//            GET /api/admin/usuarios/:id/pagamentos
+//            PATCH /api/admin/pedidos/:id {status}
 
 const COLECOES = ['pacientes', 'evolucoes', 'avaliacoes', 'sessoes', 'pagamentos', 'config'];
 const SESSAO_DIAS = 30;
@@ -12,10 +15,16 @@ const ITERACOES = 100000;
 
 const json = (dados, status = 200, headers = {}) =>
   new Response(JSON.stringify(dados), { status, headers: { 'content-type': 'application/json; charset=utf-8', ...headers } });
-const erro = (msg, status = 400) => json({ erro: msg }, status);
+const erro = (msg, status = 400, extra = {}) => json({ erro: msg, ...extra }, status);
 const agora = () => new Date().toISOString();
+// Datas de assinatura seguem o horário de Brasília
+const hoje = () => new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
+const somaDias = (iso, n) => { const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const br = iso => iso ? iso.split('-').reverse().join('/') : '';
 const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 const aleatorio = (n = 32) => hex(crypto.getRandomValues(new Uint8Array(n)));
+const emailValido = e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
+const dataValida = d => /^\d{4}-\d{2}-\d{2}$/.test(d || '');
 
 async function hashSenha(senha, salt) {
   const chave = await crypto.subtle.importKey('raw', new TextEncoder().encode(senha), 'PBKDF2', false, ['deriveBits']);
@@ -39,19 +48,36 @@ async function criarSessao(env, userId, url) {
     .bind(token, userId, Date.now() + SESSAO_DIAS * 864e5).run();
   return cookieSessao(token, url, SESSAO_DIAS * 86400);
 }
+const vencida = u => u.role !== 'admin' && (!u.valido_ate || u.valido_ate < hoje());
+const msgVencida = u => u.valido_ate
+  ? `Sua assinatura venceu em ${br(u.valido_ate)}. Fale com a FisioBea para renovar.`
+  : 'Sua assinatura ainda não foi ativada. Fale com a FisioBea.';
+
 async function usuarioAtual(env, request) {
   const m = /(?:^|;\s*)sessao=([a-f0-9]{64})/.exec(request.headers.get('cookie') || '');
   if (!m) return null;
   const u = await env.DB.prepare(
-    'SELECT u.id, u.email, u.nome, u.role, u.ativo FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND s.expira > ?'
+    'SELECT u.id, u.email, u.nome, u.role, u.ativo, u.valido_ate FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND s.expira > ?'
   ).bind(m[1], Date.now()).first();
   if (!u || !u.ativo) return null;
   return { ...u, token: m[1] };
 }
-const publico = u => ({ id: u.id, email: u.email, nome: u.nome, role: u.role });
+const publico = u => ({ id: u.id, email: u.email, nome: u.nome, role: u.role, valido_ate: u.valido_ate || '' });
 
 async function lerJson(request) {
   try { return await request.json(); } catch (e) { return {}; }
+}
+
+async function novaConta(env, { nome, email, senha, telefone = '', role = 'user', valido_ate = '', obs = '' }) {
+  const e = String(email || '').trim().toLowerCase();
+  if (!String(nome || '').trim()) return 'Informe o nome.';
+  if (!emailValido(e)) return 'Informe um e-mail válido.';
+  if (String(senha || '').length < 8) return 'A senha precisa ter pelo menos 8 caracteres.';
+  if (await env.DB.prepare('SELECT 1 FROM users WHERE email = ?').bind(e).first()) return 'Já existe uma conta com este e-mail.';
+  const id = aleatorio(12), salt = aleatorio(16);
+  await env.DB.prepare('INSERT INTO users (id, email, nome, telefone, senha_hash, salt, role, ativo, valido_ate, obs, criado) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)')
+    .bind(id, e, String(nome).trim(), String(telefone).trim(), await hashSenha(senha, salt), salt, role, valido_ate, String(obs), agora()).run();
+  return { id, email: e, nome: String(nome).trim(), role, valido_ate };
 }
 
 export async function onRequest({ request, env, params }) {
@@ -60,36 +86,45 @@ export async function onRequest({ request, env, params }) {
   const rota = partes[0];
   const metodo = request.method;
 
-  // Proteção básica contra requisições de outros sites
+  // Proteção contra requisições vindas de outros sites
   if (metodo !== 'GET') {
     const origem = request.headers.get('origin');
     if (origem && origem !== url.origin) return erro('Origem não permitida', 403);
   }
 
   try {
-    if (rota === 'cadastro' && metodo === 'POST') {
-      const { nome, email, senha } = await lerJson(request);
-      const e = String(email || '').trim().toLowerCase();
-      if (!String(nome || '').trim()) return erro('Informe seu nome.');
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) return erro('Informe um e-mail válido.');
-      if (String(senha || '').length < 8) return erro('A senha precisa ter pelo menos 8 caracteres.');
-      if (await env.DB.prepare('SELECT 1 FROM users WHERE email = ?').bind(e).first()) return erro('Este e-mail já tem cadastro. Faça login.');
-      const total = await env.DB.prepare('SELECT COUNT(*) AS n FROM users').first();
-      const role = total.n === 0 ? 'admin' : 'user';
-      const id = aleatorio(12), salt = aleatorio(16);
-      await env.DB.prepare('INSERT INTO users (id, email, nome, senha_hash, salt, role, ativo, criado) VALUES (?, ?, ?, ?, ?, ?, 1, ?)')
-        .bind(id, e, String(nome).trim(), await hashSenha(senha, salt), salt, role, agora()).run();
-      const cookie = await criarSessao(env, id, url);
-      return json({ usuario: { id, email: e, nome: String(nome).trim(), role } }, 201, { 'set-cookie': cookie });
+    const total = async () => (await env.DB.prepare('SELECT COUNT(*) AS n FROM users').first()).n;
+
+    if (rota === 'status' && metodo === 'GET') return json({ instalado: (await total()) > 0 });
+
+    // Primeira conta (administradora). Depois disso, só a administradora cria contas.
+    if (rota === 'instalar' && metodo === 'POST') {
+      if ((await total()) > 0) return erro('O sistema já foi instalado. Faça login.', 403);
+      const r = await novaConta(env, { ...(await lerJson(request)), role: 'admin' });
+      if (typeof r === 'string') return erro(r);
+      return json({ usuario: r }, 201, { 'set-cookie': await criarSessao(env, r.id, url) });
     }
 
     if (rota === 'login' && metodo === 'POST') {
       const { email, senha } = await lerJson(request);
       const u = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(String(email || '').trim().toLowerCase()).first();
       if (!u || !iguais(await hashSenha(String(senha || ''), u.salt), u.senha_hash)) return erro('E-mail ou senha incorretos.', 401);
-      if (!u.ativo) return erro('Sua conta está desativada. Fale com a administradora.', 403);
-      const cookie = await criarSessao(env, u.id, url);
-      return json({ usuario: publico(u) }, 200, { 'set-cookie': cookie });
+      if (!u.ativo) return erro('Sua conta está desativada. Fale com a FisioBea.', 403);
+      if (vencida(u)) return erro(msgVencida(u), 402, { vencida: true });
+      return json({ usuario: publico(u) }, 200, { 'set-cookie': await criarSessao(env, u.id, url) });
+    }
+
+    // Formulário "Quero conhecer" da página de vendas
+    if (rota === 'pedido' && metodo === 'POST') {
+      const { nome, email, telefone, mensagem, site } = await lerJson(request);
+      if (site) return json({ ok: true }); // campo invisível: robôs preenchem, pessoas não
+      const e = String(email || '').trim().toLowerCase();
+      if (!String(nome || '').trim() || !emailValido(e)) return erro('Informe seu nome e um e-mail válido.');
+      const recentes = await env.DB.prepare("SELECT COUNT(*) AS n FROM pedidos WHERE criado > ?").bind(new Date(Date.now() - 3600e3).toISOString()).first();
+      if (recentes.n > 30) return erro('Muitos pedidos agora. Tente de novo mais tarde.', 429);
+      await env.DB.prepare('INSERT INTO pedidos (id, nome, email, telefone, mensagem, status, criado) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        .bind(aleatorio(12), String(nome).trim().slice(0, 120), e.slice(0, 160), String(telefone || '').trim().slice(0, 40), String(mensagem || '').trim().slice(0, 1000), 'novo', agora()).run();
+      return json({ ok: true }, 201);
     }
 
     const eu = await usuarioAtual(env, request);
@@ -99,7 +134,10 @@ export async function onRequest({ request, env, params }) {
       await env.DB.prepare('DELETE FROM sessions WHERE token = ?').bind(eu.token).run();
       return json({ ok: true }, 200, { 'set-cookie': cookieSessao('', url, 0) });
     }
-    if (rota === 'eu' && metodo === 'GET') return json({ usuario: publico(eu) });
+    // Assinatura vencida: pode sair, mas não usa o app
+    if (vencida(eu)) return erro(msgVencida(eu), 402, { vencida: true });
+
+    if (rota === 'eu' && metodo === 'GET') return json({ usuario: publico(eu), hoje: hoje() });
 
     if (rota === 'senha' && metodo === 'POST') {
       const { atual, nova } = await lerJson(request);
@@ -141,24 +179,67 @@ export async function onRequest({ request, env, params }) {
 
     if (rota === 'admin') {
       if (eu.role !== 'admin') return erro('Apenas a administradora pode fazer isso.', 403);
-      if (partes[1] === 'usuarios' && !partes[2] && metodo === 'GET') {
-        const { results } = await env.DB.prepare(
-          `SELECT u.id, u.email, u.nome, u.role, u.ativo, u.criado,
-             (SELECT COUNT(*) FROM docs d WHERE d.user_id = u.id AND d.col = 'pacientes') AS pacientes
-           FROM users u ORDER BY u.criado`
+      const [, recurso, alvo, acao] = partes;
+
+      if (recurso === 'resumo' && metodo === 'GET') {
+        const h = hoje(), mes = h.slice(0, 7);
+        const { results: usuarios } = await env.DB.prepare(
+          `SELECT u.id, u.email, u.nome, u.telefone, u.role, u.ativo, u.valido_ate, u.obs, u.criado,
+             (SELECT COUNT(*) FROM docs d WHERE d.user_id = u.id AND d.col = 'pacientes') AS pacientes,
+             (SELECT MAX(data) FROM assinaturas a WHERE a.user_id = u.id) AS ultimo_pagamento
+           FROM users u ORDER BY u.nome`
         ).all();
-        return json({ usuarios: results });
+        const { results: pedidos } = await env.DB.prepare('SELECT * FROM pedidos ORDER BY criado DESC LIMIT 100').all();
+        const receitaMes = (await env.DB.prepare('SELECT COALESCE(SUM(valor), 0) AS v FROM assinaturas WHERE data LIKE ?').bind(mes + '%').first()).v;
+        const { results: porMes } = await env.DB.prepare('SELECT substr(data, 1, 7) AS mes, SUM(valor) AS v FROM assinaturas GROUP BY mes ORDER BY mes DESC LIMIT 6').all();
+        return json({ hoje: h, usuarios, pedidos, receitaMes, porMes });
       }
-      if (partes[1] === 'usuarios' && partes[2] && metodo === 'PATCH') {
-        const alvo = partes[2];
-        const { ativo, role, senha } = await lerJson(request);
-        if (alvo === eu.id && (ativo === false || role === 'user')) return erro('Você não pode tirar seu próprio acesso de administradora.');
+
+      if (recurso === 'usuarios' && !alvo && metodo === 'POST') {
+        const d = await lerJson(request);
+        const dias = Math.max(0, Math.min(366, Number(d.dias) || 0));
+        const r = await novaConta(env, { ...d, role: 'user', valido_ate: dias ? somaDias(hoje(), dias - 1) : '' });
+        if (typeof r === 'string') return erro(r);
+        return json({ usuario: r }, 201);
+      }
+
+      if (recurso === 'usuarios' && alvo && acao === 'pagamento' && metodo === 'POST') {
+        const u = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(alvo).first();
+        if (!u) return erro('Usuária não encontrada.', 404);
+        const { valor, dias = 30, data, forma = '' } = await lerJson(request);
+        const n = Math.max(1, Math.min(366, Number(dias) || 30));
+        const pago = dataValida(data) ? data : hoje();
+        // Renova a partir do vencimento se ainda estiver em dia; senão, a partir da data do pagamento
+        const base = u.valido_ate && u.valido_ate >= pago ? somaDias(u.valido_ate, 1) : pago;
+        const validoAte = somaDias(base, n - 1);
+        await env.DB.batch([
+          env.DB.prepare('INSERT INTO assinaturas (id, user_id, data, valor, dias, valido_ate, forma) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            .bind(aleatorio(12), alvo, pago, Number(valor) || 0, n, validoAte, String(forma).slice(0, 40)),
+          env.DB.prepare('UPDATE users SET valido_ate = ?, ativo = 1 WHERE id = ?').bind(validoAte, alvo),
+        ]);
+        return json({ ok: true, valido_ate: validoAte });
+      }
+
+      if (recurso === 'usuarios' && alvo && acao === 'pagamentos' && metodo === 'GET') {
+        const { results } = await env.DB.prepare('SELECT * FROM assinaturas WHERE user_id = ? ORDER BY data DESC').bind(alvo).all();
+        return json({ pagamentos: results });
+      }
+
+      if (recurso === 'usuarios' && alvo && !acao && metodo === 'PATCH') {
+        const { ativo, senha, valido_ate, nome, telefone, obs } = await lerJson(request);
+        if (alvo === eu.id && ativo === false) return erro('Você não pode desativar a própria conta.');
         const ops = [];
         if (typeof ativo === 'boolean') {
           ops.push(env.DB.prepare('UPDATE users SET ativo = ? WHERE id = ?').bind(ativo ? 1 : 0, alvo));
           if (!ativo) ops.push(env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(alvo));
         }
-        if (role === 'admin' || role === 'user') ops.push(env.DB.prepare('UPDATE users SET role = ? WHERE id = ?').bind(role, alvo));
+        if (valido_ate !== undefined) {
+          if (valido_ate !== '' && !dataValida(valido_ate)) return erro('Data inválida.');
+          ops.push(env.DB.prepare('UPDATE users SET valido_ate = ? WHERE id = ?').bind(valido_ate, alvo));
+        }
+        if (typeof nome === 'string' && nome.trim()) ops.push(env.DB.prepare('UPDATE users SET nome = ? WHERE id = ?').bind(nome.trim(), alvo));
+        if (typeof telefone === 'string') ops.push(env.DB.prepare('UPDATE users SET telefone = ? WHERE id = ?').bind(telefone.trim(), alvo));
+        if (typeof obs === 'string') ops.push(env.DB.prepare('UPDATE users SET obs = ? WHERE id = ?').bind(obs, alvo));
         if (senha) {
           if (String(senha).length < 8) return erro('A senha precisa ter pelo menos 8 caracteres.');
           const salt = aleatorio(16);
@@ -167,6 +248,13 @@ export async function onRequest({ request, env, params }) {
         }
         if (!ops.length) return erro('Nada para alterar.');
         await env.DB.batch(ops);
+        return json({ ok: true });
+      }
+
+      if (recurso === 'pedidos' && alvo && metodo === 'PATCH') {
+        const { status } = await lerJson(request);
+        if (!['novo', 'contatado', 'convertido', 'descartado'].includes(status)) return erro('Situação inválida.');
+        await env.DB.prepare('UPDATE pedidos SET status = ? WHERE id = ?').bind(status, alvo).run();
         return json({ ok: true });
       }
     }

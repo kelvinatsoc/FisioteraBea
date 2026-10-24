@@ -2,7 +2,7 @@
   "name": "FisioBea",
   "short_name": "FisioBea",
   "description": "Agenda, prontuário e financeiro para fisioterapeutas",
-  "start_url": "/",
+  "start_url": "/app/",
   "display": "standalone",
   "background_color": "#f7f9f8",
   "theme_color": "#1e7a46",

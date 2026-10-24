@@ -1,10 +1,17 @@
 # FisioBea: versão hospedada (Cloudflare, plano gratuito)
 
-Site com cadastro e login próprios. Cada fisioterapeuta vê só os próprios pacientes.
-**A primeira conta criada vira administradora.** Por isso, crie a sua antes de passar o link para alguém.
+- `/` página de vendas, com formulário "Quero conhecer" (os contatos aparecem no painel da administradora)
+- `/app/` o aplicativo, só com login. Não existe cadastro aberto: a administradora cria as contas.
+- Cada pagamento registrado libera 30 dias (ou 90/180/365). Venceu, o acesso é bloqueado automaticamente; os dados ficam guardados.
+- Cada fisioterapeuta vê só os próprios pacientes.
+
+**Instalação:** no primeiro acesso a `/app/` (banco vazio) aparece "Criar conta de administradora". Faça isso logo depois de publicar.
+
+**Preço:** o valor aparece em dois lugares: `public/index.html` (página de vendas, texto "R$ 49,90") e `PRECO_PADRAO` em `public/app/index.html` (valor sugerido ao registrar pagamento).
 
 ## Estrutura
-- `public/index.html`: o aplicativo (telas)
+- `public/index.html`: página de vendas
+- `public/app/index.html`: o aplicativo
 - `functions/api/[[path]].js`: a API (login, cadastro, salvar dados, administração)
 - `schema.sql`: as tabelas do banco D1
 
@@ -20,7 +27,7 @@ Site com cadastro e login próprios. Cada fisioterapeuta vê só os próprios pa
    - *Save and Deploy*
 4. **Ligar o banco ao site:** no projeto do Pages → *Settings* → *Bindings* → *Add* → *D1 database* →
    nome da variável `DB`, banco `fisiobea-db` → salvar. Depois, em *Deployments*, clique em *Retry deployment*.
-5. Abra o endereço `https://<nome>.pages.dev` e **crie a sua conta primeiro**.
+5. Abra `https://<nome>.pages.dev/app/` e **crie a conta de administradora**.
 
 Cada `git push` nesse branch publica uma versão nova automaticamente.
 
