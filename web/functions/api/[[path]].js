@@ -25,6 +25,8 @@ const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, 
 const aleatorio = (n = 32) => hex(crypto.getRandomValues(new Uint8Array(n)));
 const emailValido = e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const dataValida = d => /^\d{4}-\d{2}-\d{2}$/.test(d || '');
+// Acesso vitalício (sem mensalidade) é guardado como uma data de validade que nunca chega
+const VITALICIO = '9999-12-31';
 
 async function hashSenha(senha, salt) {
   const chave = await crypto.subtle.importKey('raw', new TextEncoder().encode(senha), 'PBKDF2', false, ['deriveBits']);
@@ -198,7 +200,7 @@ export async function onRequest({ request, env, params }) {
       if (recurso === 'usuarios' && !alvo && metodo === 'POST') {
         const d = await lerJson(request);
         const dias = Math.max(0, Math.min(366, Number(d.dias) || 0));
-        const r = await novaConta(env, { ...d, role: 'user', valido_ate: dias ? somaDias(hoje(), dias - 1) : '' });
+        const r = await novaConta(env, { ...d, role: 'user', valido_ate: d.dias === 'vitalicio' ? VITALICIO : dias ? somaDias(hoje(), dias - 1) : '' });
         if (typeof r === 'string') return erro(r);
         return json({ usuario: r }, 201);
       }
@@ -206,6 +208,7 @@ export async function onRequest({ request, env, params }) {
       if (recurso === 'usuarios' && alvo && acao === 'pagamento' && metodo === 'POST') {
         const u = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(alvo).first();
         if (!u) return erro('Usuária não encontrada.', 404);
+        if (u.valido_ate === VITALICIO) return erro('Esta conta tem acesso vitalício e não precisa de pagamento.');
         const { valor, dias = 30, data, forma = '' } = await lerJson(request);
         const n = Math.max(1, Math.min(366, Number(dias) || 30));
         const pago = dataValida(data) ? data : hoje();

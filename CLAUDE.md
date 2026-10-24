@@ -38,6 +38,12 @@ Cloudflare Pages + Functions + D1, tudo no plano gratuito. Veja `web/CLAUDE.md` 
 3. **Frase da Beatriz na página de vendas** ("Eu precisava planejar os treinos…"): foi escrita pelo Claude. Ela precisa aprovar ou reescrever.
 4. Ideias futuras: pagamento automático (Mercado Pago ou Asaas), "esqueci minha senha" por e-mail, termos de uso e política de privacidade (LGPD: dados de saúde são sensíveis), domínio próprio e publicação na Play Store.
 
+## Situação em 24/10/2026
+- Quem fala comigo é o **Kelvin** (namorado da Beatriz), que está montando o app para ela. A conta administradora publicada é a dele ("Kelvin Costa").
+- A conta do Kelvin tem **pacientes de exemplo** (ids `demo-…`), para ver o app preenchido. Quando a Beatriz criar a conta dela, os exemplos podem ir para lá. Veja `web/ferramentas/LEIA-ME.md` (gerar e apagar).
+- **Acesso vitalício**: conta com `valido_ate = 9999-12-31` nunca vence e não aceita pagamento (para a Beatriz). Escolhido em "Nova assinante" ou em "Editar".
+- **Foto do paciente**: campo `foto` (JPEG 240 px em data URL) no cadastro; aparece na lista, na agenda e no prontuário.
+
 ## Versões antigas (só referência)
 - `index.html`, `app.js`, `style.css`: primeira versão (salva só no navegador).
 - `fisiobea.html`: versão publicada como artifact no claude.ai, que usa o banco do claude.ai.
