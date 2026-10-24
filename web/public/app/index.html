@@ -560,8 +560,8 @@ async function api(caminho, opcoes = {}) {
   const r = await fetch('/api/' + caminho, { credentials: 'same-origin', headers: { 'content-type': 'application/json' }, ...opcoes });
   let corpo = {}; try { corpo = await r.json(); } catch (e) {}
   if (r.status === 401 && caminho !== 'login') { S.usuario = null; mostrarLogin(); }
-  if (r.status === 402 && caminho !== 'login') { S.usuario = null; mostrarLogin(corpo.erro); }
-  if (!r.ok) { const e = new Error(corpo.erro || 'Erro ' + r.status); e.status = r.status; throw e; }
+  if (r.status === 402 && caminho !== 'login') { S.usuario = null; mostrarLogin(corpo.erro, corpo); }
+  if (!r.ok) { const e = new Error(corpo.erro || 'Erro ' + r.status); e.status = r.status; e.corpo = corpo; throw e; }
   return corpo;
 }
 const putLocal = (col, obj) => { const i = S[col].findIndex(x => x.id === obj.id); i < 0 ? S[col].push(obj) : (S[col][i] = obj); };
@@ -577,7 +577,7 @@ async function carregarDados() {
     COLECOES.forEach(c => S[c] = d[c] || []);
     const cfg = Object.fromEntries((d.config || []).map(x => [x.id, x]));
     S.modelo = cfg.modelo?.campos?.length ? cfg.modelo.campos : MODELO_PADRAO;
-    S.config = { ...CONFIG_PADRAO, ...(cfg.geral || {}) };
+    S.config = { ...CONFIG_PADRAO, profissional: S.usuario?.nome.split(' ')[0] || CONFIG_PADRAO.profissional, ...(cfg.geral || {}) };
     S.aceite = cfg.aceite || null;
     delete S.config.id;
     S.carregado = true; S.erro = null;
@@ -613,10 +613,14 @@ function pedirAceite() {
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.usuario && !document.querySelector('#sheet')) carregarDados(); });
 
 // ---------- Login ----------
-// Não existe cadastro aberto: as contas são criadas pela administradora.
+// A própria pessoa cria a conta (7 dias de teste grátis) ou a administradora cria por ela.
 // Só na primeira vez (banco vazio) aparece a criação da conta de administradora.
 let instalado = true;
-function mostrarLogin(aviso = '') {
+const TESTE_DIAS = 7;
+// Botão de WhatsApp para assinar ou renovar, falando com a FisioBea
+const botaoAssinar = (contato, email, teste, cls = '') => soDigitos(contato)
+  ? `<a class="btn wa ${cls}" target="_blank" rel="noopener" href="${waLink(contato, `Olá! ${teste ? 'Estou testando o FisioBea e quero assinar' : 'Quero renovar minha assinatura do FisioBea'}.${email ? ' Meu e-mail no app é ' + email + '.' : ''}`)}">${teste ? 'Quero assinar' : 'Renovar pelo WhatsApp'}</a>` : '';
+function mostrarLogin(aviso = '', venc = null) {
   $('#shell').hidden = true; $('#layer').innerHTML = '';
   const el = $('#login'); el.hidden = false;
   const inst = !instalado;
@@ -628,10 +632,11 @@ function mostrarLogin(aviso = '') {
       <label class="field"><span>E-mail</span><input id="l-email" name="email" type="email" autocomplete="email" required></label>
       <label class="field"><span>Senha</span><input id="l-senha" name="senha" type="password" minlength="${inst ? 8 : 1}" autocomplete="${inst ? 'new-password' : 'current-password'}" required></label>
       <div class="erro-form" id="l-erro">${esc(aviso)}</div>
+      <div id="l-assinar" style="display:grid">${venc?.vencida ? botaoAssinar(venc.whatsapp, venc.email, venc.teste) : ''}</div>
       <button type="submit" id="l-btn">${inst ? 'Criar e entrar' : 'Entrar'}</button>
     </div>
     ${inst ? '' : '<button type="button" class="link small" style="justify-self:center" onclick="esqueciSenha()">Esqueci minha senha</button>'}
-    ${inst ? '' : '<p class="sub" style="text-align:center;margin:0">Ainda não é assinante? <a href="/" style="color:var(--green);font-weight:600">Conheça o FisioBea</a></p>'}
+    ${inst ? '' : `<p class="sub" style="text-align:center;margin:0">Ainda não tem conta? <button type="button" class="link" style="color:var(--green);font-weight:600;padding:0" onclick="telaCadastro()">Teste grátis por ${TESTE_DIAS} dias</button></p>`}
     <p class="sub" style="text-align:center;margin:0;font-size:.8rem"><a href="/termos" target="_blank" rel="noopener" style="color:inherit">Termos de Uso</a> · <a href="/privacidade" target="_blank" rel="noopener" style="color:inherit">Política de Privacidade</a></p>
   </form></div>`;
   $('#form-login').onsubmit = async e => {
@@ -640,11 +645,48 @@ function mostrarLogin(aviso = '') {
     btn.disabled = true; $('#l-erro').textContent = '';
     try {
       const r = await api(inst ? 'instalar' : 'login', { method: 'POST', body: JSON.stringify(Object.fromEntries(f)) });
-      instalado = true; entrou(r.usuario);
-    } catch (err) { $('#l-erro').textContent = err.message; btn.disabled = false; }
+      instalado = true; entrou(r.usuario, r.contato);
+    } catch (err) {
+      $('#l-erro').textContent = err.message; btn.disabled = false;
+      $('#l-assinar').innerHTML = err.corpo?.vencida ? botaoAssinar(err.corpo.whatsapp, err.corpo.email, err.corpo.teste) : '';
+    }
   };
 }
 window.mostrarLogin = mostrarLogin;
+
+// Cadastro: conta nova com teste grátis, sem cartão; entra direto no app
+window.telaCadastro = () => {
+  $('#shell').hidden = true;
+  const el = $('#login'); el.hidden = false;
+  el.innerHTML = `<div class="login-foto"><img src="/img/casa-alongamento.jpg" alt=""></div><div class="login-main"><form class="login-box" id="form-cad">
+    <div class="brand">${LOGO}</div>
+    <div class="item" style="gap:14px">
+      <h2>Teste grátis por ${TESTE_DIAS} dias</h2>
+      <p class="sub" style="margin:0">Crie sua conta e use tudo, sem cartão. Gostou? Continue por ${reais(PRECO_PADRAO)} por mês, no Pix.</p>
+      <label class="field"><span>Seu nome</span><input id="cd-nome" name="nome" autocomplete="name" required maxlength="120"></label>
+      <label class="field"><span>E-mail</span><input id="cd-email" name="email" type="email" autocomplete="email" required></label>
+      <label class="field"><span>WhatsApp com DDD</span><input id="cd-tel" name="telefone" type="tel" autocomplete="tel" placeholder="(11) 99999-9999" required></label>
+      <label class="field"><span>Crie uma senha (mínimo 8 caracteres)</span><input id="cd-senha" name="senha" type="password" minlength="8" autocomplete="new-password" required></label>
+      <input name="site" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
+      <p class="sub legal-cad" style="margin:0;font-size:.82rem">Ao criar a conta, você concorda com os <a href="/termos" target="_blank" rel="noopener" style="color:var(--green)">Termos de Uso</a> e a <a href="/privacidade" target="_blank" rel="noopener" style="color:var(--green)">Política de Privacidade</a>.</p>
+      <div class="erro-form" id="cd-erro"></div>
+      <button type="submit" id="cd-btn">Começar meu teste grátis</button>
+    </div>
+    <button type="button" class="link small" style="justify-self:center" onclick="mostrarLogin()">Já tenho conta · Entrar</button>
+  </form></div>`;
+  $('#form-cad').onsubmit = async e => {
+    e.preventDefault();
+    const btn = $('#cd-btn'); btn.disabled = true; $('#cd-erro').textContent = '';
+    try {
+      const r = await api('cadastro', { method: 'POST', body: JSON.stringify(Object.fromEntries(new FormData(e.target))) });
+      if (!r.usuario) throw new Error('Não foi possível criar a conta.');
+      history.replaceState(null, '', location.pathname);
+      entrou(r.usuario, r.contato);
+      toast(`Bem-vinda! Seu teste vai até ${br(r.usuario.valido_ate)}.`);
+    } catch (err) { $('#cd-erro').textContent = err.message; btn.disabled = false; }
+  };
+  $('#cd-nome').focus();
+};
 
 // Esqueci minha senha: vira um pedido no painel; a FisioBea manda um link de uso único pelo WhatsApp
 window.esqueciSenha = () => {
@@ -703,8 +745,8 @@ async function telaNovaSenha(codigo) {
   };
   $('#ns-1').focus();
 }
-function entrou(usuario) {
-  S.usuario = usuario; S.carregado = false; S.aba = 'inicio';
+function entrou(usuario, contato = '') {
+  S.usuario = usuario; S.contato = contato; S.carregado = false; S.aba = 'inicio';
   if (!S.config.profissional || S.config.profissional === 'Beatriz') S.config = { ...CONFIG_PADRAO, profissional: usuario.nome.split(' ')[0] };
   $('#login').hidden = true; $('#login').innerHTML = ''; $('#shell').hidden = false;
   render(); carregarDados();
@@ -713,10 +755,11 @@ window.sair = async () => { try { await api('sair', { method: 'POST' }); } catch
 async function iniciar() {
   const codigo = new URLSearchParams(location.search).get('redefinir');
   if (codigo) return telaNovaSenha(codigo);
-  try { const r = await api('eu'); entrou(r.usuario); }
+  try { const r = await api('eu'); entrou(r.usuario, r.contato); }
   catch (e) {
     if (e.status === 402) return;
     try { instalado = (await api('status')).instalado; } catch (x) {}
+    if (instalado && new URLSearchParams(location.search).has('cadastro')) return telaCadastro();
     mostrarLogin();
   }
 }
@@ -812,8 +855,11 @@ function render() {
   if (S.erro) { app.innerHTML = `<div class="empty">${esc(S.erro)}</div>`; return; }
   if (!S.carregado) { app.innerHTML = esqueleto(); return; }
   const resta = S.usuario?.role === 'admin' ? null : diasRestantes(S.usuario?.valido_ate);
-  const aviso = resta !== null && resta <= 5
-    ? `<div class="item" style="background:var(--yellow-soft);border-color:transparent;margin-bottom:16px"><span>Sua assinatura vence ${resta <= 1 ? '<b>hoje</b>' : `em <b>${resta} dias</b> (${br(S.usuario.valido_ate)})`}. Renove para não perder o acesso.</span></div>` : '';
+  const teste = S.usuario?.teste && resta !== null;
+  const aviso = teste || (resta !== null && resta <= 5)
+    ? `<div class="item" style="background:${teste && resta > 2 ? 'var(--green-soft)' : 'var(--yellow-soft)'};border-color:transparent;margin-bottom:16px;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px">
+        <span>${teste ? `Você está no teste grátis: ${resta <= 1 ? '<b>termina hoje</b>' : `faltam <b>${resta} dias</b> (até ${br(S.usuario.valido_ate)})`}.` : `Sua assinatura vence ${resta <= 1 ? '<b>hoje</b>' : `em <b>${resta} dias</b> (${br(S.usuario.valido_ate)})`}. Renove para não perder o acesso.`}</span>
+        ${botaoAssinar(S.contato, S.usuario.email, teste, 'small')}</div>` : '';
   if (S.pid && !pac(S.pid)) S.pid = null;
   const ativo = document.activeElement;
   const foco = ativo && ativo.id && app.contains(ativo) ? { id: ativo.id, a: ativo.selectionStart, b: ativo.selectionEnd } : null;
@@ -1737,11 +1783,13 @@ window.trocarSenha = () => sheet(`<h3>Trocar senha</h3>
 S.admin = null; S.filtroAss = 'todas';
 const PRECO_PADRAO = 49.9; // valor sugerido ao registrar pagamento; altere aqui
 async function carregarAdmin() { try { S.admin = await api('admin/resumo'); } catch (e) { S.admin = { usuarios: [], pedidos: [], porMes: [], receitaMes: 0 }; toast(e.message); } render(); }
+const emTeste = u => !u.ultimo_pagamento && u.obs === 'Teste grátis pelo site';
 const situacao = u => {
   if (u.role === 'admin') return { t: 'Administradora', c: 'st-agendado', k: 'admin' };
   if (!u.ativo) return { t: 'Desativada', c: 'red', k: 'desativada' };
   if (u.valido_ate === VITALICIO) return { t: 'Vitalícia', c: 'green', k: 'ativa' };
   const r = diasRestantes(u.valido_ate);
+  if (emTeste(u) && r !== null) return r <= 0 ? { t: 'Teste acabou ' + br(u.valido_ate).slice(0, 5), c: 'red', k: 'vencida' } : { t: `Teste: ${r} dia${r > 1 ? 's' : ''}`, c: 'st-agendado', k: 'teste' };
   if (r === null) return { t: 'Sem pagamento', c: 'red', k: 'vencida' };
   if (r <= 0) return { t: 'Vencida em ' + br(u.valido_ate).slice(0, 5), c: 'red', k: 'vencida' };
   if (r <= 7) return { t: `Vence em ${r} dia${r > 1 ? 's' : ''}`, c: 'st-agendado', k: 'vencendo' };
@@ -1758,10 +1806,14 @@ function vUsuarios() {
   const filtro = S.filtroAss;
   const lista = filtro === 'todas' ? A.usuarios : A.usuarios.filter(u => situacao(u).k === filtro);
   const fones = u => soDigitos(u.telefone);
-  const cobranca = u => `Olá, ${u.nome.split(' ')[0]}! Sua assinatura do FisioBea ${diasRestantes(u.valido_ate) > 0 ? 'vence em ' + br(u.valido_ate) : 'venceu em ' + br(u.valido_ate)}. Para renovar, é só fazer o Pix de ${reais(PRECO_PADRAO)} e me mandar o comprovante. Obrigada!`;
+  const cobranca = u => emTeste(u) ? `Olá, ${u.nome.split(' ')[0]}! Aqui é do FisioBea. Seu teste grátis ${diasRestantes(u.valido_ate) > 0 ? 'vai até ' + br(u.valido_ate) : 'terminou em ' + br(u.valido_ate)}. Está gostando? Para continuar usando, é só fazer o Pix de ${reais(PRECO_PADRAO)} e me mandar o comprovante. Seus pacientes e registros continuam todos lá.`
+    : `Olá, ${u.nome.split(' ')[0]}! Sua assinatura do FisioBea ${diasRestantes(u.valido_ate) > 0 ? 'vence em ' + br(u.valido_ate) : 'venceu em ' + br(u.valido_ate)}. Para renovar, é só fazer o Pix de ${reais(PRECO_PADRAO)} e me mandar o comprovante. Obrigada!`;
   return `
   <div class="head"><div><h2>Assinantes</h2><p class="sub">Controle de acesso e mensalidades</p></div>
   <div class="row" style="gap:6px"><button class="ghost small" onclick="S.admin=null;render()">Atualizar</button><button class="small" onclick="novaAssinante()">Nova assinante</button></div></div>
+  ${A.usuarios.some(u => u.id === S.usuario.id && !fones(u)) ? `<div class="item" style="background:var(--yellow-soft);border-color:transparent;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px">
+    <span>Cadastre o seu WhatsApp: é para ele que vai o botão “Quero assinar” de quem está no teste grátis.</span>
+    <button class="small" onclick="editarAssinante('${S.usuario.id}')">Cadastrar WhatsApp</button></div>` : ''}
   <div class="stats">
     <div class="stat"><span class="label">Ativas</span><strong>${cont('ativa') + cont('vencendo')}</strong></div>
     <div class="stat"><span class="label">Vencem em 7 dias</span><strong>${cont('vencendo')}</strong></div>
@@ -1787,7 +1839,7 @@ function vUsuarios() {
       </div></div>`).join('')}</div></div>` : ''}
 
   <div class="section"><h3>Contas</h3>
-  <div class="chips" style="margin:0">${[['todas', 'Todas'], ['ativa', 'Ativas'], ['vencendo', 'Vencendo'], ['vencida', 'Vencidas'], ['desativada', 'Desativadas']].map(([k, n]) => `<button class="chip ${filtro === k ? 'on' : ''}" onclick="S.filtroAss='${k}';render()">${n}</button>`).join('')}</div>
+  <div class="chips" style="margin:0">${[['todas', 'Todas'], ['ativa', 'Ativas'], ['teste', 'Em teste'], ['vencendo', 'Vencendo'], ['vencida', 'Vencidas'], ['desativada', 'Desativadas']].map(([k, n]) => `<button class="chip ${filtro === k ? 'on' : ''}" onclick="S.filtroAss='${k}';render()">${n}</button>`).join('')}</div>
   <div class="list">${lista.map(u => { const st = situacao(u); return `<div class="item">
     <div class="item-top"><div style="min-width:0"><h3>${esc(u.nome)}${u.id === S.usuario.id ? ' <span class="muted" style="font-weight:400">(você)</span>' : ''}</h3>
       <div class="muted" style="font-size:.88rem;overflow-wrap:anywhere">${esc(u.email)}${u.telefone ? ' · ' + esc(u.telefone) : ''}</div></div>

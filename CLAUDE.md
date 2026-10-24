@@ -25,7 +25,7 @@ Funcionalidades prontas:
 Cloudflare Pages + Functions + D1, tudo no plano gratuito. Veja `web/CLAUDE.md` e `web/COMECE-AQUI.md`.
 - `/` página de vendas, com formulário de interessadas.
 - `/app/` aplicativo, só com login.
-- **Sem cadastro aberto.** A primeira conta criada vira a administradora (a Beatriz), e ela cria as contas das assinantes.
+- **Cadastro com teste grátis.** A primeira conta criada vira a administradora (hoje o Kelvin). Depois, a própria fisio se cadastra no site (`POST /api/cadastro`) e ganha 7 dias (`obs = "Teste grátis pelo site"`); "em teste" = sem nenhum pagamento em `assinaturas`. Limites: 3 cadastros por IP a cada 15 min e 30 por hora no total. O botão "Quero assinar" abre o WhatsApp do telefone da administradora. A administradora também pode criar contas em "Nova assinante".
 - Cada pagamento registrado pela admin libera 30 dias (ou 90/180/365). Pagamento antes do vencimento soma a partir do vencimento. Vencida, o acesso é bloqueado e os dados ficam guardados. A assinante vê um aviso 5 dias antes de vencer.
 - Cada assinante vê só os próprios pacientes, nem a admin vê os das outras.
 - Pagamento hoje é **manual** (Pix, e a admin registra no painel).

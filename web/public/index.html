@@ -52,7 +52,8 @@ nav { display: flex; align-items: center; gap: 26px; font-weight: 500; font-size
 nav a { text-decoration: none; color: var(--muted); }
 nav a:hover { color: var(--fg); }
 nav .btn { padding: 10px 18px; font-size: .92rem; }
-@media (max-width: 760px) { nav a:not(.btn) { display: none; } }
+nav a.entrar { color: var(--green); font-weight: 600; }
+@media (max-width: 760px) { nav a:not(.btn):not(.entrar) { display: none; } nav { gap: 14px; } nav .btn { padding-inline: 16px; } }
 
 /* Hero */
 .hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center; padding-block: 36px 64px; }
@@ -223,8 +224,8 @@ form.contato label.aceite a { color: var(--green); }
       <a href="#funcionalidades">Funcionalidades</a>
       <a href="#preco">Preço</a>
       <a href="#duvidas">Dúvidas</a>
-      <a href="/app/">Entrar</a>
-      <a class="btn" href="#assinar">Quero conhecer</a>
+      <a class="entrar" href="/app/">Entrar</a>
+      <a class="btn" href="#assinar">Testar grátis</a>
     </nav>
   </div>
 </header>
@@ -236,7 +237,7 @@ form.contato label.aceite a { color: var(--green); }
         <span class="eyebrow">Feito por fisioterapeuta</span>
         <h1 style="margin-top:16px">Seu atendimento <i class="grifo">planejado<svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 8c40-6 90-7 194-3"/></svg></i> antes do paciente chegar.</h1>
         <p class="lead">Agenda, treinos A, B, C e D, evolução com modelo pronto, avaliações e financeiro. No celular e no tablet, no consultório ou na casa do paciente.</p>
-        <div class="ctas"><a class="btn" href="#assinar">Quero testar</a><a class="link-sub" href="#funcionalidades">Ver como funciona</a></div>
+        <div class="ctas"><a class="btn" href="#assinar">Testar 7 dias grátis</a><a class="link-sub" href="#funcionalidades">Ver como funciona</a></div>
         <p class="nota">Sem instalar nada. Funciona no navegador e vira um ícone na tela inicial.</p>
       </div>
       <div class="arco">
@@ -350,16 +351,16 @@ form.contato label.aceite a { color: var(--green); }
         <p class="muted" style="font-size:.92rem">Pagamento mensal por Pix. Cada pagamento libera 30 dias de acesso. Sem fidelidade.</p>
       </div>
       <form class="contato" id="assinar" novalidate data-rv style="--d:1">
-        <h2>Quero conhecer o FisioBea</h2>
-        <p class="muted">Deixe seu contato. A Beatriz te chama para mostrar o app e liberar um período de teste.</p>
-        <label>Nome<input id="c-nome" name="nome" autocomplete="name" required></label>
+        <h2>Teste grátis por 7 dias</h2>
+        <p class="muted">Crie sua conta e comece a usar agora, sem cartão. Gostou? Continue por R$ 49,90 por mês no Pix. Não gostou? É só não assinar.</p>
+        <label>Nome<input id="c-nome" name="nome" autocomplete="name" required maxlength="120"></label>
         <label>E-mail<input id="c-email" name="email" type="email" autocomplete="email" required></label>
-        <label>WhatsApp<input id="c-tel" name="telefone" type="tel" autocomplete="tel" placeholder="(11) 99999-9999"></label>
-        <label>Conte sobre seus atendimentos (opcional)<textarea id="c-msg" name="mensagem" placeholder="Ex.: atendo ortopedia em domicílio, uns 15 pacientes por semana"></textarea></label>
+        <label>WhatsApp com DDD<input id="c-tel" name="telefone" type="tel" autocomplete="tel" placeholder="(11) 99999-9999" required></label>
+        <label>Crie uma senha (mínimo 8 caracteres)<input id="c-senha" name="senha" type="password" autocomplete="new-password" minlength="8" required></label>
         <input class="hp" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
-        <label class="aceite"><input type="checkbox" id="c-aceite" name="aceite" required> <span>Li a <a href="/privacidade" target="_blank" rel="noopener">Política de Privacidade</a> e aceito ser contatada pelo FisioBea sobre o aplicativo.</span></label>
+        <label class="aceite"><input type="checkbox" id="c-aceite" name="aceite" required> <span>Li e aceito os <a href="/termos" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>.</span></label>
         <div class="err" id="c-err" role="alert"></div>
-        <button class="btn" type="submit" id="c-btn">Quero testar</button>
+        <button class="btn" type="submit" id="c-btn">Começar meu teste grátis</button>
       </form>
     </div>
   </section>
@@ -371,7 +372,7 @@ form.contato label.aceite a { color: var(--green); }
       <details><summary>Meus dados ficam iguais no celular e no tablet?</summary><p>Sim. Tudo fica salvo na sua conta. O que você preenche em um aparelho aparece no outro.</p></details>
       <details><summary>Alguém além de mim vê meus pacientes?</summary><p>Não. Cada conta enxerga só os próprios pacientes, e o acesso é protegido por e-mail e senha.</p></details>
       <details><summary>Como funciona o pagamento?</summary><p>Mensal, por Pix. Cada pagamento libera 30 dias de uso. Alguns dias antes de vencer, o app avisa. Se não renovar, o acesso fica pausado e seus dados continuam guardados.</p></details>
-      <details><summary>Consigo testar antes de assinar?</summary><p>Sim. Preencha o formulário acima e você recebe um período de teste.</p></details>
+      <details><summary>Consigo testar antes de assinar?</summary><p>Sim. Crie sua conta no formulário acima e use tudo de graça por 7 dias, sem cartão. Seus pacientes ficam guardados se você assinar depois.</p></details>
       <details><summary>Posso cancelar quando quiser?</summary><p>Pode. Não tem fidelidade nem multa. É só não renovar.</p></details>
     </div>
   </section>
@@ -403,14 +404,17 @@ form.addEventListener('submit', async e => {
   const dados = Object.fromEntries(new FormData(form));
   err.textContent = '';
   if (!dados.nome.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(dados.email.trim())) { err.textContent = 'Informe seu nome e um e-mail válido.'; return; }
+  if (dados.telefone.replace(/\D/g, '').length < 10) { err.textContent = 'Informe seu WhatsApp com DDD.'; return; }
+  if (dados.senha.length < 8) { err.textContent = 'A senha precisa ter pelo menos 8 caracteres.'; return; }
   if (!dados.aceite) { err.textContent = 'Marque que leu a Política de Privacidade para enviar.'; return; }
-  btn.disabled = true; btn.textContent = 'Enviando…';
+  btn.disabled = true; btn.textContent = 'Criando sua conta…';
   try {
-    const r = await fetch('/api/pedido', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(dados) });
+    delete dados.aceite;
+    const r = await fetch('/api/cadastro', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(dados) });
     const c = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(c.erro || 'Não foi possível enviar.');
-    form.innerHTML = `<h2>Recebido!</h2><div class="ok">Obrigada, ${dados.nome.trim().split(' ')[0].replace(/[<>&"]/g, '')}. A Beatriz vai entrar em contato em breve.</div>`;
-  } catch (x) { err.textContent = x.message + ' Tente de novo.'; btn.disabled = false; btn.textContent = 'Quero testar'; }
+    if (!r.ok) throw new Error(c.erro || 'Não foi possível criar a conta.');
+    location.href = '/app/';
+  } catch (x) { err.textContent = x.message; btn.disabled = false; btn.textContent = 'Começar meu teste grátis'; }
 });
 </script>
 </body>

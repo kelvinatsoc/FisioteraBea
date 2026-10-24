@@ -2,6 +2,7 @@
 // Públicas:  GET /api/status            POST /api/instalar {nome, email, senha} (só enquanto não há nenhuma conta)
 //            POST /api/login {email, senha}   POST /api/pedido {nome, email, telefone, mensagem}
 //            POST /api/esqueci {email}        GET /api/redefinir?codigo=   POST /api/redefinir {codigo, senha}
+//            POST /api/cadastro {nome, email, telefone, senha} (conta nova com 7 dias de teste grátis)
 // Logada:    POST /api/sair   GET /api/eu   POST /api/senha {atual, nova}
 //            GET /api/dados   PUT/DELETE /api/doc/:col/:id
 // Admin:     GET /api/admin/resumo
@@ -29,6 +30,9 @@ const emailValido = e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 const dataValida = d => /^\d{4}-\d{2}-\d{2}$/.test(d || '');
 // Acesso vitalício (sem mensalidade) é guardado como uma data de validade que nunca chega
 const VITALICIO = '9999-12-31';
+// Teste grátis: conta criada pela própria pessoa no site; vale até ela fazer o primeiro pagamento
+const TESTE_DIAS = 7, OBS_TESTE = 'Teste grátis pelo site';
+const soDigitos = v => String(v || '').replace(/\D/g, '');
 
 async function hashSenha(senha, salt) {
   const chave = await crypto.subtle.importKey('raw', new TextEncoder().encode(senha), 'PBKDF2', false, ['deriveBits']);
@@ -53,9 +57,17 @@ async function criarSessao(env, userId, url) {
   return cookieSessao(token, url, SESSAO_DIAS * 86400);
 }
 const vencida = u => u.role !== 'admin' && (!u.valido_ate || u.valido_ate < hoje());
-const msgVencida = u => u.valido_ate
-  ? `Sua assinatura venceu em ${br(u.valido_ate)}. Fale com a FisioBea para renovar.`
-  : 'Sua assinatura ainda não foi ativada. Fale com a FisioBea.';
+const emTeste = async (env, u) => u.role !== 'admin' && u.valido_ate !== VITALICIO
+  && !(await env.DB.prepare('SELECT 1 FROM assinaturas WHERE user_id = ? LIMIT 1').bind(u.id).first());
+// WhatsApp da administradora, para o botão de assinar/renovar
+const contatoAdmin = async env => (await env.DB.prepare("SELECT telefone FROM users WHERE role = 'admin' ORDER BY criado LIMIT 1").first())?.telefone || '';
+async function respostaVencida(env, u) {
+  const teste = await emTeste(env, u);
+  const msg = !u.valido_ate ? 'Sua assinatura ainda não foi ativada. Fale com a FisioBea.'
+    : teste ? `Seu teste grátis terminou em ${br(u.valido_ate)}. Gostou? Assine para continuar usando: seus dados estão guardados.`
+    : `Sua assinatura venceu em ${br(u.valido_ate)}. Renove para continuar: seus dados estão guardados.`;
+  return erro(msg, 402, { vencida: true, teste, whatsapp: await contatoAdmin(env), email: u.email });
+}
 
 async function usuarioAtual(env, request) {
   const m = /(?:^|;\s*)sessao=([a-f0-9]{64})/.exec(request.headers.get('cookie') || '');
@@ -156,8 +168,30 @@ export async function onRequest({ request, env, params }) {
       }
       await limparErros(env, kEmail);
       if (!u.ativo) return erro('Sua conta está desativada. Fale com a FisioBea.', 403);
-      if (vencida(u)) return erro(msgVencida(u), 402, { vencida: true });
+      if (vencida(u)) return respostaVencida(env, u);
       return json({ usuario: publico(u) }, 200, { 'set-cookie': await criarSessao(env, u.id, url) });
+    }
+
+    // Cadastro pelo site: a pessoa cria a própria conta e já entra com 7 dias de teste grátis
+    if (rota === 'cadastro' && metodo === 'POST') {
+      const d = await lerJson(request);
+      if (d.site) return json({ ok: true }); // campo invisível: robôs preenchem, pessoas não
+      if ((await total()) === 0) return erro('O sistema ainda não foi instalado.', 403);
+      const kIp = 'cad:' + ipDe(request), espera = await minutosBloqueado(env, [kIp]);
+      if (espera) return erro(`Muitos cadastros seguidos. Espere ${espera} minuto${espera > 1 ? 's' : ''} e tente de novo.`, 429);
+      if (soDigitos(d.telefone).length < 10) return erro('Informe seu WhatsApp com DDD.');
+      const recentes = await env.DB.prepare('SELECT COUNT(*) AS n FROM users WHERE criado > ?').bind(new Date(Date.now() - 3600e3).toISOString()).first();
+      if (recentes.n > 30) return erro('Muitos cadastros agora. Tente de novo mais tarde.', 429);
+      const r = await novaConta(env, {
+        nome: String(d.nome || '').slice(0, 120), email: String(d.email || '').slice(0, 160), senha: d.senha,
+        telefone: String(d.telefone).slice(0, 40), valido_ate: somaDias(hoje(), TESTE_DIAS - 1), obs: OBS_TESTE,
+      });
+      if (typeof r === 'string') return erro(r);
+      await registrarErro(env, kIp, 3); // no máximo 3 contas novas do mesmo endereço de internet a cada 15 minutos
+      // Aparece no painel da administradora, para ela dar as boas-vindas
+      await env.DB.prepare('INSERT INTO pedidos (id, nome, email, telefone, mensagem, status, criado) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        .bind(aleatorio(12), r.nome, r.email, String(d.telefone).trim().slice(0, 40), `Começou o teste grátis (até ${br(r.valido_ate)})`, 'convertido', agora()).run();
+      return json({ usuario: { ...publico(r), teste: true }, contato: await contatoAdmin(env) }, 201, { 'set-cookie': await criarSessao(env, r.id, url) });
     }
 
     // Formulário "Quero conhecer" da página de vendas
@@ -219,9 +253,9 @@ export async function onRequest({ request, env, params }) {
       return json({ ok: true }, 200, { 'set-cookie': cookieSessao('', url, 0) });
     }
     // Assinatura vencida: pode sair, mas não usa o app
-    if (vencida(eu)) return erro(msgVencida(eu), 402, { vencida: true });
+    if (vencida(eu)) return respostaVencida(env, eu);
 
-    if (rota === 'eu' && metodo === 'GET') return json({ usuario: publico(eu), hoje: hoje() });
+    if (rota === 'eu' && metodo === 'GET') return json({ usuario: { ...publico(eu), teste: await emTeste(env, eu) }, contato: await contatoAdmin(env), hoje: hoje() });
 
     if (rota === 'senha' && metodo === 'POST') {
       const { atual, nova } = await lerJson(request);
