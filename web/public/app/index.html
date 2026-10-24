@@ -225,7 +225,65 @@ textarea { min-height: 80px; resize: vertical; line-height: 1.45; }
 .switch input { width: 20px; height: 20px; accent-color: var(--green); }
 
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(90px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: .9rem; z-index: 30; max-width: calc(100% - 32px); }
-@media (prefers-reduced-motion: no-preference) { .sheet { animation: up .22s ease-out; } @keyframes up { from { transform: translateY(24px); opacity: .6; } } }
+
+/* Indicador do menu: uma pílula que desliza até a aba escolhida */
+@media (min-width: 800px) { nav.tabs { position: relative; } } /* no celular ela já é fixa embaixo */
+nav.tabs button { position: relative; z-index: 1; }
+nav.tabs button.on { background: transparent; }
+.tab-ind { position: absolute; left: 0; top: 0; z-index: 0; border-radius: 999px; background: var(--green-soft); pointer-events: none; }
+@media (max-width: 799px) { .tab-ind { border-radius: 14px; } }
+
+/* Movimento: só transform e opacity (leve em celular simples) e nada para quem pede menos movimento */
+@media (prefers-reduced-motion: no-preference) {
+  :root { --mola: cubic-bezier(.22, 1.2, .36, 1); --suave: cubic-bezier(.2, .8, .2, 1); }
+  .tab-ind.pronto { transition: transform .42s var(--mola), width .42s var(--mola), height .42s var(--mola); }
+  nav.tabs button { transition: color .25s; }
+  nav.tabs button.on svg { animation: pulo .45s var(--mola); }
+  @keyframes pulo { 0% { transform: scale(1); } 40% { transform: scale(1.22) translateY(-2px); } 100% { transform: scale(1); } }
+
+  button, .btn, .chip, .day, .pill, .status-pick button, .weekpick span { transition: transform .18s var(--suave), background-color .25s, color .25s, border-color .25s, box-shadow .25s, opacity .2s; }
+  button:active, .btn:active, .chip:active, .weekpick span:active { transform: scale(.95); }
+  .item { transition: transform .25s var(--suave), box-shadow .25s, border-color .25s; }
+  .item.tap:active { transform: scale(.985); }
+  @media (hover: hover) {
+    .item.tap:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -18px rgba(18, 60, 46, .35); border-color: transparent; }
+    button:not(.link):not(.danger):not(.back):not(.x):hover, .btn:hover { transform: translateY(-1px); }
+    nav.tabs button:hover { transform: none; color: var(--fg); }
+  }
+
+  /* Troca de tela: o conteúdo sobe e aparece em sequência */
+  .entra > *, .entra .list > *, .entra .stats > * { animation: entra .5s var(--suave) both; }
+  .entra > :nth-child(2) { animation-delay: .05s; } .entra > :nth-child(3) { animation-delay: .1s; } .entra > :nth-child(4) { animation-delay: .15s; } .entra > :nth-child(n+5) { animation-delay: .2s; }
+  .entra .list > :nth-child(1), .entra .stats > :nth-child(1) { animation-delay: .08s; }
+  .entra .list > :nth-child(2), .entra .stats > :nth-child(2) { animation-delay: .13s; }
+  .entra .list > :nth-child(3), .entra .stats > :nth-child(3) { animation-delay: .18s; }
+  .entra .list > :nth-child(4), .entra .stats > :nth-child(4) { animation-delay: .23s; }
+  .entra .list > :nth-child(5) { animation-delay: .28s; } .entra .list > :nth-child(n+6) { animation-delay: .32s; }
+  @keyframes entra { from { opacity: 0; transform: translateY(14px); } }
+  .entra .day.on, .entra .chip.on { animation: pop .45s var(--mola) both; }
+  @keyframes pop { 0% { transform: scale(.85); } 100% { transform: scale(1); } }
+
+  /* Painel de baixo (formulários): sobe com mola e desce ao fechar */
+  .sheet-bg { animation: fundo .25s ease-out both; }
+  .sheet { animation: sobe .42s var(--mola) both; }
+  .sheet-bg.saindo { animation: fundo .2s ease-in reverse both; }
+  .sheet-bg.saindo .sheet { animation: desce .22s ease-in both; }
+  @keyframes fundo { from { opacity: 0; } }
+  @keyframes sobe { from { transform: translateY(60px); opacity: 0; } }
+  @keyframes desce { to { transform: translateY(60px); opacity: 0; } }
+  @media (min-width: 800px) { @keyframes sobe { from { transform: translateY(24px) scale(.97); opacity: 0; } } @keyframes desce { to { transform: translateY(16px) scale(.98); opacity: 0; } } }
+
+  .toast { animation: aviso .4s var(--mola) both; }
+  .toast.sai { animation: avisoSai .25s ease-in both; }
+  @keyframes aviso { from { transform: translate(-50%, 20px) scale(.9); opacity: 0; } }
+  @keyframes avisoSai { to { transform: translate(-50%, 10px); opacity: 0; } }
+
+  /* Entrada: a foto em arco se revela e o formulário sobe */
+  .login-foto img { animation: arco .9s var(--suave) both; }
+  .login-box > * { animation: entra .6s var(--suave) both; }
+  .login-box > :nth-child(2) { animation-delay: .1s; } .login-box > :nth-child(3) { animation-delay: .2s; }
+  @keyframes arco { from { clip-path: inset(100% 0 0 0 round 999px 999px 24px 24px); transform: scale(1.06); } to { clip-path: inset(0 0 0 0 round 999px 999px 24px 24px); } }
+}
 </style>
 </head>
 <body>
@@ -335,7 +393,7 @@ const mesAtual = () => hojeIso().slice(0, 7);
 
 function toast(msg) {
   const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
-  document.body.appendChild(t); setTimeout(() => t.remove(), 2400);
+  document.body.appendChild(t); setTimeout(() => t.classList.add('sai'), 2150); setTimeout(() => t.remove(), 2400);
 }
 
 // ================= Dados (API própria) =================
@@ -483,7 +541,15 @@ function render() {
   $('#brand').innerHTML = LOGO; $('#brand2').innerHTML = LOGO;
   $('#tema-top').textContent = escuroAgora() ? '☀' : '☾';
   const h = new Date(); $('#hoje-top').textContent = `${DIAS[h.getDay()]}, ${h.getDate()} ${MESES[h.getMonth()].slice(0, 3)}`;
-  $('#tabs').innerHTML = abas().map(([k, n]) => `<button class="${S.aba === k ? 'on' : ''}" onclick="ir('${k}')">${ICON[k]}${n}</button>`).join('');
+  // O menu só é montado de novo quando as abas mudam, para a pílula poder deslizar entre elas
+  const nav = $('#tabs'), chaveAbas = abas().map(a => a[0]).join();
+  if (nav.dataset.k !== chaveAbas) {
+    nav.innerHTML = '<span class="tab-ind" aria-hidden="true"></span>' + abas().map(([k, n]) => `<button data-aba="${k}" onclick="ir('${k}')">${ICON[k]}${n}</button>`).join('');
+    nav.dataset.k = chaveAbas;
+    if (window.ResizeObserver) { obsMenu.disconnect(); nav.querySelectorAll('button').forEach(b => obsMenu.observe(b)); }
+  }
+  nav.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.aba === S.aba));
+  moverIndicador();
   const app = $('#app');
   if (S.erro) { app.innerHTML = `<div class="empty">${esc(S.erro)}</div>`; return; }
   if (!S.carregado) { app.innerHTML = '<div class="empty">Carregando seus dados…</div>'; return; }
@@ -495,6 +561,45 @@ function render() {
   const foco = ativo && ativo.id && app.contains(ativo) ? { id: ativo.id, a: ativo.selectionStart, b: ativo.selectionEnd } : null;
   app.innerHTML = aviso + (S.aba === 'pacientes' && S.pid ? vPaciente() : ({ inicio: vInicio, agenda: vAgenda, pacientes: vPacientes, financeiro: vFinanceiro, ajustes: vAjustes, usuarios: vUsuarios })[S.aba]());
   if (foco) { const el = document.getElementById(foco.id); if (el) { el.focus(); try { el.setSelectionRange(foco.a, foco.b); } catch (e) {} } }
+  // Animação de entrada só quando muda de tela (não a cada digitação ou salvamento)
+  const tela = [S.aba, S.pid, S.pid && S.sub, S.aba === 'agenda' && S.dia + S.semana, S.aba === 'financeiro' && S.mes, S.aba === 'pacientes' && S.mostrarInativos].join('|');
+  if (tela !== ultimaTela) {
+    ultimaTela = tela;
+    clearTimeout(timerEntra);
+    app.classList.remove('entra'); void app.offsetWidth; app.classList.add('entra');
+    timerEntra = setTimeout(() => app.classList.remove('entra'), 900);
+    contarNumeros(app);
+  }
+}
+let ultimaTela = '', timerEntra = null;
+function moverIndicador() {
+  const nav = $('#tabs'), ind = nav.querySelector('.tab-ind'), b = nav.querySelector('button.on');
+  if (!ind || !b || !b.offsetWidth) return;
+  ind.style.width = b.offsetWidth + 'px'; ind.style.height = b.offsetHeight + 'px';
+  ind.style.transform = `translate(${b.offsetLeft}px, ${b.offsetTop}px)`;
+  if (!ind.classList.contains('pronto')) requestAnimationFrame(() => ind.classList.add('pronto'));
+}
+// Reposiciona quando o tamanho dos botões muda (fonte carregou, girou o celular, trocou de layout)
+const obsMenu = window.ResizeObserver ? new ResizeObserver(() => moverIndicador()) : { disconnect() {}, observe() {} };
+addEventListener('resize', moverIndicador);
+document.fonts?.ready.then(moverIndicador);
+// Números dos cartões de resumo contam de 0 até o valor ao abrir a tela
+function contarNumeros(raiz) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  raiz.querySelectorAll('.stat strong').forEach(el => {
+    const txt = el.textContent.trim(), m = txt.match(/^(R\$\s?)?([\d.]+)(,\d{2})?$/);
+    if (!m) return;
+    const alvo = Number(m[2].replace(/\./g, '') + (m[3] ? '.' + m[3].slice(1) : ''));
+    if (!alvo) return;
+    const ini = performance.now(), dur = 700;
+    const passo = t => {
+      if (!el.isConnected) return;
+      const k = Math.min(1, (t - ini) / dur), v = alvo * (1 - Math.pow(1 - k, 3));
+      el.textContent = m[1] ? reais(v) : Math.round(v).toLocaleString('pt-BR');
+      if (k < 1) requestAnimationFrame(passo); else el.textContent = txt;
+    };
+    requestAnimationFrame(passo);
+  });
 }
 window.ir = (aba, extra = {}) => { S.aba = aba; if (aba === 'pacientes' && !extra.pid) S.pid = null; Object.assign(S, extra); render(); window.scrollTo(0, 0); };
 window.abrirPaciente = (pid, sub = 'resumo') => ir('pacientes', { pid, sub, treinoIdx: 0 });
@@ -506,7 +611,14 @@ function sheet(html, onSave, extra = '', rotulo = 'Salvar') {
     <div class="sheet-foot">${extra}<div class="row"><button type="button" class="ghost" onclick="fechar()">Cancelar</button>${onSave ? `<button type="submit">${rotulo}</button>` : ''}</div></div></form></div>`;
   $('#sheet').onsubmit = e => { e.preventDefault(); if (onSave && onSave(new FormData(e.target)) !== false) fechar(); };
 }
-window.fechar = () => { $('#layer').innerHTML = ''; };
+// Fecha com animação; remove só aquele painel, para não apagar um novo que abra logo em seguida
+window.fechar = () => {
+  const bg = $('#layer .sheet-bg');
+  if (!bg) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return bg.remove();
+  bg.classList.add('saindo'); bg.style.pointerEvents = 'none';
+  setTimeout(() => bg.remove(), 220);
+};
 window.confirmar = (msg, acao, botao = 'Excluir') => {
   $('#layer').innerHTML = `<div class="sheet-bg"><div class="sheet"><h3>${esc(msg)}</h3><p class="muted" style="margin:0">Essa ação não pode ser desfeita.</p>
     <div class="row" style="justify-content:flex-end"><button class="ghost" onclick="fechar()">Cancelar</button><button style="background:var(--danger)" id="ok">${botao}</button></div></div></div>`;

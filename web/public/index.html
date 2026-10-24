@@ -160,6 +160,48 @@ details summary::after { content: "+"; color: var(--rust); font: 400 1.8rem/1 va
 details[open] summary::after { content: "–"; }
 details p { margin-top: 10px; color: var(--muted); max-width: 70ch; }
 
+header { transition: box-shadow .3s; }
+header.rolou { box-shadow: 0 10px 30px -22px rgba(18, 60, 46, .5); }
+.grifo { position: relative; white-space: nowrap; }
+.grifo svg { position: absolute; left: -2%; bottom: -.12em; width: 104%; height: .32em; overflow: visible; }
+.grifo path { fill: none; stroke: var(--peach); stroke-width: 5; stroke-linecap: round; }
+
+/* Movimento: entrada do topo e revelação ao rolar. O conteúdo só esconde se o script ligar a revelação (html.rv) */
+@media (prefers-reduced-motion: no-preference) {
+  :root { --suave: cubic-bezier(.2, .8, .2, 1); --mola: cubic-bezier(.22, 1.2, .36, 1); }
+  .hero .wrap > div:first-child > * { animation: sobe .8s var(--suave) both; }
+  .hero .wrap > div:first-child > :nth-child(2) { animation-delay: .08s; }
+  .hero .wrap > div:first-child > :nth-child(3) { animation-delay: .18s; }
+  .hero .wrap > div:first-child > :nth-child(4) { animation-delay: .28s; }
+  .hero .wrap > div:first-child > :nth-child(5) { animation-delay: .36s; }
+  .arco img { animation: arco 1.1s var(--suave) .15s both; }
+  .arco .selo { animation: sobe .7s var(--mola) .9s both; }
+  .grifo path { stroke-dasharray: 220; stroke-dashoffset: 220; animation: risco .9s var(--suave) .7s forwards; }
+  @keyframes sobe { from { opacity: 0; transform: translateY(18px); } }
+  @keyframes arco { from { clip-path: inset(100% 0 0 0 round 999px 999px 24px 24px); transform: scale(1.08); } to { clip-path: inset(0 0 0 0 round 999px 999px 24px 24px); transform: none; } }
+  @keyframes risco { to { stroke-dashoffset: 0; } }
+
+  html.rv [data-rv] { opacity: 0; transform: translateY(26px); transition: opacity .8s var(--suave), transform .8s var(--suave); transition-delay: calc(var(--d, 0) * 90ms); }
+  html.rv [data-rv].visto { opacity: 1; transform: none; }
+  html.rv .domicilio .fotos img[data-rv] { transform: translateY(40px) scale(.96); }
+  html.rv .domicilio .fotos img[data-rv].visto { transform: none; }
+  html.rv .ph-card[data-rv] { transform: translateY(16px) scale(.97); }
+
+  .btn { transition: transform .2s var(--suave), background-color .25s, box-shadow .25s; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -14px rgba(18, 60, 46, .6); }
+  .btn:active { transform: scale(.96); }
+  .link-sub { transition: text-underline-offset .2s; }
+  .link-sub:hover { text-underline-offset: 7px; }
+  .func .ic { transition: transform .35s var(--mola), background-color .3s; }
+  .func:hover .ic { transform: rotate(-8deg) scale(1.1); }
+  .historia img { transition: transform 1.2s var(--suave); }
+  .historia:hover img { transform: scale(1.03); }
+  details summary::after { transition: transform .3s var(--mola); }
+  details[open] p { animation: sobe .4s var(--suave) both; }
+}
+details summary::after { content: "+"; }
+details[open] summary::after { content: "+"; transform: rotate(45deg); }
+
 footer { border-top: 1px solid var(--line); padding-block: 36px calc(36px + env(safe-area-inset-bottom, 0px)); color: var(--muted); font-size: .92rem; }
 footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center; }
 footer .brand { font-size: 1.4rem; }
@@ -185,7 +227,7 @@ footer .brand { font-size: 1.4rem; }
     <div class="wrap">
       <div>
         <span class="eyebrow">Feito por fisioterapeuta</span>
-        <h1 style="margin-top:16px">Seu atendimento <i>planejado</i> antes do paciente chegar.</h1>
+        <h1 style="margin-top:16px">Seu atendimento <i class="grifo">planejado<svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 8c40-6 90-7 194-3"/></svg></i> antes do paciente chegar.</h1>
         <p class="lead">Agenda, treinos A, B, C e D, evolução com modelo pronto, avaliações e financeiro. No celular e no tablet, no consultório ou na casa do paciente.</p>
         <div class="ctas"><a class="btn" href="#assinar">Quero testar</a><a class="link-sub" href="#funcionalidades">Ver como funciona</a></div>
         <p class="nota">Sem instalar nada. Funciona no navegador e vira um ícone na tela inicial.</p>
@@ -199,23 +241,23 @@ footer .brand { font-size: 1.4rem; }
 
   <div class="faixa">
     <div class="wrap">
-      <div><b>A–D</b>treinos com rodízio automático</div>
-      <div><b>7</b>modelos de avaliação</div>
-      <div><b>5</b>documentos prontos</div>
-      <div><b>1 toque</b>para enviar no WhatsApp</div>
+      <div data-rv><b>A–D</b>treinos com rodízio automático</div>
+      <div data-rv style="--d:1"><b>7</b>modelos de avaliação</div>
+      <div data-rv style="--d:2"><b>5</b>documentos prontos</div>
+      <div data-rv style="--d:3"><b>1 toque</b>para enviar no WhatsApp</div>
     </div>
   </div>
 
   <section id="funcionalidades">
     <div class="wrap">
-      <div class="sec-head"><span class="eyebrow">Funcionalidades</span><h2>Tudo o que o atendimento pede, <i>num lugar só</i></h2><p>Chega de caderno, planilha e bloco de notas espalhados. O FisioBea organiza o dia a dia de quem atende.</p></div>
+      <div class="sec-head" data-rv><span class="eyebrow">Funcionalidades</span><h2>Tudo o que o atendimento pede, <i>num lugar só</i></h2><p>Chega de caderno, planilha e bloco de notas espalhados. O FisioBea organiza o dia a dia de quem atende.</p></div>
       <div class="funcs">
-        <div class="func"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><h3>Agenda da semana</h3><p>Seus pacientes de segunda, quarta e sexta aparecem sozinhos. Marque confirmado, realizado, falta ou falta justificada, e remarque com um toque.</p></div>
-        <div class="func"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></svg></span><h3>Treinos A, B, C e D</h3><p>Monte os treinos com séries, repetições e carga. O rodízio é automático e faltas não pulam o treino. Envie para o paciente pelo WhatsApp.</p></div>
-        <div class="func"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/></svg></span><h3>Evolução com modelo pronto</h3><p>PA, FC, SpO2, EVA, conduta e resposta. Os exercícios do treino do dia já entram preenchidos. Você só completa.</p></div>
-        <div class="func"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6v4H9zM5 5h4M15 5h4v16H5V5"/><path d="M9 12l2 2 4-4"/></svg></span><h3>Avaliações por área</h3><p>Fichas ortopédica, neurológica, respiratória, geriátrica, pélvica e de dor, com Berg, TUG, Borg, Ashworth e goniometria.</p></div>
-        <div class="func"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="2.5"/><path d="M7 6V4h10v2"/></svg></span><h3>Financeiro e pacotes</h3><p>Pagamentos, pendências e pacotes de sessões com saldo automático. Gráfico do mês e meta de faturamento.</p></div>
-        <div class="func"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h4"/></svg></span><h3>Documentos em um toque</h3><p>Atestado de comparecimento, declaração, recibo, relatório fisioterapêutico e de alta, já preenchidos com os dados do paciente.</p></div>
+        <div class="func" data-rv style="--d:0"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><h3>Agenda da semana</h3><p>Seus pacientes de segunda, quarta e sexta aparecem sozinhos. Marque confirmado, realizado, falta ou falta justificada, e remarque com um toque.</p></div>
+        <div class="func" data-rv style="--d:1"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></svg></span><h3>Treinos A, B, C e D</h3><p>Monte os treinos com séries, repetições e carga. O rodízio é automático e faltas não pulam o treino. Envie para o paciente pelo WhatsApp.</p></div>
+        <div class="func" data-rv style="--d:2"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/></svg></span><h3>Evolução com modelo pronto</h3><p>PA, FC, SpO2, EVA, conduta e resposta. Os exercícios do treino do dia já entram preenchidos. Você só completa.</p></div>
+        <div class="func" data-rv style="--d:0"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6v4H9zM5 5h4M15 5h4v16H5V5"/><path d="M9 12l2 2 4-4"/></svg></span><h3>Avaliações por área</h3><p>Fichas ortopédica, neurológica, respiratória, geriátrica, pélvica e de dor, com Berg, TUG, Borg, Ashworth e goniometria.</p></div>
+        <div class="func" data-rv style="--d:1"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="2.5"/><path d="M7 6V4h10v2"/></svg></span><h3>Financeiro e pacotes</h3><p>Pagamentos, pendências e pacotes de sessões com saldo automático. Gráfico do mês e meta de faturamento.</p></div>
+        <div class="func" data-rv style="--d:2"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h4"/></svg></span><h3>Documentos em um toque</h3><p>Atestado de comparecimento, declaração, recibo, relatório fisioterapêutico e de alta, já preenchidos com os dados do paciente.</p></div>
       </div>
     </div>
   </section>
@@ -223,14 +265,14 @@ footer .brand { font-size: 1.4rem; }
   <section class="domicilio">
     <div class="wrap">
       <div class="fotos">
-        <img src="/img/casa-acamado.jpg" alt="Fisioterapeuta auxiliando paciente acamado a usar o trapézio no quarto" width="1100" height="733" loading="lazy">
-        <img src="/img/casa-andador.jpg" alt="Senhora caminhando com andador na cozinha de casa" width="800" height="1200" loading="lazy">
+        <img data-rv src="/img/casa-acamado.jpg" alt="Fisioterapeuta auxiliando paciente acamado a usar o trapézio no quarto" width="1100" height="733" loading="lazy">
+        <img data-rv style="--d:2" src="/img/casa-andador.jpg" alt="Senhora caminhando com andador na cozinha de casa" width="800" height="1200" loading="lazy">
       </div>
       <div>
-        <span class="eyebrow">Atendimento a domicílio</span>
-        <h2 style="margin-top:14px">O prontuário vai <i>com você</i> até a casa do paciente</h2>
+        <span class="eyebrow" data-rv>Atendimento a domicílio</span>
+        <h2 data-rv style="margin-top:14px;--d:1">O prontuário vai <i>com você</i> até a casa do paciente</h2>
         <p class="muted" style="margin-top:18px;font-size:1.1rem">Entre uma visita e outra, abra o celular e veja quem é o próximo, o endereço do dia e o treino que vai aplicar.</p>
-        <ul>
+        <ul data-rv style="--d:2">
           <li>Treino do dia aberto no celular, sem papel na mochila</li>
           <li>Evolução feita ali mesmo, com sinais vitais e conduta</li>
           <li>Lembrete e treino enviados pelo WhatsApp para o paciente ou o cuidador</li>
@@ -242,18 +284,18 @@ footer .brand { font-size: 1.4rem; }
   <section class="fluxo">
     <div class="wrap">
       <div>
-        <div class="sec-head" style="margin-bottom:28px"><span class="eyebrow">No dia a dia</span><h2>Do planejamento à evolução, <i>sem retrabalho</i></h2></div>
+        <div class="sec-head" style="margin-bottom:28px" data-rv><span class="eyebrow">No dia a dia</span><h2>Do planejamento à evolução, <i>sem retrabalho</i></h2></div>
         <div class="passos">
-          <div class="passo"><span>1</span><h3>Planeje a semana</h3><p>Cadastre o paciente com os dias de atendimento e monte os treinos. A agenda e o rodízio se organizam sozinhos.</p></div>
-          <div class="passo"><span>2</span><h3>Atenda com o treino na mão</h3><p>Abra o dia e veja quem vem, em que horário e quais exercícios fazer. Mande lembrete pelo WhatsApp.</p></div>
-          <div class="passo"><span>3</span><h3>Evolua em minutos</h3><p>Toque em Evoluir: o modelo abre com o treino do dia. Preencha sinais vitais e resposta, e o atendimento fica registrado.</p></div>
+          <div class="passo" data-rv style="--d:0"><span>1</span><h3>Planeje a semana</h3><p>Cadastre o paciente com os dias de atendimento e monte os treinos. A agenda e o rodízio se organizam sozinhos.</p></div>
+          <div class="passo" data-rv style="--d:1"><span>2</span><h3>Atenda com o treino na mão</h3><p>Abra o dia e veja quem vem, em que horário e quais exercícios fazer. Mande lembrete pelo WhatsApp.</p></div>
+          <div class="passo" data-rv style="--d:2"><span>3</span><h3>Evolua em minutos</h3><p>Toque em Evoluir: o modelo abre com o treino do dia. Preencha sinais vitais e resposta, e o atendimento fica registrado.</p></div>
         </div>
       </div>
-      <div class="phone" aria-label="Exemplo da tela de agenda do FisioBea" role="img">
+      <div class="phone" data-rv style="--d:1" aria-label="Exemplo da tela de agenda do FisioBea" role="img">
         <div class="scr">
           <p class="ph-oi">Bom dia, Bea<small>Segunda, 26 de outubro · 3 atendimentos</small></p>
           <div class="ph-days"><span class="on"><small>Seg</small>26</span><span><small>Ter</small>27</span><span><small>Qua</small>28</span><span><small>Qui</small>29</span><span><small>Sex</small>30</span><span><small>Sáb</small>31</span></div>
-          <div class="ph-card">
+          <div class="ph-card" data-rv style="--d:0">
             <div class="row"><b>08:00 · Marta O.</b><span class="ph-pill">Treino C</span></div>
             <span class="muted">Pós-operatório de LCA · domicílio</span>
             <div class="ph-ex"><span>Step up 15 cm</span><span>3x · 10</span></div>
@@ -261,11 +303,11 @@ footer .brand { font-size: 1.4rem; }
             <div class="ph-ex"><span>Marcha lateral</span><span>3x · 10 m</span></div>
             <span class="ph-btn">Evoluir</span>
           </div>
-          <div class="ph-card">
+          <div class="ph-card" data-rv style="--d:1">
             <div class="row"><b>10:30 · João P.</b><span class="ph-pill conf">Confirmado</span></div>
             <span class="muted">Lombalgia crônica · Treino A</span>
           </div>
-          <div class="ph-card">
+          <div class="ph-card" data-rv style="--d:2">
             <div class="row"><b>14:00 · Helena S.</b><span class="ph-pill">Treino D</span></div>
             <span class="muted">Prevenção de quedas · domicílio</span>
           </div>
@@ -276,10 +318,10 @@ footer .brand { font-size: 1.4rem; }
 
   <section class="historia">
     <div class="wrap">
-      <img src="/img/casa-exercicio.jpg" alt="Senhor fazendo exercício de braços com a fisioterapeuta" width="1100" height="733" loading="lazy">
+      <img data-rv src="/img/casa-exercicio.jpg" alt="Senhor fazendo exercício de braços com a fisioterapeuta" width="1100" height="733" loading="lazy">
       <div>
         <span class="eyebrow">Por que existe</span>
-        <blockquote>Eu precisava planejar os treinos dos meus pacientes e evoluir rápido entre um atendimento e outro. Não achei nada simples o bastante, então <i>criei o meu</i>.</blockquote>
+        <blockquote data-rv>Eu precisava planejar os treinos dos meus pacientes e evoluir rápido entre um atendimento e outro. Não achei nada simples o bastante, então <i>criei o meu</i>.</blockquote>
         <p class="assin">Beatriz, fisioterapeuta e criadora do FisioBea</p>
       </div>
     </div>
@@ -287,7 +329,7 @@ footer .brand { font-size: 1.4rem; }
 
   <section class="preco" id="preco">
     <div class="wrap">
-      <div class="plano">
+      <div class="plano" data-rv>
         <span class="eyebrow">Plano único</span>
         <div class="valor" id="valor-plano">R$ 49,90 <small>/ mês</small></div>
         <ul>
@@ -300,7 +342,7 @@ footer .brand { font-size: 1.4rem; }
         </ul>
         <p class="muted" style="font-size:.92rem">Pagamento mensal por Pix. Cada pagamento libera 30 dias de acesso. Sem fidelidade.</p>
       </div>
-      <form class="contato" id="assinar" novalidate>
+      <form class="contato" id="assinar" novalidate data-rv style="--d:1">
         <h2>Quero conhecer o FisioBea</h2>
         <p class="muted">Deixe seu contato. A Beatriz te chama para mostrar o app e liberar um período de teste.</p>
         <label>Nome<input id="c-nome" name="nome" autocomplete="name" required></label>
@@ -316,7 +358,7 @@ footer .brand { font-size: 1.4rem; }
 
   <section id="duvidas" style="padding-top:24px">
     <div class="wrap" style="max-width:820px">
-      <div class="sec-head"><span class="eyebrow">Dúvidas</span><h2>Perguntas frequentes</h2></div>
+      <div class="sec-head" data-rv><span class="eyebrow">Dúvidas</span><h2>Perguntas frequentes</h2></div>
       <details><summary>Preciso instalar alguma coisa?</summary><p>Não. O FisioBea funciona no navegador. No celular, use “Adicionar à tela inicial” e ele vira um ícone como qualquer aplicativo.</p></details>
       <details><summary>Meus dados ficam iguais no celular e no tablet?</summary><p>Sim. Tudo fica salvo na sua conta. O que você preenche em um aparelho aparece no outro.</p></details>
       <details><summary>Alguém além de mim vê meus pacientes?</summary><p>Não. Cada conta enxerga só os próprios pacientes, e o acesso é protegido por e-mail e senha.</p></details>
@@ -336,6 +378,15 @@ footer .brand { font-size: 1.4rem; }
 </footer>
 
 <script>
+// Revela os blocos ao rolar a página; sem suporte, tudo aparece normalmente
+(() => {
+  const hd = document.querySelector('header');
+  addEventListener('scroll', () => hd.classList.toggle('rolou', scrollY > 10), { passive: true });
+  if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.documentElement.classList.add('rv');
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visto'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: .12 });
+  document.querySelectorAll('[data-rv]').forEach(el => io.observe(el));
+})();
 document.getElementById('ano').textContent = new Date().getFullYear();
 const form = document.getElementById('assinar');
 form.addEventListener('submit', async e => {
