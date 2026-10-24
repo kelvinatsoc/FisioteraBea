@@ -48,3 +48,18 @@ CREATE TABLE IF NOT EXISTS pedidos (
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_assinaturas_user ON assinaturas(user_id);
+-- Tentativas de login erradas (por e-mail e por endereço de internet), para bloquear quem fica chutando senhas
+CREATE TABLE IF NOT EXISTS tentativas (
+  chave TEXT PRIMARY KEY,
+  n INTEGER NOT NULL,
+  inicio INTEGER NOT NULL,
+  bloqueado_ate INTEGER NOT NULL DEFAULT 0
+);
+-- Links de nova senha: guarda só o hash do código; vale 24 horas e uma única vez
+CREATE TABLE IF NOT EXISTS recuperacoes (
+  token_hash TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  expira INTEGER NOT NULL,
+  usado INTEGER NOT NULL DEFAULT 0,
+  criado TEXT NOT NULL
+);

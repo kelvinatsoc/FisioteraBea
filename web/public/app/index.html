@@ -630,6 +630,7 @@ function mostrarLogin(aviso = '') {
       <div class="erro-form" id="l-erro">${esc(aviso)}</div>
       <button type="submit" id="l-btn">${inst ? 'Criar e entrar' : 'Entrar'}</button>
     </div>
+    ${inst ? '' : '<button type="button" class="link small" style="justify-self:center" onclick="esqueciSenha()">Esqueci minha senha</button>'}
     ${inst ? '' : '<p class="sub" style="text-align:center;margin:0">Ainda não é assinante? <a href="/" style="color:var(--green);font-weight:600">Conheça o FisioBea</a></p>'}
     <p class="sub" style="text-align:center;margin:0;font-size:.8rem"><a href="/termos" target="_blank" rel="noopener" style="color:inherit">Termos de Uso</a> · <a href="/privacidade" target="_blank" rel="noopener" style="color:inherit">Política de Privacidade</a></p>
   </form></div>`;
@@ -644,6 +645,64 @@ function mostrarLogin(aviso = '') {
   };
 }
 window.mostrarLogin = mostrarLogin;
+
+// Esqueci minha senha: vira um pedido no painel; a FisioBea manda um link de uso único pelo WhatsApp
+window.esqueciSenha = () => {
+  const email = $('#l-email')?.value || '';
+  $('#login .login-box').innerHTML = `<div class="brand">${LOGO}</div>
+    <div class="item" style="gap:14px">
+      <h2>Esqueci minha senha</h2>
+      <p class="sub" style="margin:0">Informe o e-mail da sua conta. A FisioBea vai te mandar pelo WhatsApp um link para criar uma senha nova.</p>
+      <label class="field"><span>E-mail</span><input id="es-email" name="email" type="email" autocomplete="email" required value="${esc(email)}"></label>
+      <div class="erro-form" id="es-erro"></div>
+      <button type="submit" id="es-btn">Pedir nova senha</button>
+    </div>
+    <button type="button" class="link small" style="justify-self:center" onclick="mostrarLogin()">Voltar para entrar</button>`;
+  $('#form-login').onsubmit = async e => {
+    e.preventDefault();
+    const btn = $('#es-btn'); btn.disabled = true; $('#es-erro').textContent = '';
+    try {
+      await api('esqueci', { method: 'POST', body: JSON.stringify({ email: $('#es-email').value }) });
+      $('#login .login-box .item').innerHTML = `<h2>Pedido enviado</h2><p style="margin:0">Se este e-mail tiver uma conta, a FisioBea vai te mandar um link pelo WhatsApp em breve. O link vale por 24 horas.</p>`;
+    } catch (err) { $('#es-erro').textContent = err.message; btn.disabled = false; }
+  };
+  $('#es-email').focus();
+};
+
+// Tela aberta pelo link: cria a senha nova e volta para a entrada
+async function telaNovaSenha(codigo) {
+  $('#shell').hidden = true;
+  const el = $('#login'); el.hidden = false;
+  const limparLink = () => history.replaceState(null, '', location.pathname);
+  let quem;
+  try { quem = await api('redefinir?codigo=' + encodeURIComponent(codigo)); }
+  catch (err) { limparLink(); try { instalado = (await api('status')).instalado; } catch (x) {} return mostrarLogin(err.message); }
+  el.innerHTML = `<div class="login-foto"><img src="/img/casa-alongamento.jpg" alt=""></div><div class="login-main"><form class="login-box" id="form-nova">
+    <div class="brand">${LOGO}</div>
+    <div class="item" style="gap:14px">
+      <h2>Nova senha</h2>
+      <p class="sub" style="margin:0">Olá, ${esc(quem.nome)}! Crie uma senha nova para ${esc(quem.email)}.</p>
+      <input type="email" name="username" autocomplete="username" value="${esc(quem.email)}" hidden>
+      <label class="field"><span>Nova senha (mínimo 8 caracteres)</span><input id="ns-1" type="password" minlength="8" autocomplete="new-password" required></label>
+      <label class="field"><span>Repita a senha</span><input id="ns-2" type="password" minlength="8" autocomplete="new-password" required></label>
+      <div class="erro-form" id="ns-erro"></div>
+      <button type="submit" id="ns-btn">Salvar nova senha</button>
+    </div></form></div>`;
+  $('#form-nova').onsubmit = async e => {
+    e.preventDefault();
+    if ($('#ns-1').value !== $('#ns-2').value) return $('#ns-erro').textContent = 'As duas senhas estão diferentes.';
+    $('#ns-btn').disabled = true; $('#ns-erro').textContent = '';
+    try {
+      await api('redefinir', { method: 'POST', body: JSON.stringify({ codigo, senha: $('#ns-1').value }) });
+      limparLink(); instalado = true;
+      mostrarLogin();
+      $('#l-email').value = quem.email;
+      $('#l-erro').textContent = '';
+      toast('Senha nova salva. Entre com ela.');
+    } catch (err) { $('#ns-erro').textContent = err.message; $('#ns-btn').disabled = false; }
+  };
+  $('#ns-1').focus();
+}
 function entrou(usuario) {
   S.usuario = usuario; S.carregado = false; S.aba = 'inicio';
   if (!S.config.profissional || S.config.profissional === 'Beatriz') S.config = { ...CONFIG_PADRAO, profissional: usuario.nome.split(' ')[0] };
@@ -652,6 +711,8 @@ function entrou(usuario) {
 }
 window.sair = async () => { try { await api('sair', { method: 'POST' }); } catch (e) {} location.reload(); };
 async function iniciar() {
+  const codigo = new URLSearchParams(location.search).get('redefinir');
+  if (codigo) return telaNovaSenha(codigo);
   try { const r = await api('eu'); entrou(r.usuario); }
   catch (e) {
     if (e.status === 402) return;
@@ -1603,6 +1664,12 @@ function vAjustes() {
   </div>
 
   <div class="section">
+    <h3>Meus dados</h3>
+    <p class="sub" style="margin:0">Baixe uma cópia de tudo o que você registrou: pacientes, evoluções, avaliações, agenda, pagamentos e ajustes. Guarde em lugar seguro, porque tem dados de saúde.</p>
+    <div class="row" style="gap:6px"><button class="ghost small" onclick="baixarDados('json')">Baixar tudo (cópia completa)</button><button class="ghost small" onclick="baixarDados('csv')">Pacientes em planilha</button></div>
+  </div>
+
+  <div class="section">
     <h3>Importar pacientes</h3>
     <p class="sub" style="margin:0">Planilha salva como CSV, com as colunas: nome; celular; nascimento (dd/mm/aaaa); cpf; diagnóstico.</p>
     <label class="btn ghost small" style="justify-self:start">Escolher arquivo CSV<input type="file" accept=".csv,text/csv" hidden onchange="importarCSV(this.files[0])"></label>
@@ -1629,6 +1696,27 @@ window.mexerModelo = mexerModelo;
 window.editarModelo = (i, k, v) => mexerModelo(l => l[i][k] = v);
 window.moverModelo = (i, d) => mexerModelo(l => { const j = i + d; if (j >= 0 && j < l.length) [l[i], l[j]] = [l[j], l[i]]; });
 window.salvarModelo = () => { const m = modeloRascunho; modeloRascunho = null; S.modelo = m; render(); salvar(() => store.modelo(m), 'Modelo salvo'); };
+// Exporta os dados da própria conta (portabilidade, LGPD art. 18)
+window.baixarDados = tipo => {
+  const dia = hojeIso();
+  let conteudo, nomeArq, mime;
+  if (tipo === 'csv') {
+    const cols = ['nome', 'nascimento', 'cpf', 'celular', 'email', 'endereco', 'responsavel', 'convenio', 'valorSessao', 'diagnostico', 'medico', 'inicio', 'obs'];
+    const cel = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    conteudo = '\ufeff' + [cols.join(';'), ...ordenar(S.pacientes).map(p => cols.map(c => cel(p[c])).join(';'))].join('\r\n');
+    nomeArq = `fisiobea-pacientes-${dia}.csv`; mime = 'text/csv;charset=utf-8';
+  } else {
+    const dados = { exportado_em: new Date().toISOString(), conta: { nome: S.usuario?.nome, email: S.usuario?.email }, ajustes: S.config, modelo_evolucao: S.modelo };
+    COLECOES.forEach(c => dados[c] = S[c]);
+    conteudo = JSON.stringify(dados, null, 2);
+    nomeArq = `fisiobea-meus-dados-${dia}.json`; mime = 'application/json';
+  }
+  const url = URL.createObjectURL(new Blob([conteudo], { type: mime }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: nomeArq });
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  toast('Arquivo baixado');
+};
 window.importarCSV = async arq => {
   if (!arq) return;
   const txt = await arq.text();
@@ -1665,6 +1753,8 @@ function vUsuarios() {
   const A = S.admin, assin = A.usuarios.filter(u => u.role !== 'admin');
   const cont = k => assin.filter(u => situacao(u).k === k).length;
   const novos = A.pedidos.filter(p => p.status === 'novo').length;
+  const pedSenha = A.pedidos.filter(p => p.status === 'senha');
+  const interessadas = A.pedidos.filter(p => !['descartado', 'senha'].includes(p.status) && p.mensagem !== 'Pediu uma nova senha pelo app');
   const filtro = S.filtroAss;
   const lista = filtro === 'todas' ? A.usuarios : A.usuarios.filter(u => situacao(u).k === filtro);
   const fones = u => soDigitos(u.telefone);
@@ -1679,8 +1769,14 @@ function vUsuarios() {
     <div class="stat"><span class="label">Recebido no mês</span><strong style="font-size:1.2rem">${reais(A.receitaMes)}</strong></div>
   </div>
 
-  ${A.pedidos.length ? `<div class="section"><h3>Interessadas ${novos ? `<span class="pill red">${novos} nova${novos > 1 ? 's' : ''}</span>` : ''}</h3>
-    <div class="item">${A.pedidos.filter(p => p.status !== 'descartado').slice(0, 15).map(p => `<div class="tline" style="align-items:center;flex-wrap:wrap">
+  ${pedSenha.length ? `<div class="section"><h3>Pedidos de nova senha <span class="pill red">${pedSenha.length}</span></h3>
+    <div class="item">${pedSenha.map(p => { const u = A.usuarios.find(x => x.email === p.email); return `<div class="tline" style="align-items:center;flex-wrap:wrap">
+      <div style="min-width:0;flex:1 1 200px"><div>${esc(p.nome)} <span class="muted" style="font-size:.85rem">· ${br(p.criado.slice(0, 10)).slice(0, 5)}</span></div><div class="muted" style="font-size:.85rem;overflow-wrap:anywhere">${esc(p.email)}</div></div>
+      <div class="row" style="gap:4px">${u ? `<button class="small" onclick="linkSenha('${u.id}','${p.id}')">Gerar link</button>` : ''}<button class="link small" onclick="mudarPedido('${p.id}','descartado')">Ignorar</button></div></div>`; }).join('')}</div>
+    <p class="sub" style="margin:0">Confira se o pedido é mesmo da pessoa antes de mandar o link (por exemplo, pelo número de WhatsApp que você já conhece).</p></div>` : ''}
+
+  ${interessadas.length ? `<div class="section"><h3>Interessadas ${novos ? `<span class="pill red">${novos} nova${novos > 1 ? 's' : ''}</span>` : ''}</h3>
+    <div class="item">${interessadas.slice(0, 15).map(p => `<div class="tline" style="align-items:center;flex-wrap:wrap">
       <div style="min-width:0;flex:1 1 220px"><div>${esc(p.nome)} <span class="muted" style="font-size:.85rem">· ${br(p.criado.slice(0, 10)).slice(0, 5)}</span></div>
       <div class="muted" style="font-size:.85rem;overflow-wrap:anywhere">${esc(p.email)}${p.telefone ? ' · ' + esc(p.telefone) : ''}</div>
       ${p.mensagem ? `<div style="font-size:.88rem;margin-top:2px">${esc(p.mensagem)}</div>` : ''}</div>
@@ -1761,7 +1857,8 @@ window.editarAssinante = id => {
     <label class="field" id="ea-ate-campo" ${u.valido_ate === VITALICIO ? 'hidden' : ''}><span>Acesso até (ajuste manual)</span><input id="ea-ate" name="valido_ate" type="date" value="${u.valido_ate === VITALICIO ? '' : esc(u.valido_ate)}"></label>
     <label class="field"><span>Observações</span><input id="ea-obs" name="obs" value="${esc(u.obs)}"></label>
     <div class="actions">
-      <button type="button" class="ghost small" onclick="redefinirSenha('${u.id}')">Redefinir senha</button>
+      <button type="button" class="ghost small" onclick="linkSenha('${u.id}')">Link de nova senha</button>
+      <button type="button" class="ghost small" onclick="redefinirSenha('${u.id}')">Definir senha provisória</button>
       <button type="button" class="${u.ativo ? 'danger' : 'ghost'} small" onclick="fechar();alterarUsuaria('${u.id}',{ativo:${!u.ativo}},'${u.ativo ? 'Conta desativada' : 'Conta reativada'}')">${u.ativo ? 'Desativar conta' : 'Reativar conta'}</button>
     </div>`,
     f => {
@@ -1780,6 +1877,16 @@ window.historicoAss = async id => {
     ${lista.length ? `<div class="item">${lista.map(p => `<div class="tline"><span class="num">${br(p.data)} · ${p.dias} dias${p.forma ? ' · ' + esc(p.forma) : ''}</span><span class="num">${reais(p.valor)}</span></div>`).join('')}</div>` : '<div class="empty">Nenhum pagamento registrado.</div>'}`, null);
 };
 window.alterarUsuaria = (id, dados, msg) => salvar(async () => { await api('admin/usuarios/' + id, { method: 'PATCH', body: JSON.stringify(dados) }); await atualizarAdmin(); }, msg);
+// Link de nova senha (24 horas, uso único) para mandar pelo WhatsApp
+window.linkSenha = (id, pedido = '') => salvar(async () => {
+  const r = await api(`admin/usuarios/${id}/link-senha`, { method: 'POST', body: JSON.stringify({ pedido }) });
+  const msg = `Olá, ${r.nome.split(' ')[0]}! Aqui está o link para criar sua nova senha no FisioBea. Ele vale por ${r.horas} horas e só pode ser usado uma vez:\n\n${r.link}`;
+  sheet(`<h3>Link de nova senha</h3><p class="sub" style="margin:0">Mande só para ${esc(r.nome)}. Quem tiver o link consegue trocar a senha.</p>
+    <div class="doc-preview" style="overflow-wrap:anywhere">${esc(msg)}</div>
+    <div class="actions">${soDigitos(r.telefone) ? `<a class="btn wa" target="_blank" rel="noopener" href="${waLink(r.telefone, msg)}">Enviar pelo WhatsApp</a>` : ''}<button type="button" class="ghost" id="copiar-link">Copiar mensagem</button></div>`, null);
+  $('#copiar-link').onclick = () => copiarTexto(msg, 'Mensagem copiada');
+  if (pedido) await atualizarAdmin();
+});
 window.redefinirSenha = id => sheet(`<h3>Redefinir senha</h3><p class="sub" style="margin:0">Defina uma senha provisória e passe para ela. Ela pode trocar depois em Ajustes.</p>
   <label class="field"><span>Nova senha</span><input id="rs-senha" name="senha" minlength="8" required></label>`,
   f => { alterarUsuaria(id, { senha: f.get('senha') }, 'Senha redefinida'); });

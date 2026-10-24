@@ -1,12 +1,14 @@
 // API do FisioBea (Cloudflare Pages Functions + D1)
 // Públicas:  GET /api/status            POST /api/instalar {nome, email, senha} (só enquanto não há nenhuma conta)
 //            POST /api/login {email, senha}   POST /api/pedido {nome, email, telefone, mensagem}
+//            POST /api/esqueci {email}        GET /api/redefinir?codigo=   POST /api/redefinir {codigo, senha}
 // Logada:    POST /api/sair   GET /api/eu   POST /api/senha {atual, nova}
 //            GET /api/dados   PUT/DELETE /api/doc/:col/:id
 // Admin:     GET /api/admin/resumo
 //            GET/POST /api/admin/usuarios          PATCH /api/admin/usuarios/:id
 //            POST /api/admin/usuarios/:id/pagamento {valor, dias, data, forma}
 //            GET /api/admin/usuarios/:id/pagamentos
+//            POST /api/admin/usuarios/:id/link-senha {pedido?}
 //            PATCH /api/admin/pedidos/:id {status}
 
 const COLECOES = ['pacientes', 'evolucoes', 'avaliacoes', 'sessoes', 'pagamentos', 'config'];
@@ -66,6 +68,41 @@ async function usuarioAtual(env, request) {
 }
 const publico = u => ({ id: u.id, email: u.email, nome: u.nome, role: u.role, valido_ate: u.valido_ate || '' });
 
+// Limite de tentativas: 5 erros no mesmo e-mail (ou 20 do mesmo endereço de internet) em 15 minutos
+// bloqueiam por 15 minutos. Se a tabela falhar, o login continua funcionando (não trava ninguém por erro nosso).
+const JANELA = 15 * 60e3, BLOQUEIO = 15 * 60e3;
+const ipDe = request => request.headers.get('cf-connecting-ip') || 'local';
+async function minutosBloqueado(env, chaves) {
+  try {
+    const ms = Date.now();
+    for (const c of chaves) {
+      const t = await env.DB.prepare('SELECT bloqueado_ate FROM tentativas WHERE chave = ?').bind(c).first();
+      if (t && t.bloqueado_ate > ms) return Math.ceil((t.bloqueado_ate - ms) / 60e3);
+    }
+  } catch (e) {}
+  return 0;
+}
+async function registrarErro(env, chave, limite) {
+  try {
+    const ms = Date.now();
+    const t = await env.DB.prepare('SELECT n, inicio FROM tentativas WHERE chave = ?').bind(chave).first();
+    const n = t && ms - t.inicio < JANELA ? t.n + 1 : 1, inicio = n === 1 ? ms : t.inicio;
+    await env.DB.prepare('INSERT INTO tentativas (chave, n, inicio, bloqueado_ate) VALUES (?, ?, ?, ?) ON CONFLICT(chave) DO UPDATE SET n = excluded.n, inicio = excluded.inicio, bloqueado_ate = excluded.bloqueado_ate')
+      .bind(chave, n, inicio, n >= limite ? ms + BLOQUEIO : 0).run();
+  } catch (e) {}
+}
+async function limparErros(env, chave) { try { await env.DB.prepare('DELETE FROM tentativas WHERE chave = ?').bind(chave).run(); } catch (e) {} }
+const msgBloqueio = min => `Muitas tentativas. Por segurança, espere ${min} minuto${min > 1 ? 's' : ''} e tente de novo.`;
+
+// Link de nova senha: o código vai só no link; no banco fica apenas o hash dele
+const sha256 = async s => hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)));
+const LINK_HORAS = 24;
+async function recuperacaoValida(env, codigo) {
+  if (!/^[a-f0-9]{64}$/.test(codigo || '')) return null;
+  return env.DB.prepare('SELECT r.token_hash, u.id, u.nome, u.email FROM recuperacoes r JOIN users u ON u.id = r.user_id WHERE r.token_hash = ? AND r.usado = 0 AND r.expira > ? AND u.ativo = 1')
+    .bind(await sha256(codigo), Date.now()).first();
+}
+
 async function lerJson(request) {
   try { return await request.json(); } catch (e) { return {}; }
 }
@@ -109,8 +146,15 @@ export async function onRequest({ request, env, params }) {
 
     if (rota === 'login' && metodo === 'POST') {
       const { email, senha } = await lerJson(request);
-      const u = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(String(email || '').trim().toLowerCase()).first();
-      if (!u || !iguais(await hashSenha(String(senha || ''), u.salt), u.senha_hash)) return erro('E-mail ou senha incorretos.', 401);
+      const e = String(email || '').trim().toLowerCase(), kEmail = 'email:' + e, kIp = 'ip:' + ipDe(request);
+      const espera = await minutosBloqueado(env, [kEmail, kIp]);
+      if (espera) return erro(msgBloqueio(espera), 429);
+      const u = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(e).first();
+      if (!u || !iguais(await hashSenha(String(senha || ''), u.salt), u.senha_hash)) {
+        await registrarErro(env, kEmail, 5); await registrarErro(env, kIp, 20);
+        return erro('E-mail ou senha incorretos.', 401);
+      }
+      await limparErros(env, kEmail);
       if (!u.ativo) return erro('Sua conta está desativada. Fale com a FisioBea.', 403);
       if (vencida(u)) return erro(msgVencida(u), 402, { vencida: true });
       return json({ usuario: publico(u) }, 200, { 'set-cookie': await criarSessao(env, u.id, url) });
@@ -127,6 +171,44 @@ export async function onRequest({ request, env, params }) {
       await env.DB.prepare('INSERT INTO pedidos (id, nome, email, telefone, mensagem, status, criado) VALUES (?, ?, ?, ?, ?, ?, ?)')
         .bind(aleatorio(12), String(nome).trim().slice(0, 120), e.slice(0, 160), String(telefone || '').trim().slice(0, 40), String(mensagem || '').trim().slice(0, 1000), 'novo', agora()).run();
       return json({ ok: true }, 201);
+    }
+
+    // "Esqueci minha senha": vira um pedido no painel da administradora, que manda o link pelo WhatsApp.
+    // A resposta é sempre a mesma, para ninguém descobrir quais e-mails têm conta.
+    if (rota === 'esqueci' && metodo === 'POST') {
+      const kIp = 'esq:' + ipDe(request), espera = await minutosBloqueado(env, [kIp]);
+      if (espera) return erro(msgBloqueio(espera), 429);
+      await registrarErro(env, kIp, 5);
+      const e = String((await lerJson(request)).email || '').trim().toLowerCase();
+      const u = emailValido(e) && await env.DB.prepare('SELECT nome, email, telefone FROM users WHERE email = ? AND ativo = 1').bind(e).first();
+      if (u) {
+        const recente = await env.DB.prepare("SELECT 1 FROM pedidos WHERE email = ? AND status = 'senha' AND criado > ?").bind(e, new Date(Date.now() - 3600e3).toISOString()).first();
+        if (!recente) await env.DB.prepare('INSERT INTO pedidos (id, nome, email, telefone, mensagem, status, criado) VALUES (?, ?, ?, ?, ?, ?, ?)')
+          .bind(aleatorio(12), u.nome, u.email, u.telefone || '', 'Pediu uma nova senha pelo app', 'senha', agora()).run();
+      }
+      return json({ ok: true });
+    }
+
+    if (rota === 'redefinir') {
+      if (metodo === 'GET') {
+        const r = await recuperacaoValida(env, url.searchParams.get('codigo'));
+        if (!r) return erro('Este link expirou ou já foi usado. Peça um novo em "Esqueci minha senha".', 410);
+        return json({ nome: r.nome.split(' ')[0], email: r.email });
+      }
+      if (metodo === 'POST') {
+        const { codigo, senha } = await lerJson(request);
+        const r = await recuperacaoValida(env, codigo);
+        if (!r) return erro('Este link expirou ou já foi usado. Peça um novo em "Esqueci minha senha".', 410);
+        if (String(senha || '').length < 8) return erro('A senha precisa ter pelo menos 8 caracteres.');
+        const salt = aleatorio(16);
+        await env.DB.batch([
+          env.DB.prepare('UPDATE users SET senha_hash = ?, salt = ? WHERE id = ?').bind(await hashSenha(senha, salt), salt, r.id),
+          env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(r.id),
+          env.DB.prepare('UPDATE recuperacoes SET usado = 1 WHERE user_id = ?').bind(r.id),
+        ]);
+        await limparErros(env, 'email:' + r.email);
+        return json({ ok: true, email: r.email });
+      }
     }
 
     const eu = await usuarioAtual(env, request);
@@ -221,6 +303,18 @@ export async function onRequest({ request, env, params }) {
           env.DB.prepare('UPDATE users SET valido_ate = ?, ativo = 1 WHERE id = ?').bind(validoAte, alvo),
         ]);
         return json({ ok: true, valido_ate: validoAte });
+      }
+
+      // Gera um link de nova senha (24 horas, uso único) para mandar pelo WhatsApp
+      if (recurso === 'usuarios' && alvo && acao === 'link-senha' && metodo === 'POST') {
+        const u = await env.DB.prepare('SELECT id, nome, telefone FROM users WHERE id = ? AND ativo = 1').bind(alvo).first();
+        if (!u) return erro('Conta não encontrada ou desativada.', 404);
+        const codigo = aleatorio(32);
+        await env.DB.prepare('INSERT INTO recuperacoes (token_hash, user_id, expira, usado, criado) VALUES (?, ?, ?, 0, ?)')
+          .bind(await sha256(codigo), u.id, Date.now() + LINK_HORAS * 3600e3, agora()).run();
+        const { pedido } = await lerJson(request);
+        if (pedido) await env.DB.prepare("UPDATE pedidos SET status = 'contatado' WHERE id = ? AND status = 'senha'").bind(String(pedido)).run();
+        return json({ link: `${url.origin}/app/?redefinir=${codigo}`, horas: LINK_HORAS, nome: u.nome, telefone: u.telefone || '' });
       }
 
       if (recurso === 'usuarios' && alvo && acao === 'pagamentos' && metodo === 'GET') {

@@ -44,6 +44,12 @@ Cloudflare Pages + Functions + D1, tudo no plano gratuito. Veja `web/CLAUDE.md` 
 - **Acesso vitalício**: conta com `valido_ate = 9999-12-31` nunca vence e não aceita pagamento (para a Beatriz). Escolhido em "Nova assinante" ou em "Editar".
 - **Foto do paciente**: campo `foto` (JPEG 240 px em data URL) no cadastro; aparece na lista, na agenda e no prontuário.
 
+## Segurança (24/10/2026)
+- Login bloqueia 15 min após 5 senhas erradas no mesmo e-mail (ou 20 do mesmo IP). Tabela `tentativas`.
+- "Esqueci minha senha" vira pedido (pedidos.status = 'senha'); a admin gera link de 24 h e uso único (tabela `recuperacoes`, só o hash do código). Sem domínio próprio ainda não há e-mail automático.
+- Ajustes → "Meus dados": baixa JSON completo ou CSV de pacientes.
+- Backup: `npm run backup` e Time Travel do D1. Ver `web/ferramentas/LEIA-ME.md`.
+
 ## Versões antigas (só referência)
 - `index.html`, `app.js`, `style.css`: primeira versão (salva só no navegador).
 - `fisiobea.html`: versão publicada como artifact no claude.ai, que usa o banco do claude.ai.
