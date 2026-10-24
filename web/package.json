@@ -5,7 +5,10 @@
     "dev": "wrangler pages dev",
     "db:local": "wrangler d1 execute fisiobea-db --local --file=schema.sql",
     "db:remoto": "wrangler d1 execute fisiobea-db --remote --file=schema.sql",
-    "deploy": "wrangler pages deploy"
+    "deploy": "wrangler pages deploy",
+    "publicar": "node publicar.js"
   },
-  "devDependencies": { "wrangler": "^3.80.0" }
+  "devDependencies": {
+    "wrangler": "^3.80.0"
+  }
 }
