@@ -167,7 +167,9 @@ header.rolou { box-shadow: 0 10px 30px -22px rgba(18, 60, 46, .5); }
 .grifo path { fill: none; stroke: var(--peach); stroke-width: 5; stroke-linecap: round; }
 
 /* Movimento: entrada do topo e revelação ao rolar. O conteúdo só esconde se o script ligar a revelação (html.rv) */
-@media (prefers-reduced-motion: no-preference) {
+</style>
+<!-- Animações num estilo separado: o app pode desligar trocando o atributo media -->
+<style id="movimento">
   :root { --suave: cubic-bezier(.2, .8, .2, 1); --mola: cubic-bezier(.22, 1.2, .36, 1); }
   .hero .wrap > div:first-child > * { animation: sobe .8s var(--suave) both; }
   .hero .wrap > div:first-child > :nth-child(2) { animation-delay: .08s; }
@@ -198,7 +200,8 @@ header.rolou { box-shadow: 0 10px 30px -22px rgba(18, 60, 46, .5); }
   .historia:hover img { transform: scale(1.03); }
   details summary::after { transition: transform .3s var(--mola); }
   details[open] p { animation: sobe .4s var(--suave) both; }
-}
+</style>
+<style>
 details summary::after { content: "+"; }
 details[open] summary::after { content: "+"; transform: rotate(45deg); }
 
@@ -387,7 +390,7 @@ form.contato label.aceite a { color: var(--green); }
 (() => {
   const hd = document.querySelector('header');
   addEventListener('scroll', () => hd.classList.toggle('rolou', scrollY > 10), { passive: true });
-  if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return;
   document.documentElement.classList.add('rv');
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visto'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: .12 });
   document.querySelectorAll('[data-rv]').forEach(el => io.observe(el));

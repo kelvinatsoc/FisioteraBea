@@ -234,7 +234,9 @@ nav.tabs button.on { background: transparent; }
 @media (max-width: 799px) { .tab-ind { border-radius: 14px; } }
 
 /* Movimento: só transform e opacity (leve em celular simples) e nada para quem pede menos movimento */
-@media (prefers-reduced-motion: no-preference) {
+</style>
+<!-- Animações num estilo separado: o app pode desligar trocando o atributo media -->
+<style id="movimento">
   :root { --mola: cubic-bezier(.22, 1.2, .36, 1); --suave: cubic-bezier(.2, .8, .2, 1); }
   .tab-ind.pronto { transition: transform .42s var(--mola), width .42s var(--mola), height .42s var(--mola); }
   nav.tabs button { transition: color .25s; }
@@ -283,8 +285,8 @@ nav.tabs button.on { background: transparent; }
   .login-box > * { animation: entra .6s var(--suave) both; }
   .login-box > :nth-child(2) { animation-delay: .1s; } .login-box > :nth-child(3) { animation-delay: .2s; }
   @keyframes arco { from { clip-path: inset(100% 0 0 0 round 999px 999px 24px 24px); transform: scale(1.06); } to { clip-path: inset(0 0 0 0 round 999px 999px 24px 24px); } }
-}
 </style>
+
 </head>
 <body>
 <div id="login" class="login" hidden></div>
@@ -366,6 +368,14 @@ aplicarTema();
 const escuroAgora = () => tema === 'dark' || (tema === 'auto' && (TEMA_HOST === 'dark' || (!TEMA_HOST && matchMedia('(prefers-color-scheme: dark)').matches)));
 window.mudarTema = t => { tema = t; try { localStorage.setItem('fisiobea-tema', t); } catch (e) {} aplicarTema(); render(); };
 window.alternarTema = () => mudarTema(escuroAgora() ? 'light' : 'dark');
+// Animações: ligadas por padrão (o Windows costuma desligar "efeitos de animação" e os sites obedecem).
+// Em Ajustes dá para desligar ou seguir a configuração do aparelho.
+let animacao = 'ligadas';
+try { animacao = localStorage.getItem('fisiobea-anim') || 'ligadas'; } catch (e) {}
+const semAnim = () => animacao === 'desligadas' || (animacao === 'aparelho' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+const aplicarAnim = () => { const st = document.getElementById('movimento'); if (st) st.media = semAnim() ? 'not all' : 'all'; };
+aplicarAnim();
+window.mudarAnim = v => { animacao = v; try { localStorage.setItem('fisiobea-anim', v); } catch (e) {} aplicarAnim(); render(); };
 let ocultarNomes = false;
 try { ocultarNomes = localStorage.getItem('fisiobea-ocultar') === '1'; } catch (e) {}
 let store = null;
@@ -604,7 +614,7 @@ function moverIndicador() {
   if (!ind || !b || !b.offsetWidth) return;
   ind.style.width = b.offsetWidth + 'px'; ind.style.height = b.offsetHeight + 'px';
   ind.style.transform = `translate(${b.offsetLeft}px, ${b.offsetTop}px)`;
-  if (!ind.classList.contains('pronto')) requestAnimationFrame(() => ind.classList.add('pronto'));
+  if (!ind.classList.contains('pronto')) setTimeout(() => ind.classList.add('pronto'), 60);
 }
 // Reposiciona quando o tamanho dos botões muda (fonte carregou, girou o celular, trocou de layout)
 const obsMenu = window.ResizeObserver ? new ResizeObserver(() => moverIndicador()) : { disconnect() {}, observe() {} };
@@ -612,7 +622,7 @@ addEventListener('resize', moverIndicador);
 document.fonts?.ready.then(moverIndicador);
 // Números dos cartões de resumo contam de 0 até o valor ao abrir a tela
 function contarNumeros(raiz) {
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (semAnim()) return;
   raiz.querySelectorAll('.stat strong').forEach(el => {
     const txt = el.textContent.trim(), m = txt.match(/^(R\$\s?)?([\d.]+)(,\d{2})?$/);
     if (!m) return;
@@ -642,7 +652,7 @@ function sheet(html, onSave, extra = '', rotulo = 'Salvar') {
 window.fechar = () => {
   const bg = $('#layer .sheet-bg');
   if (!bg) return;
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return bg.remove();
+  if (semAnim()) return bg.remove();
   bg.classList.add('saindo'); bg.style.pointerEvents = 'none';
   setTimeout(() => bg.remove(), 220);
 };
@@ -1229,6 +1239,9 @@ function vAjustes() {
     <h3>Aparência</h3>
     <div class="chips" style="margin:0">${[['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Escuro']].map(([k, n]) => `<button class="chip ${tema === k ? 'on' : ''}" onclick="mudarTema('${k}')">${n}</button>`).join('')}</div>
     <p class="sub" style="margin:0">Automático segue o tema do celular ou do tablet.</p>
+    <div class="label" style="margin-top:8px">Animações</div>
+    <div class="chips" style="margin:0">${[['ligadas', 'Ligadas'], ['aparelho', 'Seguir o aparelho'], ['desligadas', 'Desligadas']].map(([k, n]) => `<button class="chip ${animacao === k ? 'on' : ''}" onclick="mudarAnim('${k}')">${n}</button>`).join('')}</div>
+    <p class="sub" style="margin:0">Desligue se o aparelho estiver lento ou se o movimento incomodar.</p>
   </div>
 
   <div class="section">
