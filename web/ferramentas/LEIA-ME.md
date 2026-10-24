@@ -17,6 +17,13 @@ Apagar os exemplos de uma conta (pergunte antes de rodar no banco publicado):
 
 # Backup do banco
 
+- **Automático no Cloudflare (R2):** o robô `web/backup/` roda todo dia às 3h (Brasília) e guarda no R2 (`fisiobea-backups`):
+  `diario/` com as 30 cópias mais recentes, `mensal/` com uma cópia por mês (12 meses) e `ultimo.json` com o resumo do último backup.
+  - Publicar ou atualizar o robô (dentro de `web/`): `npx wrangler deploy -c backup/wrangler.toml`
+  - Ver o último backup: `npx wrangler r2 object get fisiobea-backups/ultimo.json --pipe -c backup/wrangler.toml`
+  - Baixar uma cópia: `npx wrangler r2 object get fisiobea-backups/diario/fisiobea-AAAA-MM-DD.sql --file=restaurar.sql -c backup/wrangler.toml`
+  - Também dá para baixar pelo painel do Cloudflare: R2 → fisiobea-backups.
+
 - **Cópia própria:** `npm run backup` (dentro de `web/`) salva o banco publicado inteiro em `web/backups/` e guarda as 12 mais recentes. A pasta não vai para o GitHub porque tem dados de saúde. Rode toda semana, ou antes de qualquer mudança grande.
 - **Voltar no tempo (Cloudflare):** o próprio Cloudflare guarda as versões do banco dos últimos dias (Time Travel).
   - Ver o ponto atual: `npx wrangler d1 time-travel info fisiobea-db`

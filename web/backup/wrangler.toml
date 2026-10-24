@@ -1,0 +1,18 @@
+# Robô de backup do FisioBea: todo dia às 3h (Brasília) copia o banco inteiro para o R2.
+# Publicar (dentro de web/): npx wrangler deploy -c backup/wrangler.toml
+name = "fisiobea-backup"
+main = "index.js"
+compatibility_date = "2024-09-23"
+workers_dev = false
+
+[triggers]
+crons = ["0 6 * * *"] # 06:00 UTC = 03:00 em Brasília
+
+[[d1_databases]]
+binding = "DB"
+database_name = "fisiobea-db"
+database_id = "253f1cc5-4fc8-4a3b-8698-352bb3d594ee"
+
+[[r2_buckets]]
+binding = "BACKUPS"
+bucket_name = "fisiobea-backups"
