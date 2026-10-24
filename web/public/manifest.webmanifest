@@ -1,0 +1,11 @@
+{
+  "name": "FisioBea",
+  "short_name": "FisioBea",
+  "description": "Agenda, prontuário e financeiro para fisioterapeutas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f9f8",
+  "theme_color": "#1e7a46",
+  "lang": "pt-BR",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
