@@ -133,6 +133,7 @@ textarea { min-height: 80px; resize: vertical; line-height: 1.45; }
 .item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .item-top > div { min-width: 0; }
 .time { font-variant-numeric: tabular-nums; color: var(--muted); font-size: .9rem; font-weight: 600; }
+.time small { display: block; font-size: .78rem; font-weight: 500; opacity: .8; }
 .pill { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--line); color: var(--fg); white-space: nowrap; }
 .st-agendado { background: var(--yellow-soft); color: var(--rust); }
 .st-confirmado { background: var(--blue-soft); color: var(--blue); }
@@ -165,6 +166,28 @@ textarea { min-height: 80px; resize: vertical; line-height: 1.45; }
 .day.today:not(.on) { border-color: var(--line); }
 .weeknav { display: flex; align-items: center; gap: 4px; color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
 .weeknav button { background: none; color: var(--muted); padding: 6px 10px; font-size: 1.1rem; }
+/* Agenda: troca entre semana e mês, e a grade do mês */
+.vista { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.vista button { background: none; color: var(--muted); border: 0; border-radius: 999px; padding: 6px 13px; font-size: .85rem; font-weight: 600; }
+.vista button.on { background: var(--green); color: var(--on-green); }
+.mes-sem, .mes-grade { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.mes-sem { margin-bottom: 4px; text-align: center; font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+.mcel { background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 14px; min-height: 92px; padding: 6px; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 3px; text-align: left; overflow: hidden; font-weight: 400; }
+.mcel:hover { border-color: var(--green); }
+.mcel.fora { opacity: .4; }
+.mnum { align-self: flex-start; font-weight: 600; font-size: .85rem; min-width: 24px; height: 24px; padding: 0 4px; border-radius: 999px; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+.mcel.today .mnum { background: var(--green); color: var(--on-green); }
+.mev { display: grid; gap: 2px; min-width: 0; }
+.mev i { font-style: normal; font-size: .72rem; line-height: 1.3; padding: 1px 5px; border-radius: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mev em { font-style: normal; font-size: .7rem; color: var(--muted); padding-left: 5px; }
+.mqtd { display: none; }
+@media (max-width: 700px) {
+  .mcel { min-height: 56px; padding: 5px 2px; align-items: center; border-radius: 12px; gap: 4px; }
+  .mnum { align-self: center; }
+  .mev { display: none; }
+  .mqtd { display: grid; place-items: center; min-width: 20px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--yellow-soft); color: var(--rust); font-size: .7rem; font-weight: 700; }
+  .mqtd:empty { visibility: hidden; }
+}
 .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
 .status-pick { display: flex; flex-wrap: wrap; gap: 6px; }
 .status-pick button { background: var(--surface); color: var(--fg); border: 1px solid var(--line); padding: 6px 10px; font-size: .82rem; font-weight: 500; border-radius: 999px; }
@@ -472,6 +495,7 @@ const CONFIG_PADRAO = {
 // ================= Estado =================
 const S = {
   aba: 'inicio', pid: null, sub: 'resumo', semana: 0, dia: null, treinoIdx: 0, mes: null, busca: '', mostrarInativos: false,
+  agVista: (() => { try { return localStorage.getItem('fisiobea-agvista') === 'mes' ? 'mes' : 'semana'; } catch (e) { return 'semana'; } })(), agMes: null,
   pacientes: [], evolucoes: [], avaliacoes: [], sessoes: [], pagamentos: [],
   modelo: MODELO_PADRAO, config: { ...CONFIG_PADRAO }, carregado: false, nuvem: false, erro: null,
 };
@@ -544,6 +568,15 @@ const iniciais = p => (p.nome || '?').split(' ').filter(Boolean).slice(0, 2).map
 const avatar = (p, cls = '') => `<span class="avatar ${cls}">${ocultarNomes ? '•' : p.foto ? `<img src="${esc(p.foto)}" alt="">` : esc(iniciais(p))}</span>`;
 const ordenar = l => l.slice().sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
 const ativos = () => S.pacientes.filter(p => p.ativo !== false);
+// Idade por extenso; bebês aparecem em meses
+const textoIdade = n => {
+  if (!n) return '';
+  const d = deIso(n), h = new Date();
+  if (isNaN(d) || d > h) return '';
+  const meses = (h.getFullYear() - d.getFullYear()) * 12 + h.getMonth() - d.getMonth() - (h.getDate() < d.getDate() ? 1 : 0);
+  return meses < 12 ? `${meses} ${meses === 1 ? 'mês' : 'meses'}` : `${idade(n)} anos`;
+};
+window.mostrarIdade = v => { $('#f-idade').textContent = textoIdade(v) ? '· ' + textoIdade(v) : ''; };
 const idade = n => { if (!n) return ''; const d = deIso(n), h = new Date(); let a = h.getFullYear() - d.getFullYear(); if (h < new Date(h.getFullYear(), d.getMonth(), d.getDate())) a--; return a; };
 const soDigitos = s => String(s || '').replace(/\D/g, '');
 const waLink = (fone, txt) => { let n = soDigitos(fone); if (n && n.length <= 11) n = '55' + n; return `https://wa.me/${n}?text=${encodeURIComponent(txt)}`; };
@@ -789,11 +822,21 @@ function sessoesDoDia(di) {
   for (const p of ativos()) {
     if (!(p.dias || []).includes(wd) || (p.inicio && di < p.inicio) || (p.fim && di > p.fim)) continue;
     const id = sessaoId(p.id, di), salvo = S.sessoes.find(s => s.id === id);
-    lista.push({ id, pacienteId: p.id, data: di, horario: p.horario || '', status: 'agendado', ...(salvo || {}) });
+    lista.push({ id, pacienteId: p.id, data: di, horario: p.horario || '', horarioFim: p.horarioFim || '', status: 'agendado', ...(salvo || {}) });
   }
   for (const s of S.sessoes) if (s.avulsa && s.data === di && pac(s.pacienteId)) lista.push(s);
   return lista.filter(s => s.status !== 'remarcado').sort((a, b) => (a.horario || '').localeCompare(b.horario || ''));
 }
+// Horário do atendimento com o término, quando tiver: "08:00–09:00"
+const faixa = s => s.horario ? s.horario + (s.horarioFim ? '–' + s.horarioFim : '') : '';
+const horaCelula = s => `<span class="time">${esc(s.horario || '--:--')}${s.horarioFim ? `<small>${esc(s.horarioFim)}</small>` : ''}</span>`;
+// Ao preencher o início, sugere o término 1 hora depois (até a pessoa mexer no término)
+window.sugerirFim = (ini, fim) => {
+  const a = $(ini).value, b = $(fim);
+  if (!a || (b.value && !b.dataset.auto)) return;
+  const [h, m] = a.split(':').map(Number);
+  b.value = String((h + 1) % 24).padStart(2, '0') + ':' + String(m).padStart(2, '0'); b.dataset.auto = '1';
+};
 function sessoesEntre(ini, fim) { const out = []; for (let d = deIso(ini); iso(d) <= fim; d.setDate(d.getDate() + 1)) out.push(...sessoesDoDia(iso(d))); return out; }
 
 // Rodízio A → B → C…: conta só as sessões que aconteceram (faltas e cancelamentos não avançam o treino)
@@ -816,8 +859,8 @@ function treinoDoDia(p, di) {
 }
 const prescricao = x => [x.series && x.series + 'x', x.reps, x.carga].filter(Boolean).join(' · ');
 function mudarStatus(sess, status) {
-  const { id, pacienteId, data, horario, avulsa, treino, obs } = sess;
-  return salvar(() => store.put('sessoes', { id, pacienteId, data, horario, avulsa: !!avulsa, treino: treino || '', obs: obs || '', status }), STATUS[status]);
+  const { id, pacienteId, data, horario, horarioFim, avulsa, treino, obs } = sess;
+  return salvar(() => store.put('sessoes', { id, pacienteId, data, horario, horarioFim: horarioFim || '', avulsa: !!avulsa, treino: treino || '', obs: obs || '', status }), STATUS[status]);
 }
 window.statusSessao = (id, data, status) => { const s = sessoesDoDia(data).find(x => x.id === id); if (s) mudarStatus(s, status); fechar(); };
 
@@ -869,7 +912,7 @@ function render() {
   // O status que acabou de mudar dá um pulinho para confirmar o toque
   if (realceStatus) { [...app.querySelectorAll('.pill[data-sid]')].filter(b => b.dataset.sid === realceStatus).forEach(b => b.classList.add('troca')); realceStatus = null; }
   // Animação de entrada só quando muda de tela (não a cada digitação ou salvamento)
-  const tela = [S.aba, S.pid, S.aba === 'agenda' && S.dia + S.semana, S.aba === 'financeiro' && S.mes, S.aba === 'pacientes' && S.mostrarInativos].join('|');
+  const tela = [S.aba, S.pid, S.aba === 'agenda' && S.agVista + (S.agVista === 'mes' ? S.agMes : S.dia + S.semana), S.aba === 'financeiro' && S.mes, S.aba === 'pacientes' && S.mostrarInativos].join('|');
   if (tela !== ultimaTela) {
     ultimaTela = tela;
     clearTimeout(timerEntra);
@@ -1141,9 +1184,9 @@ function vInicio() {
     <div class="stat"><span class="label">Faltas no mês</span><strong>${faltas}</strong><span class="muted" style="font-size:.85rem">${doMes.length ? Math.round(faltas / doMes.length * 100) : 0}% das sessões</span></div>
   </div>
 
-  <div class="section"><div class="row" style="justify-content:space-between"><h3>Atendimentos de hoje</h3><button class="link small" onclick="ir('agenda',{semana:0,dia:hojeIso()})">Ver agenda</button></div>
+  <div class="section"><div class="row" style="justify-content:space-between"><h3>Atendimentos de hoje</h3><button class="link small" onclick="ir('agenda',{semana:0,dia:hojeIso(),agVista:'semana'})">Ver agenda</button></div>
     ${hoje.length ? `<div class="item">${hoje.map(s => { const p = pac(s.pacienteId), t = treinoDoDia(p, h); return `
-      <div class="tline"><div class="row" style="gap:12px;min-width:0"><span class="time">${esc(s.horario || '--:--')}</span><span style="min-width:0">${esc(nome(p))}${t ? ` <span class="muted">· Treino ${t.letra}</span>` : ''}</span></div>
+      <div class="tline"><div class="row" style="gap:12px;min-width:0">${horaCelula(s)}<span style="min-width:0">${esc(nome(p))}${t ? ` <span class="muted">· Treino ${t.letra}</span>` : ''}</span></div>
       <button class="pill st-${s.status}" data-sid="${esc(s.id)}" style="border:0;cursor:pointer" onclick="escolherStatus('${s.id}','${s.data}')">${STATUS[s.status]}</button></div>`; }).join('')}</div>`
       : '<div class="empty">Nenhum atendimento hoje.</div>'}
   </div>
@@ -1167,7 +1210,50 @@ function semanaDias() {
   seg.setDate(hoje.getDate() - (hoje.getDay() === 0 ? -1 : hoje.getDay() - 1) + S.semana * 7);
   return [...Array(6)].map((_, i) => { const d = new Date(seg); d.setDate(seg.getDate() + i); return d; });
 }
+// Semana (ou mês) a que o dia pertence; no domingo vale a semana seguinte, como na agenda
+const segundaDe = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12); x.setDate(x.getDate() + (x.getDay() === 0 ? 1 : 1 - x.getDay())); return x; };
+const semanaDe = di => Math.round((segundaDe(deIso(di)) - segundaDe(new Date())) / 6048e5);
+const trocaVista = () => `<div class="vista" role="tablist" aria-label="Ver agenda por">${[['semana', 'Semana'], ['mes', 'Mês']].map(([k, n]) => `<button role="tab" aria-selected="${S.agVista === k}" class="${S.agVista === k ? 'on' : ''}" onclick="verAgenda('${k}')">${n}</button>`).join('')}</div>`;
+window.verAgenda = v => {
+  if (v === 'mes') S.agMes = (S.dia || hojeIso()).slice(0, 7);
+  S.agVista = v;
+  try { localStorage.setItem('fisiobea-agvista', v); } catch (e) {}
+  render();
+};
+window.mudarMes = n => { const [a, m] = S.agMes.split('-').map(Number); S.agMes = iso(new Date(a, m - 1 + n, 1)).slice(0, 7); render(); };
+window.abrirDia = di => { S.agVista = 'semana'; S.dia = di; S.semana = semanaDe(di); render(); window.scrollTo(0, 0); };
+function vMes() {
+  const hoje = hojeIso();
+  if (!S.agMes) S.agMes = (S.dia || hoje).slice(0, 7);
+  const [a, m] = S.agMes.split('-').map(Number);
+  const prim = new Date(a, m - 1, 1), vazios = (prim.getDay() + 6) % 7, nDias = new Date(a, m, 0).getDate();
+  const dias = [...Array(Math.ceil((vazios + nDias) / 7) * 7)].map((_, i) => new Date(a, m - 1, 1 - vazios + i));
+  let total = 0;
+  const celulas = dias.map(d => {
+    const di = iso(d), fora = d.getMonth() !== m - 1, l = sessoesDoDia(di).filter(s => !['cancelado'].includes(s.status));
+    if (!fora) total += l.length;
+    const titulo = `${d.getDate()} de ${MESES[d.getMonth()]}: ${l.length ? l.length + ' atendimento' + (l.length > 1 ? 's' : '') : 'sem atendimentos'}`;
+    return `<button class="mcel ${fora ? 'fora' : ''} ${di === hoje ? 'today' : ''}" onclick="abrirDia('${di}')" aria-label="${titulo}">
+      <span class="mnum">${d.getDate()}</span>
+      <span class="mev">${l.slice(0, 3).map(s => `<i class="st-${s.status}">${esc(s.horario)} ${esc(nome(pac(s.pacienteId)).split(' ')[0])}</i>`).join('')}${l.length > 3 ? `<em>+${l.length - 3}</em>` : ''}</span>
+      <span class="mqtd">${l.length || ''}</span></button>`;
+  }).join('');
+  return `
+  <div class="head">
+    <div><h2>${MESES[m - 1][0].toUpperCase() + MESES[m - 1].slice(1)} ${a}</h2>
+    <p class="sub">${total ? total + ' atendimento' + (total > 1 ? 's' : '') + ' no mês' : 'Nenhum atendimento no mês'}</p></div>
+    <div class="row" style="gap:6px">
+      ${trocaVista()}
+      <div class="weeknav"><button onclick="mudarMes(-1)" aria-label="Mês anterior">‹</button>${S.agMes !== hoje.slice(0, 7) ? `<button class="link small" style="font-size:.85rem" onclick="S.agMes='${hoje.slice(0, 7)}';render()">Hoje</button>` : ''}<button onclick="mudarMes(1)" aria-label="Próximo mês">›</button></div>
+      <button class="small" onclick="novoAgendamento('${S.agMes === hoje.slice(0, 7) ? hoje : S.agMes + '-01'}')">Agendar</button>
+    </div>
+  </div>
+  <div class="mes-sem">${['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(d => `<span>${d}</span>`).join('')}</div>
+  <div class="mes-grade">${celulas}</div>
+  <p class="sub" style="margin-top:12px">Toque em um dia para ver os atendimentos e evoluir.</p>`;
+}
 function vAgenda() {
+  if (S.agVista === 'mes') return vMes();
   const dias = semanaDias(), hoje = hojeIso();
   if (!S.dia || !dias.some(d => iso(d) === S.dia)) S.dia = iso(dias.find(d => iso(d) === hoje) || dias[0]);
   const sel = deIso(S.dia), lista = sessoesDoDia(S.dia);
@@ -1176,6 +1262,7 @@ function vAgenda() {
     <div><h2>${DIAS_LONGO[sel.getDay()]}, ${sel.getDate()} de ${MESES[sel.getMonth()].slice(0, 3)}</h2>
     <p class="sub">${lista.length ? lista.length + ' atendimento' + (lista.length > 1 ? 's' : '') : 'Nenhum atendimento'}</p></div>
     <div class="row" style="gap:6px">
+      ${trocaVista()}
       <div class="weeknav"><button onclick="S.semana--;S.dia=null;render()" aria-label="Semana anterior">‹</button><span class="num">${br(iso(dias[0])).slice(0, 5)} – ${br(iso(dias[5])).slice(0, 5)}</span><button onclick="S.semana++;S.dia=null;render()" aria-label="Próxima semana">›</button></div>
       <button class="small" onclick="novoAgendamento('${S.dia}')">Agendar</button>
     </div>
@@ -1199,7 +1286,7 @@ function cartaoSessao(s) {
   <div class="item">
     <div class="item-top">
       <div class="row" style="gap:12px;align-items:flex-start;flex-wrap:nowrap">
-        <span class="time">${esc(s.horario || '--:--')}</span>
+        ${horaCelula(s)}
         ${avatar(p)}
         <div style="min-width:0"><h3 class="tap" style="cursor:pointer" onclick="abrirPaciente('${p.id}')">${esc(nome(p))}</h3><div class="muted" style="font-size:.88rem">${esc(p.diagnostico)}${s.avulsa ? ' · avulso' : ''}</div></div>
       </div>
@@ -1218,7 +1305,7 @@ function cartaoSessao(s) {
 window.escolherStatus = (id, data) => {
   const s = sessoesDoDia(data).find(x => x.id === id), p = pac(s.pacienteId);
   const ancora = [...document.querySelectorAll('.pill[data-sid]')].find(b => b.dataset.sid === id);
-  if (!ancora) return sheet(`<h3>${esc(nome(p))} · ${br(data)} ${esc(s.horario)}</h3><div class="label">Status do atendimento</div>
+  if (!ancora) return sheet(`<h3>${esc(nome(p))} · ${br(data)} ${esc(faixa(s))}</h3><div class="label">Status do atendimento</div>
     <div class="status-pick">${Object.entries(STATUS).map(([k, v]) => `<button type="button" class="${s.status === k ? 'on st-' + k : ''}" onclick="statusSessao('${id}','${data}','${k}')">${v}</button>`).join('')}</div>`, null);
   fecharPop();
   const pop = document.createElement('div');
@@ -1256,20 +1343,23 @@ window.novoAgendamento = data => {
   if (!ativos().length) return toast('Cadastre um paciente primeiro');
   sheet(`<h3>Agendar atendimento avulso</h3>
     <label class="field"><span>Paciente</span><select id="ag-p" name="pid">${ordenar(ativos()).map(p => `<option value="${p.id}">${esc(p.nome)}</option>`).join('')}</select></label>
-    <div class="row"><label class="field"><span>Data</span><input id="ag-d" type="date" name="data" required value="${data}"></label>
-    <label class="field"><span>Horário</span><input id="ag-h" type="time" name="horario" required></label></div>
+    <label class="field"><span>Data</span><input id="ag-d" type="date" name="data" required value="${data}"></label>
+    <div class="row"><label class="field"><span>Início</span><input id="ag-h" type="time" name="horario" required oninput="sugerirFim('#ag-h','#ag-hf')"></label>
+    <label class="field"><span>Término</span><input id="ag-hf" type="time" name="horarioFim" oninput="delete this.dataset.auto"></label></div>
     <p class="sub" style="margin:0">Os dias fixos de cada paciente já aparecem sozinhos. Use isto para reposições e sessões extras.</p>`,
-    f => salvar(() => store.put('sessoes', { id: 'av-' + uid(), pacienteId: f.get('pid'), data: f.get('data'), horario: f.get('horario'), status: 'agendado', avulsa: true }), 'Agendado'));
+    f => salvar(() => store.put('sessoes', { id: 'av-' + uid(), pacienteId: f.get('pid'), data: f.get('data'), horario: f.get('horario'), horarioFim: f.get('horarioFim') || '', status: 'agendado', avulsa: true }), 'Agendado'));
 };
 window.remarcar = (id, data) => {
   const s = sessoesDoDia(data).find(x => x.id === id);
   sheet(`<h3>Remarcar · ${esc(nome(pac(s.pacienteId)))}</h3>
-    <div class="row"><label class="field"><span>Nova data</span><input id="rm-d" type="date" name="data" required value="${data}"></label>
-    <label class="field"><span>Novo horário</span><input id="rm-h" type="time" name="horario" required value="${esc(s.horario)}"></label></div>`,
+    <label class="field"><span>Nova data</span><input id="rm-d" type="date" name="data" required value="${data}"></label>
+    <div class="row"><label class="field"><span>Início</span><input id="rm-h" type="time" name="horario" required value="${esc(s.horario)}" oninput="sugerirFim('#rm-h','#rm-hf')"></label>
+    <label class="field"><span>Término</span><input id="rm-hf" type="time" name="horarioFim" value="${esc(s.horarioFim || '')}" oninput="delete this.dataset.auto"></label></div>`,
     f => salvar(async () => {
-      if (s.avulsa) return store.put('sessoes', { ...s, data: f.get('data'), horario: f.get('horario') });
-      await store.put('sessoes', { id: s.id, pacienteId: s.pacienteId, data: s.data, horario: s.horario, status: 'remarcado' });
-      await store.put('sessoes', { id: 'av-' + uid(), pacienteId: s.pacienteId, data: f.get('data'), horario: f.get('horario'), status: 'agendado', avulsa: true, treino: treinoDoDia(pac(s.pacienteId), s.data)?.letra || '' });
+      const fim = f.get('horarioFim') || '';
+      if (s.avulsa) return store.put('sessoes', { ...s, data: f.get('data'), horario: f.get('horario'), horarioFim: fim });
+      await store.put('sessoes', { id: s.id, pacienteId: s.pacienteId, data: s.data, horario: s.horario, horarioFim: s.horarioFim || '', status: 'remarcado' });
+      await store.put('sessoes', { id: 'av-' + uid(), pacienteId: s.pacienteId, data: f.get('data'), horario: f.get('horario'), horarioFim: fim, status: 'agendado', avulsa: true, treino: treinoDoDia(pac(s.pacienteId), s.data)?.letra || '' });
     }, 'Atendimento remarcado'),
     s.avulsa ? `<button type="button" class="danger" onclick="excluirComDesfazer('sessoes','${s.id}','Agendamento excluído')">Excluir</button>` : '');
 };
@@ -1289,9 +1379,9 @@ function vPacientes() {
     return `<div class="item tap" onclick="abrirPaciente('${p.id}')">
       <div class="row" style="gap:12px;flex-wrap:nowrap">
         ${avatar(p)}
-        <div style="flex:1;min-width:0"><h3>${esc(nome(p))}</h3><div class="muted" style="font-size:.88rem">${esc(p.diagnostico)}</div></div>
+        <div style="flex:1;min-width:0"><h3>${esc(nome(p))}</h3><div class="muted" style="font-size:.88rem">${[textoIdade(p.nascimento), p.diagnostico].filter(Boolean).map(esc).join(' · ')}</div></div>
         <div style="text-align:right;display:grid;gap:4px;justify-items:end">
-          <span class="muted num" style="font-size:.85rem">${(p.dias || []).map(d => DIAS[d]).join(' · ')} ${esc(p.horario)}</span>
+          <span class="muted num" style="font-size:.85rem">${(p.dias || []).map(d => DIAS[d]).join(' · ')} ${esc(faixa(p))}</span>
           ${sp ? `<span class="pill ${sp.saldo <= 0 ? 'red' : sp.saldo <= 2 ? 'st-agendado' : 'green'}">${sp.saldo} sess. no pacote</span>` : ''}
         </div>
       </div>
@@ -1313,7 +1403,7 @@ window.editarPaciente = id => {
     </div>
     <label class="field"><span>Nome completo</span><input id="f-nome" name="nome" required value="${v('nome')}"></label>
     <div class="row">
-      <label class="field"><span>Nascimento</span><input id="f-nasc" type="date" name="nascimento" value="${v('nascimento')}"></label>
+      <label class="field"><span>Nascimento <b id="f-idade" style="color:var(--green)">${textoIdade(p.nascimento) ? '· ' + textoIdade(p.nascimento) : ''}</b></span><input id="f-nasc" type="date" name="nascimento" value="${v('nascimento')}" oninput="mostrarIdade(this.value)" onchange="mostrarIdade(this.value)"></label>
       <label class="field"><span>CPF</span><input id="f-cpf" name="cpf" inputmode="numeric" value="${v('cpf')}"></label>
     </div>
     <div class="row">
@@ -1330,13 +1420,14 @@ window.editarPaciente = id => {
     <label class="field"><span>Médico / encaminhamento</span><input id="f-med" name="medico" value="${v('medico')}"></label>
     <div class="field"><span>Dias de atendimento</span><div class="weekpick">${[1, 2, 3, 4, 5, 6].map(d => `<label><input type="checkbox" name="dias" value="${d}" ${(p.dias || []).includes(d) ? 'checked' : ''}><span>${DIAS[d]}</span></label>`).join('')}</div></div>
     <div class="row">
-      <label class="field"><span>Horário</span><input id="f-hora" type="time" name="horario" value="${v('horario')}"></label>
-      <label class="field"><span>Início do tratamento</span><input id="f-ini" type="date" name="inicio" value="${v('inicio')}"></label>
+      <label class="field"><span>Início do atendimento</span><input id="f-hora" type="time" name="horario" value="${v('horario')}" oninput="sugerirFim('#f-hora','#f-hora-fim')"></label>
+      <label class="field"><span>Término</span><input id="f-hora-fim" type="time" name="horarioFim" value="${v('horarioFim')}" oninput="delete this.dataset.auto"></label>
     </div>
+    <label class="field"><span>Início do tratamento</span><input id="f-ini" type="date" name="inicio" value="${v('inicio')}"></label>
     <p class="sub" style="margin:0">A partir do início, os treinos se alternam a cada sessão realizada: A, B, C, D…</p>
     <label class="field"><span>Observações</span><textarea id="f-obs" name="obs">${v('obs')}</textarea></label>`,
     f => {
-      const campos = ['nome', 'foto', 'nascimento', 'cpf', 'celular', 'email', 'endereco', 'responsavel', 'convenio', 'valorSessao', 'diagnostico', 'medico', 'horario', 'inicio', 'obs'];
+      const campos = ['nome', 'foto', 'nascimento', 'cpf', 'celular', 'email', 'endereco', 'responsavel', 'convenio', 'valorSessao', 'diagnostico', 'medico', 'horario', 'horarioFim', 'inicio', 'obs'];
       const dados = Object.fromEntries(campos.map(k => [k, (f.get(k) || '').trim()]));
       salvar(() => store.put('pacientes', { ...p, ...dados, id: p.id || uid(), dias: f.getAll('dias').map(Number) }), 'Paciente salvo');
     },
@@ -1373,7 +1464,7 @@ function vPaciente() {
   return `
   <button class="back" onclick="S.pid=null;render()">‹ Pacientes</button>
   <div class="head"><div class="row" style="gap:12px;flex-wrap:nowrap;min-width:0">${avatar(p, 'lg')}
-    <div style="min-width:0"><h2>${esc(nome(p))}</h2><p class="sub">${[p.diagnostico, p.nascimento && idade(p.nascimento) + ' anos', p.ativo === false && 'Inativo'].filter(Boolean).map(esc).join(' · ')}</p></div></div>
+    <div style="min-width:0"><h2>${esc(nome(p))}</h2><p class="sub">${[p.diagnostico, textoIdade(p.nascimento), p.ativo === false && 'Inativo'].filter(Boolean).map(esc).join(' · ')}</p></div></div>
     ${p.celular ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(p.celular, '')}">WhatsApp</a>` : ''}
   </div>
   <div class="chips abas-pront" id="abas-pront" role="tablist"><span class="pil" aria-hidden="true"></span>${SUBS.map(([k, n]) => `<button class="chip ${S.sub === k ? 'on' : ''}" role="tab" aria-selected="${S.sub === k}" data-sub="${k}" onclick="trocarSub('${k}')">${n}</button>`).join('')}</div>
@@ -1395,13 +1486,13 @@ function pResumo(p) {
   </div>
   ${objetivo ? `<div class="section"><h3>Objetivos do tratamento</h3><div class="item" style="white-space:pre-wrap">${esc(objetivo)}</div></div>` : ''}
   <div class="section"><h3>Próximos atendimentos</h3>
-    ${proximas.length ? `<div class="item">${proximas.slice(0, 4).map(s => `<div class="tline"><span class="num">${DIAS[deIso(s.data).getDay()]} ${br(s.data).slice(0, 5)} · ${esc(s.horario)}</span><span class="pill st-${s.status}">${STATUS[s.status]}</span></div>`).join('')}</div>` : '<div class="empty">Sem atendimentos nos próximos 30 dias.</div>'}
+    ${proximas.length ? `<div class="item">${proximas.slice(0, 4).map(s => `<div class="tline"><span class="num">${DIAS[deIso(s.data).getDay()]} ${br(s.data).slice(0, 5)} · ${esc(faixa(s))}</span><span class="pill st-${s.status}">${STATUS[s.status]}</span></div>`).join('')}</div>` : '<div class="empty">Sem atendimentos nos próximos 30 dias.</div>'}
   </div>
   <div class="section"><div class="row" style="justify-content:space-between"><h3>Dados cadastrais</h3><button class="link small" onclick="editarPaciente('${p.id}')">Editar</button></div>
     <div class="item"><dl class="kv">
-      ${linha('Nascimento', p.nascimento && `${br(p.nascimento)} (${idade(p.nascimento)} anos)`)}${linha('CPF', p.cpf)}${linha('Celular', p.celular)}${linha('E-mail', p.email)}
+      ${linha('Nascimento', p.nascimento && `${br(p.nascimento)} (${textoIdade(p.nascimento)})`)}${linha('CPF', p.cpf)}${linha('Celular', p.celular)}${linha('E-mail', p.email)}
       ${linha('Endereço', p.endereco)}${linha('Responsável', p.responsavel)}${linha('Convênio', p.convenio)}${linha('Valor da sessão', p.valorSessao && reais(String(p.valorSessao).replace(',', '.')))}
-      ${linha('Encaminhamento', p.medico)}${linha('Dias', (p.dias || []).map(d => DIAS_LONGO[d]).join(', ') + (p.horario ? ' às ' + p.horario : ''))}${linha('Início', br(p.inicio))}${linha('Observações', p.obs)}
+      ${linha('Encaminhamento', p.medico)}${linha('Dias', (p.dias || []).map(d => DIAS_LONGO[d]).join(', ') + (p.horario ? (p.horarioFim ? `, das ${p.horario} às ${p.horarioFim}` : ' às ' + p.horario) : ''))}${linha('Início', br(p.inicio))}${linha('Observações', p.obs)}
     </dl></div>
     <div>${p.ativo === false
       ? `<button class="ghost small" onclick="alternarAtivo('${p.id}')">Reativar paciente</button>`
@@ -1466,7 +1557,7 @@ window.novaEvolucao = (pid, data) => {
     await store.put('evolucoes', { ...ev, id: uid() });
     // Evoluir marca o atendimento como realizado
     const s = sessoesDoDia(ev.data).find(x => x.pacienteId === pid);
-    if (s && s.status !== 'realizado') await store.put('sessoes', { id: s.id, pacienteId: pid, data: s.data, horario: s.horario, avulsa: !!s.avulsa, treino: ev.treino || '', status: 'realizado' });
+    if (s && s.status !== 'realizado') await store.put('sessoes', { id: s.id, pacienteId: pid, data: s.data, horario: s.horario, horarioFim: s.horarioFim || '', avulsa: !!s.avulsa, treino: ev.treino || '', status: 'realizado' });
   }, 'Evolução salva'));
 };
 window.abrirEvolucao = id => {
@@ -1606,7 +1697,7 @@ window.gerarDocumento = (pid, tipo) => {
   const p = pac(pid), d = DOCS[tipo];
   const extras = d.precisa.length ? `<div class="row">
     ${d.precisa.includes('data') ? `<label class="field"><span>Data do atendimento</span><input id="d-data" type="date" value="${hojeIso()}" oninput="atualizarDoc()"></label>` : ''}
-    ${d.precisa.includes('hora') ? `<label class="field"><span>Horário</span><input id="d-hora" placeholder="08:00 às 09:00" value="${esc(p.horario ? p.horario + ' às ' + String(Number(p.horario.slice(0, 2)) + 1).padStart(2, '0') + p.horario.slice(2) : '')}" oninput="atualizarDoc()"></label>` : ''}
+    ${d.precisa.includes('hora') ? `<label class="field"><span>Horário</span><input id="d-hora" placeholder="08:00 às 09:00" value="${esc(p.horario ? p.horario + ' às ' + (p.horarioFim || String(Number(p.horario.slice(0, 2)) + 1).padStart(2, '0') + p.horario.slice(2)) : '')}" oninput="atualizarDoc()"></label>` : ''}
     ${d.precisa.includes('valor') ? `<label class="field"><span>Valor (R$)</span><input id="d-valor" inputmode="decimal" value="${esc(p.valorSessao || '')}" oninput="atualizarDoc()"></label><label class="field"><span>Referente a</span><input id="d-ref" placeholder="atendimentos de fisioterapia" oninput="atualizarDoc()"></label>` : ''}
   </div>` : '';
   sheet(`<h3>${d.nome}</h3>${extras}<textarea id="d-txt" style="min-height:320px;line-height:1.55"></textarea>
