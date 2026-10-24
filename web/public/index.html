@@ -206,6 +206,10 @@ footer { border-top: 1px solid var(--line); padding-block: 36px calc(36px + env(
 footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center; }
 footer .brand { font-size: 1.4rem; }
 .credito { font-size: .78rem; }
+.legal a { color: var(--muted); text-underline-offset: 3px; }
+form.contato label.aceite { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; font-weight: 400; font-size: .9rem; color: var(--muted); }
+form.contato label.aceite input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--green); }
+form.contato label.aceite a { color: var(--green); }
 </style>
 </head>
 <body>
@@ -350,6 +354,7 @@ footer .brand { font-size: 1.4rem; }
         <label>WhatsApp<input id="c-tel" name="telefone" type="tel" autocomplete="tel" placeholder="(11) 99999-9999"></label>
         <label>Conte sobre seus atendimentos (opcional)<textarea id="c-msg" name="mensagem" placeholder="Ex.: atendo ortopedia em domicílio, uns 15 pacientes por semana"></textarea></label>
         <input class="hp" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <label class="aceite"><input type="checkbox" id="c-aceite" name="aceite" required> <span>Li a <a href="/privacidade" target="_blank" rel="noopener">Política de Privacidade</a> e aceito ser contatada pelo FisioBea sobre o aplicativo.</span></label>
         <div class="err" id="c-err" role="alert"></div>
         <button class="btn" type="submit" id="c-btn">Quero testar</button>
       </form>
@@ -372,7 +377,7 @@ footer .brand { font-size: 1.4rem; }
 <footer>
   <div class="wrap">
     <span><span class="brand">Fisio<i>Bea</i></span> · © <span id="ano"></span></span>
-    <span class="credito">Fotos: Pexels</span>
+    <span class="legal"><a href="/termos">Termos de Uso</a> · <a href="/privacidade">Política de Privacidade</a> · <span class="credito">Fotos: Pexels</span></span>
     <a href="/app/" style="font-weight:600;color:var(--green);text-decoration:none">Já sou assinante · Entrar</a>
   </div>
 </footer>
@@ -395,6 +400,7 @@ form.addEventListener('submit', async e => {
   const dados = Object.fromEntries(new FormData(form));
   err.textContent = '';
   if (!dados.nome.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(dados.email.trim())) { err.textContent = 'Informe seu nome e um e-mail válido.'; return; }
+  if (!dados.aceite) { err.textContent = 'Marque que leu a Política de Privacidade para enviar.'; return; }
   btn.disabled = true; btn.textContent = 'Enviando…';
   try {
     const r = await fetch('/api/pedido', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(dados) });

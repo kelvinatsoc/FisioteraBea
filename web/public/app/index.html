@@ -420,10 +420,36 @@ async function carregarDados() {
     const cfg = Object.fromEntries((d.config || []).map(x => [x.id, x]));
     S.modelo = cfg.modelo?.campos?.length ? cfg.modelo.campos : MODELO_PADRAO;
     S.config = { ...CONFIG_PADRAO, ...(cfg.geral || {}) };
+    S.aceite = cfg.aceite || null;
     delete S.config.id;
     S.carregado = true; S.erro = null;
   } catch (e) { if (e.status !== 401) S.erro = 'Não foi possível carregar seus dados. Verifique a internet e recarregue a página.'; }
   render();
+  if (S.carregado && S.aceite?.versao !== TERMOS_VERSAO) pedirAceite();
+}
+// Aceite dos Termos e da Política: pedido no primeiro acesso e sempre que a versão mudar.
+// Fica guardado na conta (config/aceite) com a versão e a data.
+const TERMOS_VERSAO = 1;
+function pedirAceite() {
+  if ($('#aceite-termos')) return;
+  const nova = S.aceite ? 'Atualizamos os Termos de Uso e a Política de Privacidade.' : 'Antes de começar, leia como o FisioBea funciona e como cuidamos dos seus dados e dos dados dos seus pacientes.';
+  $('#layer').innerHTML = `<div class="sheet-bg"><form class="sheet" id="aceite-termos">
+    <h3>Termos de Uso e Privacidade</h3>
+    <p class="sub" style="margin:0">${nova}</p>
+    <div class="list">
+      <a class="btn ghost" style="justify-content:space-between" href="/termos" target="_blank" rel="noopener">Termos de Uso<span>↗</span></a>
+      <a class="btn ghost" style="justify-content:space-between" href="/privacidade" target="_blank" rel="noopener">Política de Privacidade<span>↗</span></a>
+    </div>
+    <p class="sub" style="margin:0">Pela LGPD, você é a responsável pelos dados dos seus pacientes, e o FisioBea guarda esses dados só para você. Avise seus pacientes de que você usa um prontuário eletrônico.</p>
+    <label class="switch"><input type="checkbox" id="aceite-ok" required>Li e aceito os Termos de Uso e a Política de Privacidade</label>
+    <div class="sheet-foot"><div class="row"><button type="button" class="ghost" onclick="sair()">Sair</button><button type="submit">Continuar</button></div></div>
+  </form></div>`;
+  $('#aceite-termos').onsubmit = async e => {
+    e.preventDefault();
+    const aceite = { versao: TERMOS_VERSAO, data: new Date().toISOString() };
+    try { await api('doc/config/aceite', { method: 'PUT', body: JSON.stringify(aceite) }); S.aceite = aceite; fechar(); toast('Obrigada! Bom trabalho.'); }
+    catch (err) { toast(err.message || 'Não foi possível salvar. Tente de novo.'); }
+  };
 }
 // Ao voltar para o app (trocou de aparelho ou de aba), busca o que mudou
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.usuario && !document.querySelector('#sheet')) carregarDados(); });
@@ -447,6 +473,7 @@ function mostrarLogin(aviso = '') {
       <button type="submit" id="l-btn">${inst ? 'Criar e entrar' : 'Entrar'}</button>
     </div>
     ${inst ? '' : '<p class="sub" style="text-align:center;margin:0">Ainda não é assinante? <a href="/" style="color:var(--green);font-weight:600">Conheça o FisioBea</a></p>'}
+    <p class="sub" style="text-align:center;margin:0;font-size:.8rem"><a href="/termos" target="_blank" rel="noopener" style="color:inherit">Termos de Uso</a> · <a href="/privacidade" target="_blank" rel="noopener" style="color:inherit">Política de Privacidade</a></p>
   </form></div>`;
   $('#form-login').onsubmit = async e => {
     e.preventDefault();
@@ -1161,7 +1188,8 @@ function vAjustes() {
   return `
   <div class="head"><h2>Ajustes</h2></div>
   <div class="item" style="gap:10px;margin-bottom:16px">
-    <div class="row" style="justify-content:space-between"><div><h3>${esc(S.usuario?.nome)}</h3><p class="sub">${esc(S.usuario?.email)}${S.usuario?.role === 'admin' ? ' · Administradora' : S.usuario?.valido_ate ? ' · assinatura até ' + br(S.usuario.valido_ate) : ''}</p></div>
+    <div class="row" style="justify-content:space-between"><div><h3>${esc(S.usuario?.nome)}</h3><p class="sub">${esc(S.usuario?.email)}${S.usuario?.role === 'admin' ? ' · Administradora' : S.usuario?.valido_ate === VITALICIO ? ' · acesso vitalício' : S.usuario?.valido_ate ? ' · assinatura até ' + br(S.usuario.valido_ate) : ''}</p>
+      <p class="sub" style="margin-top:6px"><a href="/termos" target="_blank" rel="noopener" style="color:var(--green)">Termos de Uso</a> · <a href="/privacidade" target="_blank" rel="noopener" style="color:var(--green)">Política de Privacidade</a>${S.aceite?.data ? ` · aceitos em ${br(S.aceite.data.slice(0, 10))}` : ''}</p></div>
     <div class="row" style="gap:6px"><button class="ghost small" onclick="trocarSenha()">Trocar senha</button><button class="ghost small" onclick="sair()">Sair</button></div></div>
   </div>
   <div class="item" style="gap:14px">
