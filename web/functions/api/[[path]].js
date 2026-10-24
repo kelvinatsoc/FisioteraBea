@@ -296,7 +296,7 @@ export async function onRequest({ request, env, params }) {
     }
 
     if (rota === 'admin') {
-      if (eu.role !== 'admin') return erro('Apenas a administradora pode fazer isso.', 403);
+      if (eu.role !== 'admin') return erro('Só o administrador pode fazer isso.', 403);
       const [, recurso, alvo, acao] = partes;
 
       if (recurso === 'resumo' && metodo === 'GET') {
@@ -304,13 +304,20 @@ export async function onRequest({ request, env, params }) {
         const { results: usuarios } = await env.DB.prepare(
           `SELECT u.id, u.email, u.nome, u.telefone, u.role, u.ativo, u.valido_ate, u.obs, u.criado,
              (SELECT COUNT(*) FROM docs d WHERE d.user_id = u.id AND d.col = 'pacientes') AS pacientes,
-             (SELECT MAX(data) FROM assinaturas a WHERE a.user_id = u.id) AS ultimo_pagamento
+             (SELECT MAX(atualizado) FROM docs d WHERE d.user_id = u.id) AS ultimo_uso,
+             (SELECT MAX(data) FROM assinaturas a WHERE a.user_id = u.id) AS ultimo_pagamento,
+             (SELECT valor FROM assinaturas a WHERE a.user_id = u.id ORDER BY data DESC, rowid DESC LIMIT 1) AS ultimo_valor,
+             (SELECT dias FROM assinaturas a WHERE a.user_id = u.id ORDER BY data DESC, rowid DESC LIMIT 1) AS ultimo_dias,
+             (SELECT COALESCE(SUM(valor), 0) FROM assinaturas a WHERE a.user_id = u.id) AS total_pago
            FROM users u ORDER BY u.nome`
+        ).all();
+        const { results: ultimosPagamentos } = await env.DB.prepare(
+          'SELECT a.data, a.valor, a.dias, a.forma, u.nome FROM assinaturas a JOIN users u ON u.id = a.user_id ORDER BY a.data DESC, a.rowid DESC LIMIT 8'
         ).all();
         const { results: pedidos } = await env.DB.prepare('SELECT * FROM pedidos ORDER BY criado DESC LIMIT 100').all();
         const receitaMes = (await env.DB.prepare('SELECT COALESCE(SUM(valor), 0) AS v FROM assinaturas WHERE data LIKE ?').bind(mes + '%').first()).v;
-        const { results: porMes } = await env.DB.prepare('SELECT substr(data, 1, 7) AS mes, SUM(valor) AS v FROM assinaturas GROUP BY mes ORDER BY mes DESC LIMIT 6').all();
-        return json({ hoje: h, usuarios, pedidos, receitaMes, porMes });
+        const { results: porMes } = await env.DB.prepare('SELECT substr(data, 1, 7) AS mes, SUM(valor) AS v FROM assinaturas GROUP BY mes ORDER BY mes DESC LIMIT 12').all();
+        return json({ hoje: h, usuarios, pedidos, receitaMes, porMes, ultimosPagamentos });
       }
 
       if (recurso === 'usuarios' && !alvo && metodo === 'POST') {

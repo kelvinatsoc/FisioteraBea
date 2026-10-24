@@ -660,7 +660,7 @@ function mostrarLogin(aviso = '', venc = null) {
   el.innerHTML = `<div class="login-foto"><img src="/img/casa-alongamento.jpg" alt=""></div><div class="login-main"><form class="login-box" id="form-login">
     <div class="brand">${LOGO}</div>
     <div class="item" style="gap:14px">
-      <h2>${inst ? 'Criar conta de administradora' : 'Entrar'}</h2>
+      <h2>${inst ? 'Criar conta de administrador' : 'Entrar'}</h2>
       ${inst ? '<p class="sub" style="margin:0">Primeiro acesso ao sistema. Esta conta vai controlar as assinantes.</p><label class="field"><span>Seu nome</span><input id="l-nome" name="nome" autocomplete="name" required></label>' : ''}
       <label class="field"><span>E-mail</span><input id="l-email" name="email" type="email" autocomplete="email" required></label>
       <label class="field"><span>Senha</span><input id="l-senha" name="senha" type="password" minlength="${inst ? 8 : 1}" autocomplete="${inst ? 'new-password' : 'current-password'}" required></label>
@@ -1769,7 +1769,7 @@ function vAjustes() {
   return `
   <div class="head"><h2>Ajustes</h2></div>
   <div class="item" style="gap:10px;margin-bottom:16px">
-    <div class="row" style="justify-content:space-between"><div><h3>${esc(S.usuario?.nome)}</h3><p class="sub">${esc(S.usuario?.email)}${S.usuario?.role === 'admin' ? ' · Administradora' : S.usuario?.valido_ate === VITALICIO ? ' · acesso vitalício' : S.usuario?.valido_ate ? ' · assinatura até ' + br(S.usuario.valido_ate) : ''}</p>
+    <div class="row" style="justify-content:space-between"><div><h3>${esc(S.usuario?.nome)}</h3><p class="sub">${esc(S.usuario?.email)}${S.usuario?.role === 'admin' ? ' · Administrador' : S.usuario?.valido_ate === VITALICIO ? ' · acesso vitalício' : S.usuario?.valido_ate ? ' · assinatura até ' + br(S.usuario.valido_ate) : ''}</p>
       <p class="sub" style="margin-top:6px"><a href="/termos" target="_blank" rel="noopener" style="color:var(--green)">Termos de Uso</a> · <a href="/privacidade" target="_blank" rel="noopener" style="color:var(--green)">Política de Privacidade</a>${S.aceite?.data ? ` · aceitos em ${br(S.aceite.data.slice(0, 10))}` : ''}</p></div>
     <div class="row" style="gap:6px"><button class="ghost small" onclick="trocarSenha()">Trocar senha</button><button class="ghost small" onclick="sair()">Sair</button></div></div>
   </div>
@@ -1873,10 +1873,10 @@ window.trocarSenha = () => sheet(`<h3>Trocar senha</h3>
 // ================= Assinantes (administração) =================
 S.admin = null; S.filtroAss = 'todas';
 const PRECO_PADRAO = 49.9; // valor sugerido ao registrar pagamento; altere aqui
-async function carregarAdmin() { try { S.admin = await api('admin/resumo'); } catch (e) { S.admin = { usuarios: [], pedidos: [], porMes: [], receitaMes: 0 }; toast(e.message); } render(); }
+async function carregarAdmin() { try { S.admin = await api('admin/resumo'); } catch (e) { S.admin = { usuarios: [], pedidos: [], porMes: [], receitaMes: 0, ultimosPagamentos: [] }; toast(e.message); } render(); }
 const emTeste = u => !u.ultimo_pagamento && u.obs === 'Teste grátis pelo site';
 const situacao = u => {
-  if (u.role === 'admin') return { t: 'Administradora', c: 'st-agendado', k: 'admin' };
+  if (u.role === 'admin') return { t: 'Administrador', c: 'st-agendado', k: 'admin' };
   if (!u.ativo) return { t: 'Desativada', c: 'red', k: 'desativada' };
   if (u.valido_ate === VITALICIO) return { t: 'Vitalícia', c: 'green', k: 'ativa' };
   const r = diasRestantes(u.valido_ate);
@@ -1886,64 +1886,164 @@ const situacao = u => {
   if (r <= 7) return { t: `Vence em ${r} dia${r > 1 ? 's' : ''}`, c: 'st-agendado', k: 'vencendo' };
   return { t: 'Ativa até ' + br(u.valido_ate).slice(0, 5), c: 'green', k: 'ativa' };
 };
+// Números do negócio (assinaturas pagas, teste grátis, renovações)
+const PLANOS = { 30: 'Mensal', 90: 'Trimestral', 180: 'Semestral', 365: 'Anual' };
+const plano = u => u.valido_ate === VITALICIO ? 'Vitalício' : u.ultimo_dias ? PLANOS[u.ultimo_dias] || u.ultimo_dias + ' dias' : emTeste(u) ? 'Teste grátis' : '—';
+const valorMensal = u => u.ultimo_dias ? (u.ultimo_valor || 0) * 30 / u.ultimo_dias : 0;
+const pagante = u => u.ativo && u.ultimo_pagamento && u.valido_ate !== VITALICIO && u.valido_ate >= hojeIso();
+const doSite = u => u.obs === 'Teste grátis pelo site';
+const haDias = iso => iso ? Math.floor((deIso(hojeIso()) - deIso(iso.slice(0, 10))) / 864e5) : null;
+const usoTexto = u => { const d = haDias(u.ultimo_uso); return d === null ? 'nunca usou' : d <= 0 ? 'usou hoje' : d === 1 ? 'usou ontem' : `usou há ${d} dias`; };
+function metricasSaaS(A) {
+  const hoje = hojeIso(), assin = A.usuarios.filter(u => u.role !== 'admin' && u.ativo);
+  const pagantes = assin.filter(pagante);
+  const site = assin.filter(doSite), viraram = site.filter(u => u.ultimo_pagamento);
+  const decididos = viraram.length + site.filter(u => !u.ultimo_pagamento && u.valido_ate < hoje).length;
+  const ate30 = somaDiasIso(hoje, 30), antes30 = somaDiasIso(hoje, -30);
+  return {
+    assin, pagantes,
+    mrr: pagantes.reduce((t, u) => t + valorMensal(u), 0),
+    testes: assin.filter(u => situacao(u).k === 'teste'),
+    vitalicias: assin.filter(u => u.valido_ate === VITALICIO).length,
+    conversao: decididos ? Math.round(viraram.length / decididos * 100) : null, viraram: viraram.length, decididos,
+    naoRenovaram: assin.filter(u => u.ultimo_pagamento && u.valido_ate !== VITALICIO && u.valido_ate < hoje && u.valido_ate >= antes30),
+    renovacoes: pagantes.filter(u => u.valido_ate <= ate30),
+    cadastros30: assin.filter(u => u.criado.slice(0, 10) >= antes30).length,
+  };
+}
+const somaDiasIso = (di, n) => { const d = deIso(di); d.setDate(d.getDate() + n); return iso(d); };
+// Lista do dia: quem precisa de uma mensagem agora (fim do teste, vencimento, quem ainda não começou a usar)
+function tarefasDoDia(A, M) {
+  const t = [], primeiro = u => u.nome.split(' ')[0];
+  for (const u of M.assin) {
+    const r = diasRestantes(u.valido_ate), st = situacao(u);
+    if (st.k === 'teste' && r <= 2) t.push({ u, cor: 'st-agendado', motivo: `Teste acaba ${r <= 1 ? 'hoje' : 'em 2 dias'}`, msg: cobrancaMsg(u), pagar: true });
+    else if (st.k === 'teste' && haDias(u.criado) >= 2 && !u.pacientes) t.push({ u, cor: 'st-confirmado', motivo: 'Em teste e ainda não cadastrou paciente', msg: `Oi, ${primeiro(u)}! Aqui é do FisioBea. Vi que você criou sua conta. Quer ajuda para cadastrar seus primeiros pacientes e montar os treinos? Leva 5 minutinhos.` });
+    else if (doSite(u) && !u.ultimo_pagamento && r !== null && r <= 0 && r > -7) t.push({ u, cor: 'red', motivo: `Teste acabou em ${br(u.valido_ate).slice(0, 5)} e não assinou`, msg: cobrancaMsg(u), pagar: true });
+    else if (u.ultimo_pagamento && st.k === 'vencendo' && r <= 3) t.push({ u, cor: 'st-agendado', motivo: `Vence ${r <= 1 ? 'hoje' : `em ${r} dias`} (${plano(u).toLowerCase()})`, msg: cobrancaMsg(u), pagar: true });
+    else if (u.ultimo_pagamento && st.k === 'vencida' && r > -15) t.push({ u, cor: 'red', motivo: `Venceu em ${br(u.valido_ate).slice(0, 5)}`, msg: cobrancaMsg(u), pagar: true });
+  }
+  return t;
+}
+const cobrancaMsg = u => emTeste(u) ? `Olá, ${u.nome.split(' ')[0]}! Aqui é do FisioBea. Seu teste grátis ${diasRestantes(u.valido_ate) > 0 ? 'vai até ' + br(u.valido_ate) : 'terminou em ' + br(u.valido_ate)}. Está gostando? Para continuar usando, é só fazer o Pix de ${reais(PRECO_PADRAO)} e me mandar o comprovante. Seus pacientes e registros continuam todos lá.`
+  : `Olá, ${u.nome.split(' ')[0]}! Sua assinatura do FisioBea ${diasRestantes(u.valido_ate) > 0 ? 'vence em ' + br(u.valido_ate) : 'venceu em ' + br(u.valido_ate)}. Para renovar, é só fazer o Pix de ${reais(u.ultimo_valor || PRECO_PADRAO)} e me mandar o comprovante. Obrigado!`;
+function graficoReceita(A) {
+  const n = innerWidth < 640 ? 6 : 12, W = n * 50, larg = 50; // no celular, 6 meses para os números caberem
+  const meses = [...Array(n)].map((_, i) => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - n + 1 + i); return iso(d).slice(0, 7); });
+  const val = meses.map(m => A.porMes.find(x => x.mes === m)?.v || 0), max = Math.max(...val, 1), atual = hojeIso().slice(0, 7);
+  return `<svg class="grafico" viewBox="0 0 ${W} 180" style="width:100%;height:auto" role="img" aria-label="Recebido de assinaturas por mês">
+    ${val.map((v, i) => { const h = v / max * 130, w = larg * .6, x = i * larg + (larg - w) / 2; return `<rect class="barra" style="animation-delay:${i * 50}ms" x="${x}" y="${150 - h}" width="${w}" height="${Math.max(h, 1)}" rx="5" fill="${meses[i] === atual ? 'var(--green)' : 'var(--green-soft)'}"/>
+      <text x="${x + w / 2}" y="168" text-anchor="middle" font-size="11" fill="var(--muted)">${MESES[Number(meses[i].slice(5)) - 1].slice(0, 3)}</text>
+      ${v ? `<text class="val" x="${x + w / 2}" y="${144 - h}" text-anchor="middle" font-size="10" fill="var(--fg)">${Math.round(v).toLocaleString('pt-BR')}</text>` : ''}`; }).join('')}
+  </svg>`;
+}
 function vUsuarios() {
-  if (S.usuario?.role !== 'admin') return '<div class="empty">Apenas a administradora vê esta página.</div>';
+  if (S.usuario?.role !== 'admin') return '<div class="empty">Só o administrador vê esta página.</div>';
   if (!S.admin) { carregarAdmin(); return esqueleto(); }
-  const A = S.admin, assin = A.usuarios.filter(u => u.role !== 'admin');
-  const cont = k => assin.filter(u => situacao(u).k === k).length;
+  const A = S.admin, M = metricasSaaS(A), aba = S.admAba || 'geral';
+  const fones = u => soDigitos(u.telefone);
   const novos = A.pedidos.filter(p => p.status === 'novo').length;
   const pedSenha = A.pedidos.filter(p => p.status === 'senha');
   const interessadas = A.pedidos.filter(p => !['descartado', 'senha'].includes(p.status) && p.mensagem !== 'Pediu uma nova senha pelo app');
-  const filtro = S.filtroAss;
-  const lista = filtro === 'todas' ? A.usuarios : A.usuarios.filter(u => situacao(u).k === filtro);
-  const fones = u => soDigitos(u.telefone);
-  const cobranca = u => emTeste(u) ? `Olá, ${u.nome.split(' ')[0]}! Aqui é do FisioBea. Seu teste grátis ${diasRestantes(u.valido_ate) > 0 ? 'vai até ' + br(u.valido_ate) : 'terminou em ' + br(u.valido_ate)}. Está gostando? Para continuar usando, é só fazer o Pix de ${reais(PRECO_PADRAO)} e me mandar o comprovante. Seus pacientes e registros continuam todos lá.`
-    : `Olá, ${u.nome.split(' ')[0]}! Sua assinatura do FisioBea ${diasRestantes(u.valido_ate) > 0 ? 'vence em ' + br(u.valido_ate) : 'venceu em ' + br(u.valido_ate)}. Para renovar, é só fazer o Pix de ${reais(PRECO_PADRAO)} e me mandar o comprovante. Obrigada!`;
+  const tarefas = tarefasDoDia(A, M);
+  const semFone = A.usuarios.some(u => u.id === S.usuario.id && !fones(u));
+  const abasAdm = [['geral', 'Visão geral', tarefas.length], ['contas', 'Contas', 0], ['contatos', 'Contatos', novos + pedSenha.length]];
   return `
-  <div class="head"><div><h2>Assinantes</h2><p class="sub">Controle de acesso e mensalidades</p></div>
+  <div class="head"><div><h2>Assinantes</h2><p class="sub">Como está o FisioBea</p></div>
   <div class="row" style="gap:6px"><button class="ghost small" onclick="S.admin=null;render()">Atualizar</button><button class="small" onclick="novaAssinante()">Nova assinante</button></div></div>
-  ${A.usuarios.some(u => u.id === S.usuario.id && !fones(u)) ? `<div class="item" style="background:var(--yellow-soft);border-color:transparent;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px">
+  ${semFone ? `<div class="item" style="background:var(--yellow-soft);border-color:transparent;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px">
     <span>Cadastre o seu WhatsApp: é para ele que vai o botão “Quero assinar” de quem está no teste grátis.</span>
     <button class="small" onclick="editarAssinante('${S.usuario.id}')">Cadastrar WhatsApp</button></div>` : ''}
+  <div class="chips" style="margin:0 0 14px">${abasAdm.map(([k, n, c]) => `<button class="chip ${aba === k ? 'on' : ''}" onclick="S.admAba='${k}';render()">${n}${c ? ` <span class="pill red" style="padding:1px 7px;margin-left:4px">${c}</span>` : ''}</button>`).join('')}</div>
+  ${aba === 'contas' ? vAdmContas(A, fones) : aba === 'contatos' ? vAdmContatos(A, pedSenha, interessadas) : vAdmGeral(A, M, tarefas, fones)}`;
+}
+function vAdmGeral(A, M, tarefas, fones) {
+  const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+  const mesPassado = (() => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); return iso(d).slice(0, 7); })();
+  const recebidoAntes = A.porMes.find(x => x.mes === mesPassado)?.v || 0;
+  const porPlano = {};
+  M.pagantes.forEach(u => { const k = plano(u); porPlano[k] = (porPlano[k] || 0) + 1; });
+  if (M.vitalicias) porPlano['Vitalício'] = M.vitalicias;
+  return `
   <div class="stats">
-    <div class="stat"><span class="label">Ativas</span><strong>${cont('ativa') + cont('vencendo')}</strong></div>
-    <div class="stat"><span class="label">Vencem em 7 dias</span><strong>${cont('vencendo')}</strong></div>
-    <div class="stat"><span class="label">Vencidas</span><strong>${cont('vencida')}</strong></div>
-    <div class="stat"><span class="label">Recebido no mês</span><strong style="font-size:1.2rem">${reais(A.receitaMes)}</strong></div>
+    <div class="stat"><span class="label">Receita por mês</span><strong style="font-size:1.35rem">${reais(M.mrr)}</strong><span class="muted" style="font-size:.8rem">das assinaturas em dia</span></div>
+    <div class="stat"><span class="label">Assinantes pagando</span><strong>${M.pagantes.length}</strong><span class="muted" style="font-size:.8rem">${M.vitalicias ? `+ ${M.vitalicias} vitalícia${M.vitalicias > 1 ? 's' : ''}` : '&nbsp;'}</span></div>
+    <div class="stat"><span class="label">Em teste grátis</span><strong>${M.testes.length}</strong><span class="muted" style="font-size:.8rem">${M.cadastros30} cadastro${M.cadastros30 === 1 ? '' : 's'} em 30 dias</span></div>
+    <div class="stat"><span class="label">Teste que vira assinatura</span><strong>${M.conversao === null ? '—' : M.conversao + '%'}</strong><span class="muted" style="font-size:.8rem">${M.decididos ? `${M.viraram} de ${M.decididos} testes` : 'ainda sem testes encerrados'}</span></div>
   </div>
 
+  <div class="section"><h3>Para fazer hoje ${tarefas.length ? `<span class="pill red">${tarefas.length}</span>` : ''}</h3>
+    ${tarefas.length ? `<div class="item">${tarefas.map(t => `<div class="tline" style="align-items:center;flex-wrap:wrap">
+      <div style="min-width:0;flex:1 1 220px"><div>${esc(t.u.nome)}</div><span class="pill ${t.cor}" style="font-size:.78rem">${esc(t.motivo)}</span> <span class="muted" style="font-size:.82rem">· ${usoTexto(t.u)} · ${t.u.pacientes} paciente${t.u.pacientes === 1 ? '' : 's'}</span></div>
+      <div class="row" style="gap:4px">${fones(t.u) ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(t.u.telefone, t.msg)}">WhatsApp</a>` : ''}${t.pagar ? `<button class="ghost small" onclick="registrarPagamento('${t.u.id}')">Pagou</button>` : ''}</div></div>`).join('')}</div>`
+    : '<div class="empty">Nada pendente hoje. Ninguém com teste acabando ou assinatura vencendo.</div>'}
+  </div>
+
+  <div class="section"><h3>Recebido de assinaturas</h3>
+    <div class="stats" style="margin-bottom:10px">
+      <div class="stat"><span class="label">Neste mês</span><strong style="font-size:1.25rem">${reais(A.receitaMes)}</strong><span class="muted" style="font-size:.8rem">${recebidoAntes ? `mês passado: ${reais(recebidoAntes)}` : '&nbsp;'}</span></div>
+      <div class="stat"><span class="label">Renovações em 30 dias</span><strong style="font-size:1.25rem">${reais(M.renovacoes.reduce((t, u) => t + (u.ultimo_valor || 0), 0))}</strong><span class="muted" style="font-size:.8rem">${M.renovacoes.length} assinatura${M.renovacoes.length === 1 ? '' : 's'}</span></div>
+      <div class="stat"><span class="label">Não renovaram</span><strong>${M.naoRenovaram.length}</strong><span class="muted" style="font-size:.8rem">nos últimos 30 dias</span></div>
+      <div class="stat"><span class="label">Valor médio</span><strong style="font-size:1.25rem">${M.pagantes.length ? reais(M.mrr / M.pagantes.length) : '—'}</strong><span class="muted" style="font-size:.8rem">por assinante, por mês</span></div>
+    </div>
+    <div class="item">${graficoReceita(A)}</div>
+  </div>
+
+  <div class="section"><h3>Do cadastro à assinatura</h3>
+    <div class="item">${[['Contas criadas', M.assin.length], ['Usaram de verdade (1+ paciente)', M.assin.filter(u => u.pacientes > 0).length], ['Pagando ou vitalícias', M.pagantes.length + M.vitalicias]].map(([n, v], i, l) => `<div style="display:grid;gap:4px">
+      <div class="tline" style="border:0;padding:0"><span>${n}</span><span class="num">${v}${i ? ` <span class="muted">(${pct(v, l[0][1])}%)</span>` : ''}</span></div>
+      <div class="bar"><i style="width:${l[0][1] ? Math.max(2, v / l[0][1] * 100) : 0}%"></i></div></div>`).join('')}</div>
+  </div>
+
+  <div class="section"><h3>Planos</h3>
+    ${Object.keys(porPlano).length ? `<div class="item">${Object.entries(porPlano).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="tline"><span>${k}</span><span class="num">${v}</span></div>`).join('')}</div>` : '<div class="empty">Ninguém pagando ainda.</div>'}
+  </div>
+
+  ${A.ultimosPagamentos?.length ? `<div class="section"><h3>Últimos pagamentos</h3><div class="item">${A.ultimosPagamentos.map(p => `<div class="tline"><span>${esc(p.nome)} <span class="muted num" style="font-size:.85rem">· ${br(p.data).slice(0, 5)} · ${PLANOS[p.dias] || p.dias + ' dias'}</span></span><span class="num">${reais(p.valor)}</span></div>`).join('')}</div></div>` : ''}`;
+}
+function vAdmContas(A, fones) {
+  const filtro = S.filtroAss || 'todas', q = (S.buscaAss || '').toLowerCase();
+  const ordem = { vencida: 0, vencendo: 1, teste: 2, ativa: 3, desativada: 4, admin: 5 };
+  const lista = A.usuarios.filter(u => (filtro === 'todas' || situacao(u).k === filtro) && (!q || (u.nome + ' ' + u.email + ' ' + u.telefone).toLowerCase().includes(q)))
+    .sort((a, b) => ordem[situacao(a).k] - ordem[situacao(b).k] || a.nome.localeCompare(b.nome));
+  const cont = k => A.usuarios.filter(u => situacao(u).k === k).length;
+  return `
+  <input class="search" id="busca-ass" placeholder="Buscar por nome, e-mail ou WhatsApp" value="${esc(S.buscaAss || '')}" oninput="S.buscaAss=this.value;render()">
+  <div class="chips" style="margin:0">${[['todas', 'Todas'], ['ativa', 'Ativas'], ['teste', 'Em teste'], ['vencendo', 'Vencendo'], ['vencida', 'Vencidas'], ['desativada', 'Desativadas']].map(([k, n]) => `<button class="chip ${filtro === k ? 'on' : ''}" onclick="S.filtroAss='${k}';render()">${n}${k !== 'todas' && cont(k) ? ' · ' + cont(k) : ''}</button>`).join('')}</div>
+  <div class="list">${lista.map(u => { const st = situacao(u); return `<div class="item">
+    <div class="item-top"><div style="min-width:0"><h3>${esc(u.nome)}${u.id === S.usuario.id ? ' <span class="muted" style="font-weight:400">(você)</span>' : ''}</h3>
+      <div class="muted" style="font-size:.88rem;overflow-wrap:anywhere">${esc(u.email)}${u.telefone ? ' · ' + esc(u.telefone) : ''}</div></div>
+      <span class="pill ${st.c}">${st.t}</span></div>
+    ${u.role === 'admin' ? '' : `<div class="muted num" style="font-size:.85rem">${plano(u)}${u.ultimo_valor ? ' · ' + reais(u.ultimo_valor) : ''} · ${u.pacientes} paciente${u.pacientes === 1 ? '' : 's'} · ${usoTexto(u)}</div>
+    <div class="muted num" style="font-size:.82rem">Desde ${br(u.criado.slice(0, 10))}${u.total_pago ? ' · já pagou ' + reais(u.total_pago) : ''}${u.valido_ate && u.valido_ate !== VITALICIO ? ' · acesso até ' + br(u.valido_ate) : ''}</div>`}
+    ${u.obs && !doSite(u) ? `<div style="font-size:.9rem">${esc(u.obs)}</div>` : ''}
+    ${u.role === 'admin' ? `<div class="actions"><button class="ghost small" onclick="editarAssinante('${u.id}')">Editar meus dados</button></div>` : `<div class="actions">
+      ${u.valido_ate === VITALICIO ? '' : `<button class="small" onclick="registrarPagamento('${u.id}')">Registrar pagamento</button>`}
+      ${fones(u) && st.k !== 'ativa' ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(u.telefone, cobrancaMsg(u))}">Cobrar</a>` : fones(u) ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(u.telefone, `Oi, ${u.nome.split(' ')[0]}! Aqui é do FisioBea. Tudo certo com o app?`)}">WhatsApp</a>` : ''}
+      <button class="ghost small" onclick="editarAssinante('${u.id}')">Editar</button>
+      <button class="link small" onclick="historicoAss('${u.id}')">Pagamentos</button>
+    </div>`}
+  </div>`; }).join('') || '<div class="empty">Nenhuma conta encontrada.</div>'}</div>`;
+}
+function vAdmContatos(A, pedSenha, interessadas) {
+  return `
   ${pedSenha.length ? `<div class="section"><h3>Pedidos de nova senha <span class="pill red">${pedSenha.length}</span></h3>
     <div class="item">${pedSenha.map(p => { const u = A.usuarios.find(x => x.email === p.email); return `<div class="tline" style="align-items:center;flex-wrap:wrap">
       <div style="min-width:0;flex:1 1 200px"><div>${esc(p.nome)} <span class="muted" style="font-size:.85rem">· ${br(p.criado.slice(0, 10)).slice(0, 5)}</span></div><div class="muted" style="font-size:.85rem;overflow-wrap:anywhere">${esc(p.email)}</div></div>
       <div class="row" style="gap:4px">${u ? `<button class="small" onclick="linkSenha('${u.id}','${p.id}')">Gerar link</button>` : ''}<button class="link small" onclick="mudarPedido('${p.id}','descartado')">Ignorar</button></div></div>`; }).join('')}</div>
     <p class="sub" style="margin:0">Confira se o pedido é mesmo da pessoa antes de mandar o link (por exemplo, pelo número de WhatsApp que você já conhece).</p></div>` : ''}
 
-  ${interessadas.length ? `<div class="section"><h3>Interessadas ${novos ? `<span class="pill red">${novos} nova${novos > 1 ? 's' : ''}</span>` : ''}</h3>
-    <div class="item">${interessadas.slice(0, 15).map(p => `<div class="tline" style="align-items:center;flex-wrap:wrap">
+  <div class="section"><h3>Cadastros e interessadas</h3>
+    ${interessadas.length ? `<div class="item">${interessadas.slice(0, 30).map(p => `<div class="tline" style="align-items:center;flex-wrap:wrap">
       <div style="min-width:0;flex:1 1 220px"><div>${esc(p.nome)} <span class="muted" style="font-size:.85rem">· ${br(p.criado.slice(0, 10)).slice(0, 5)}</span></div>
       <div class="muted" style="font-size:.85rem;overflow-wrap:anywhere">${esc(p.email)}${p.telefone ? ' · ' + esc(p.telefone) : ''}</div>
       ${p.mensagem ? `<div style="font-size:.88rem;margin-top:2px">${esc(p.mensagem)}</div>` : ''}</div>
       <div class="row" style="gap:4px">
-        ${p.telefone ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(p.telefone, `Olá, ${p.nome.split(' ')[0]}! Aqui é a Beatriz, do FisioBea. Vi seu interesse e queria te mostrar como funciona.`)}">WhatsApp</a>` : ''}
+        ${p.telefone ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(p.telefone, `Olá, ${p.nome.split(' ')[0]}! Aqui é do FisioBea. ${p.status === 'convertido' ? 'Vi que você começou o teste grátis. Se quiser, te mostro rapidinho como aproveitar melhor o app.' : 'Vi seu interesse e queria te mostrar como funciona.'}`)}">WhatsApp</a>` : ''}
         <select style="width:auto;padding:6px 8px;font-size:.82rem" onchange="mudarPedido('${p.id}',this.value)">${['novo', 'contatado', 'convertido', 'descartado'].map(st => `<option value="${st}" ${p.status === st ? 'selected' : ''}>${st[0].toUpperCase() + st.slice(1)}</option>`).join('')}</select>
         ${p.status !== 'convertido' ? `<button class="link small" onclick='novaAssinante(${JSON.stringify({ nome: p.nome, email: p.email, telefone: p.telefone, pedido: p.id }).replace(/'/g, '&#39;')})'>Criar conta</button>` : ''}
-      </div></div>`).join('')}</div></div>` : ''}
-
-  <div class="section"><h3>Contas</h3>
-  <div class="chips" style="margin:0">${[['todas', 'Todas'], ['ativa', 'Ativas'], ['teste', 'Em teste'], ['vencendo', 'Vencendo'], ['vencida', 'Vencidas'], ['desativada', 'Desativadas']].map(([k, n]) => `<button class="chip ${filtro === k ? 'on' : ''}" onclick="S.filtroAss='${k}';render()">${n}</button>`).join('')}</div>
-  <div class="list">${lista.map(u => { const st = situacao(u); return `<div class="item">
-    <div class="item-top"><div style="min-width:0"><h3>${esc(u.nome)}${u.id === S.usuario.id ? ' <span class="muted" style="font-weight:400">(você)</span>' : ''}</h3>
-      <div class="muted" style="font-size:.88rem;overflow-wrap:anywhere">${esc(u.email)}${u.telefone ? ' · ' + esc(u.telefone) : ''}</div></div>
-      <span class="pill ${st.c}">${st.t}</span></div>
-    <div class="muted num" style="font-size:.85rem">Desde ${br(u.criado.slice(0, 10))} · ${u.pacientes} paciente${u.pacientes === 1 ? '' : 's'}${u.ultimo_pagamento ? ' · último pagamento ' + br(u.ultimo_pagamento) : ''}${u.valido_ate && u.role !== 'admin' ? (u.valido_ate === VITALICIO ? ' · acesso vitalício' : ' · acesso até ' + br(u.valido_ate)) : ''}</div>
-    ${u.obs ? `<div style="font-size:.9rem">${esc(u.obs)}</div>` : ''}
-    ${u.role === 'admin' ? '' : `<div class="actions">
-      ${u.valido_ate === VITALICIO ? '' : `<button class="small" onclick="registrarPagamento('${u.id}')">Registrar pagamento</button>`}
-      ${fones(u) && st.k !== 'ativa' ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(u.telefone, cobranca(u))}">Cobrar</a>` : ''}
-      <button class="ghost small" onclick="editarAssinante('${u.id}')">Editar</button>
-      <button class="link small" onclick="historicoAss('${u.id}')">Pagamentos</button>
-    </div>`}
-  </div>`; }).join('') || '<div class="empty">Nenhuma conta neste filtro.</div>'}</div></div>`;
+      </div></div>`).join('')}</div>` : '<div class="empty">Ninguém novo por aqui ainda.</div>'}
+  </div>`;
 }
 const atualizarAdmin = async () => { S.admin = null; render(); };
 window.mudarPedido = (id, status) => salvar(async () => { await api('admin/pedidos/' + id, { method: 'PATCH', body: JSON.stringify({ status }) }); await atualizarAdmin(); }, 'Situação atualizada');
