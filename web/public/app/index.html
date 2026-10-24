@@ -293,8 +293,8 @@ const S = {
 };
 // Tema: automático (segue o aparelho), claro ou escuro; escolha fica salva neste aparelho
 const TEMA_HOST = document.documentElement.getAttribute('data-theme');
-let tema = 'auto';
-try { tema = localStorage.getItem('fisiobea-tema') || 'auto'; } catch (e) {}
+let tema = 'light';
+try { tema = localStorage.getItem('fisiobea-tema') || 'light'; } catch (e) {}
 function aplicarTema() {
   const r = document.documentElement;
   if (tema === 'auto') { TEMA_HOST ? r.setAttribute('data-theme', TEMA_HOST) : r.removeAttribute('data-theme'); }
