@@ -893,8 +893,10 @@ window.trocarSub = k => {
   velho.className = 'pront-velho'; velho.inert = true;
   depois.appendChild(velho);
   const E = 'cubic-bezier(.22, 1, .36, 1)', L = 'cubic-bezier(.4, 0, .2, 1)';
-  velho.animate([{ opacity: 1, filter: 'blur(0)' }, { opacity: 0, filter: 'blur(6px)' }], { duration: 300, easing: L, fill: 'forwards' }).finished.then(() => velho.remove(), () => velho.remove());
-  [...depois.children].filter(x => x !== velho).forEach(x => x.animate([{ opacity: 0, filter: 'blur(8px)', transform: 'scale(.99)' }, { opacity: 1, filter: 'blur(0)', transform: 'none' }], { duration: 650, easing: E, delay: 100, fill: 'backwards' }));
+  velho.animate([{ opacity: 1, filter: 'blur(0)' }, { opacity: 0, filter: 'blur(6px)' }], { duration: 300, easing: L, fill: 'forwards' });
+  setTimeout(() => velho.remove(), 360); // remove pelo relógio, mesmo se o navegador pausar a animação
+  const anims = [...depois.children].filter(x => x !== velho).map(x => x.animate([{ opacity: 0, filter: 'blur(8px)', transform: 'scale(.99)' }, { opacity: 1, filter: 'blur(0)', transform: 'none' }], { duration: 650, easing: E, delay: 100, fill: 'backwards' }));
+  setTimeout(() => anims.forEach(a => { try { a.finish(); } catch (e) {} }), 900); // o conteúdo novo sempre termina visível
 };
 
 // Abrir paciente: a foto e o nome "voam" do cartão tocado até o topo do prontuário (técnica FLIP)
