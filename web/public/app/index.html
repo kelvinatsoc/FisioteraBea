@@ -239,6 +239,14 @@ button, .btn, .item.tap { position: relative; }
 .onda { position: absolute; border-radius: 50%; background: currentColor; opacity: 0; pointer-events: none; }
 .chip { flex: none; }
 
+/* Abas do prontuário com pílula deslizante */
+.abas-pront { position: relative; width: fit-content; max-width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; align-self: start; }
+.abas-pront .chip { position: relative; z-index: 1; background: transparent; border-color: transparent; color: var(--muted); }
+.abas-pront .chip.on { background: transparent; border-color: transparent; color: var(--bg); }
+.abas-pront .pil { position: absolute; top: 3px; bottom: 3px; left: 0; border-radius: 999px; background: var(--fg); z-index: 0; pointer-events: none; }
+#pront-conteudo { position: relative; }
+.pront-velho { position: absolute; inset: 0 0 auto 0; pointer-events: none; }
+
 /* Botão de salvar que vira ✓ */
 button.salvando, button.salvo { padding: 0; display: inline-grid; place-items: center; }
 button .roda { width: 20px; height: 20px; border-radius: 50%; border: 2.5px solid color-mix(in srgb, currentColor 30%, transparent); border-top-color: currentColor; }
@@ -323,6 +331,9 @@ button.salvo { background: var(--green-2); }
   .entra .list > :nth-child(5) { animation-delay: .34s; } .entra .list > :nth-child(n+6) { animation-delay: .38s; }
   @keyframes entra { from { opacity: 0; transform: translateY(8px); } }
   .entra .day.on, .entra .chip.on { animation: pop .6s var(--suave) both; }
+  .entra .abas-pront .chip.on { animation: none; }
+  .abas-pront .pil.anda { transition: transform .55s var(--suave), width .55s var(--suave); }
+  .abas-pront .chip { transition: color .4s var(--leve); }
   @keyframes pop { from { transform: scale(.96); opacity: .6; } }
 
   /* Painel de baixo (formulários): sobe deslizando e desce ao fechar */
@@ -747,10 +758,11 @@ function render() {
   const foco = ativo && ativo.id && app.contains(ativo) ? { id: ativo.id, a: ativo.selectionStart, b: ativo.selectionEnd } : null;
   app.innerHTML = aviso + (S.aba === 'pacientes' && S.pid ? vPaciente() : ({ inicio: vInicio, agenda: vAgenda, pacientes: vPacientes, financeiro: vFinanceiro, ajustes: vAjustes, usuarios: vUsuarios })[S.aba]());
   if (foco) { const el = document.getElementById(foco.id); if (el) { el.focus(); try { el.setSelectionRange(foco.a, foco.b); } catch (e) {} } }
+  posPilula();
   // O status que acabou de mudar dá um pulinho para confirmar o toque
   if (realceStatus) { [...app.querySelectorAll('.pill[data-sid]')].filter(b => b.dataset.sid === realceStatus).forEach(b => b.classList.add('troca')); realceStatus = null; }
   // Animação de entrada só quando muda de tela (não a cada digitação ou salvamento)
-  const tela = [S.aba, S.pid, S.pid && S.sub, S.aba === 'agenda' && S.dia + S.semana, S.aba === 'financeiro' && S.mes, S.aba === 'pacientes' && S.mostrarInativos].join('|');
+  const tela = [S.aba, S.pid, S.aba === 'agenda' && S.dia + S.semana, S.aba === 'financeiro' && S.mes, S.aba === 'pacientes' && S.mostrarInativos].join('|');
   if (tela !== ultimaTela) {
     ultimaTela = tela;
     clearTimeout(timerEntra);
@@ -852,6 +864,39 @@ function contarNumeros(raiz) {
   });
 }
 window.ir = (aba, extra = {}) => { S.aba = aba; if (aba === 'pacientes' && !extra.pid) S.pid = null; Object.assign(S, extra); render(); window.scrollTo(0, 0); };
+// Abas do prontuário: o topo e as abas ficam parados; a pílula desliza até a aba nova
+// e o conteúdo antigo some embaçando enquanto o novo aparece ganhando nitidez.
+function posPilula(de) {
+  const abas = $('#abas-pront'), pil = abas?.querySelector('.pil'), b = abas?.querySelector('.chip.on');
+  if (!pil || !b) return;
+  const pos = x => { pil.style.width = x.offsetWidth + 'px'; pil.style.transform = `translateX(${x.offsetLeft}px)`; };
+  if (!de || semAnim()) { pil.classList.remove('anda'); pos(b); return; }
+  pil.classList.remove('anda'); pos(de); void pil.offsetWidth;
+  pil.classList.add('anda'); pos(b);
+}
+window.trocarSub = k => {
+  if (k === S.sub) return;
+  const antes = $('#pront-conteudo'), abaAntes = $('#abas-pront .chip.on')?.dataset.sub, rolagem = $('#abas-pront')?.scrollLeft;
+  const velho = !semAnim() && antes ? antes.cloneNode(true) : null;
+  S.sub = k;
+  render();
+  const abas = $('#abas-pront'), depois = $('#pront-conteudo');
+  if (abas) {
+    abas.scrollLeft = rolagem || 0;
+    const de = [...abas.querySelectorAll('.chip')].find(c => c.dataset.sub === abaAntes);
+    posPilula(de);
+    abas.querySelector('.chip.on')?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: semAnim() ? 'auto' : 'smooth' });
+  }
+  if (!velho || !depois) return;
+  // A cópia do conteúdo antigo fica por cima, sem ids e sem cliques, só para sumir
+  velho.removeAttribute('id'); velho.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
+  velho.className = 'pront-velho'; velho.inert = true;
+  depois.appendChild(velho);
+  const E = 'cubic-bezier(.22, 1, .36, 1)', L = 'cubic-bezier(.4, 0, .2, 1)';
+  velho.animate([{ opacity: 1, filter: 'blur(0)' }, { opacity: 0, filter: 'blur(6px)' }], { duration: 300, easing: L, fill: 'forwards' }).finished.then(() => velho.remove(), () => velho.remove());
+  [...depois.children].filter(x => x !== velho).forEach(x => x.animate([{ opacity: 0, filter: 'blur(8px)', transform: 'scale(.99)' }, { opacity: 1, filter: 'blur(0)', transform: 'none' }], { duration: 650, easing: E, delay: 100, fill: 'backwards' }));
+};
+
 // Abrir paciente: a foto e o nome "voam" do cartão tocado até o topo do prontuário (técnica FLIP)
 window.abrirPaciente = (pid, sub = 'resumo') => {
   const toque = ultimoToque && Date.now() - ultimoToque.t < 1000 ? ultimoToque.el : null;
@@ -1222,8 +1267,8 @@ function vPaciente() {
     <div style="min-width:0"><h2>${esc(nome(p))}</h2><p class="sub">${[p.diagnostico, p.nascimento && idade(p.nascimento) + ' anos', p.ativo === false && 'Inativo'].filter(Boolean).map(esc).join(' · ')}</p></div></div>
     ${p.celular ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(p.celular, '')}">WhatsApp</a>` : ''}
   </div>
-  <div class="chips">${SUBS.map(([k, n]) => `<button class="chip ${S.sub === k ? 'on' : ''}" onclick="S.sub='${k}';render()">${n}</button>`).join('')}</div>
-  ${corpo}`;
+  <div class="chips abas-pront" id="abas-pront" role="tablist"><span class="pil" aria-hidden="true"></span>${SUBS.map(([k, n]) => `<button class="chip ${S.sub === k ? 'on' : ''}" role="tab" aria-selected="${S.sub === k}" data-sub="${k}" onclick="trocarSub('${k}')">${n}</button>`).join('')}</div>
+  <div id="pront-conteudo">${corpo}</div>`;
 }
 function pResumo(p) {
   const proximas = []; for (let i = 0, d = new Date(); i < 30 && proximas.length < 4; i++, d.setDate(d.getDate() + 1)) proximas.push(...sessoesDoDia(iso(d)).filter(s => s.pacienteId === p.id && !['cancelado'].includes(s.status)));
