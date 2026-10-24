@@ -31,7 +31,9 @@ Cloudflare Pages + Functions + D1, tudo no plano gratuito. Veja `web/CLAUDE.md` 
 - Pagamento hoje é **manual** (Pix, e a admin registra no painel).
 
 ## Pendências e decisões em aberto
-1. **Publicar no Cloudflare:** em `web/`, rodar `npm install` e `npm run publicar` (abre o navegador para login). Depois, abrir `/app/` e criar a conta de administradora.
+1. **Publicado** em https://fisiobea.pages.dev (24/10/2026). Para republicar só o site, sem tocar no banco: `npx wrangler pages deploy public --project-name fisiobea --branch main --commit-dirty=true` dentro de `web/`. Conferir se a Beatriz já criou a conta de administradora em `/app/`.
+   - **Visual atual: "Consultório"** (opção A escolhida pela Beatriz): verde-floresta `#123c2e`, areia, pêssego, Instrument Serif + Hanken Grotesk, fotos em arco.
+   - Fotos em `web/public/img/` são do Pexels (uso comercial liberado), só provisórias: trocar por fotos reais da Beatriz, principalmente a da seção "Por que existe".
 2. **Preço:** "R$ 49,90" é provisório. Confirmar com a Beatriz e trocar em `web/public/index.html` e em `PRECO_PADRAO` (`web/public/app/index.html`).
 3. **Frase da Beatriz na página de vendas** ("Eu precisava planejar os treinos…"): foi escrita pelo Claude. Ela precisa aprovar ou reescrever.
 4. Ideias futuras: pagamento automático (Mercado Pago ou Asaas), "esqueci minha senha" por e-mail, termos de uso e política de privacidade (LGPD: dados de saúde são sensíveis), domínio próprio e publicação na Play Store.

@@ -3,136 +3,176 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#1e7a46">
+<meta name="theme-color" content="#123c2e">
 <title>FisioBea · Agenda, prontuário e treinos para fisioterapeutas</title>
 <meta name="description" content="Planeje atendimentos, monte treinos A, B, C e D, faça evoluções com modelo pronto e controle o financeiro. Feito por fisioterapeuta, para fisioterapeutas.">
-<meta property="og:title" content="FisioBea · Sua clínica na palma da mão">
-<meta property="og:description" content="Agenda, evoluções, treinos, avaliações e financeiro num só lugar. No celular e no tablet.">
+<meta property="og:title" content="FisioBea · Seu atendimento planejado antes do paciente chegar">
+<meta property="og:description" content="Agenda, evoluções, treinos, avaliações e financeiro num só lugar. No consultório ou na casa do paciente.">
+<meta property="og:image" content="/img/casa-sala.jpg">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
 <style>
+/* Visual "Consultório": verde-floresta, areia e pêssego; títulos em serifa, fotos em arco */
 :root {
-  --bg: #ffffff; --soft: #f4f8f5; --fg: #15231a; --muted: #5f6f65; --line: #e3eae5;
-  --green: #1e7a46; --green-dark: #145a33; --green-soft: #e8f3ec; --yellow: #e9b821; --yellow-soft: #fdf4d6;
-  --font: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bg: #f7f3ec; --areia: #ece4d6; --surface: #ffffff; --fg: #1a2420; --muted: #5b6760; --line: #ddd4c4;
+  --green: #123c2e; --green-2: #1d5a43; --green-soft: #dfece4; --on-green: #f3efe6;
+  --peach: #f2b48c; --peach-soft: #fbe3d2; --rust: #a85a2e; --mustard: #e3b23c;
+  --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root {
-  --bg: #0f1511; --soft: #151d18; --fg: #e8efe9; --muted: #98a89d; --line: #26312a;
-  --green: #5cc189; --green-dark: #8fdcb0; --green-soft: #1b2c22; --yellow: #f0c94a; --yellow-soft: #2c2715; color-scheme: dark } }
+  --bg: #0e1713; --areia: #15211b; --surface: #182620; --fg: #ece4d6; --muted: #a3ada6; --line: #2a3a32;
+  --green: #8fc9a8; --green-2: #a9d8bd; --green-soft: #1d3329; --on-green: #0e1713;
+  --peach: #f2b48c; --peach-soft: #3a281d; --rust: #f2b48c; --mustard: #f0c94a; color-scheme: dark } }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
 a { color: inherit; }
-.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
-h1, h2, h3 { letter-spacing: -.025em; line-height: 1.12; text-wrap: balance; margin: 0; }
-h1 { font-size: clamp(2.2rem, 5.5vw, 3.6rem); font-weight: 800; }
-h2 { font-size: clamp(1.7rem, 3.6vw, 2.4rem); font-weight: 800; }
-h3 { font-size: 1.12rem; font-weight: 700; }
+img { max-width: 100%; height: auto; display: block; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { line-height: 1.05; text-wrap: balance; margin: 0; font-weight: 400; }
+h1, h2 { font-family: var(--serif); letter-spacing: -.01em; color: var(--green); }
+h1 { font-size: clamp(2.7rem, 6.4vw, 4.6rem); }
+h2 { font-size: clamp(2rem, 4.4vw, 3.1rem); }
+h1 i, h2 i { color: var(--rust); }
+h3 { font-size: 1.1rem; font-weight: 700; line-height: 1.25; }
 p { margin: 0; }
 .muted { color: var(--muted); }
-.eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--green); }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--green); color: #fff; font: 700 1rem var(--font); padding: 14px 22px; border-radius: 12px; text-decoration: none; border: 0; cursor: pointer; }
-.btn:hover { filter: brightness(1.08); }
-.btn.ghost { background: transparent; color: var(--green); border: 1.5px solid var(--line); }
-.btn:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+.eyebrow { font-size: .76rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--green-2); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--green); color: var(--on-green); font: 600 1rem var(--font); padding: 14px 24px; border-radius: 999px; text-decoration: none; border: 0; cursor: pointer; }
+.btn:hover { background: var(--green-2); }
+.btn:disabled { opacity: .6; cursor: default; }
+.link-sub { font-weight: 600; color: var(--green); text-underline-offset: 4px; }
+.btn:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid var(--mustard); outline-offset: 3px; }
 
 /* Topo */
-header { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding-top: env(safe-area-inset-top, 0px); }
-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; }
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; text-decoration: none; letter-spacing: -.02em; }
-.brand svg { width: 32px; height: 32px; }
-.brand b { color: var(--green); }
-nav { display: flex; align-items: center; gap: 22px; font-weight: 600; font-size: .95rem; }
+header { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(10px); padding-top: env(safe-area-inset-top, 0px); }
+header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 16px; }
+.brand { font: 400 1.75rem/1 var(--serif); color: var(--green); text-decoration: none; }
+.brand i { color: var(--rust); }
+nav { display: flex; align-items: center; gap: 26px; font-weight: 500; font-size: .95rem; }
 nav a { text-decoration: none; color: var(--muted); }
 nav a:hover { color: var(--fg); }
-nav .btn { padding: 10px 16px; font-size: .92rem; color: #fff; }
-@media (max-width: 720px) { nav a:not(.btn) { display: none; } }
+nav .btn { padding: 10px 18px; font-size: .92rem; }
+@media (max-width: 760px) { nav a:not(.btn) { display: none; } }
 
 /* Hero */
-.hero { padding-block: 64px 72px; background: radial-gradient(1100px 500px at 85% -10%, var(--yellow-soft), transparent 60%), var(--bg); }
-.hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; }
-.hero p.lead { font-size: 1.2rem; color: var(--muted); margin-top: 20px; max-width: 34ch; }
-.hero .ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px; }
-.hero .nota { margin-top: 16px; font-size: .9rem; color: var(--muted); }
-@media (max-width: 860px) { .hero .wrap { grid-template-columns: 1fr; } .hero { padding-block: 40px 56px; } }
+.hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center; padding-block: 36px 64px; }
+.hero .lead { font-size: 1.2rem; color: var(--muted); margin-top: 22px; max-width: 36ch; }
+.hero .ctas { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 32px; align-items: center; }
+.hero .nota { margin-top: 18px; font-size: .9rem; color: var(--muted); }
+.arco { position: relative; }
+.arco img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 28% center; border-radius: 999px 999px 24px 24px; background: var(--areia); }
+.arco .selo { position: absolute; left: -22px; bottom: 34px; background: var(--surface); border-radius: 18px; padding: 12px 16px; box-shadow: 0 18px 40px -18px rgba(18, 60, 46, .45); display: grid; gap: 2px; font-size: .82rem; max-width: 220px; }
+.arco .selo b { font: 400 1.35rem/1.1 var(--serif); color: var(--green); }
+@media (max-width: 860px) {
+  .hero .wrap { grid-template-columns: 1fr; gap: 36px; padding-block: 20px 48px; }
+  .arco { max-width: 420px; justify-self: center; width: 100%; }
+  .arco .selo { left: 12px; }
+}
 
-/* Celular ilustrativo */
-.phone { width: min(330px, 100%); margin-inline: auto; background: var(--bg); border: 10px solid #18241c; border-radius: 40px; box-shadow: 0 30px 60px -20px rgba(20, 60, 35, .35); overflow: hidden; }
-.phone .scr { background: var(--soft); padding: 18px 14px 20px; display: grid; gap: 10px; font-size: .82rem; }
-.ph-top { display: flex; justify-content: space-between; align-items: baseline; }
-.ph-top strong { font-size: 1.05rem; }
-.ph-days { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; text-align: center; }
-.ph-days span { padding: 6px 0; border-radius: 10px; font-weight: 700; display: grid; font-size: .85rem; }
-.ph-days small { font-size: .62rem; color: var(--muted); font-weight: 600; text-transform: uppercase; }
-.ph-days .on { background: var(--green); color: #fff; }
-.ph-days .on small { color: rgba(255,255,255,.8); }
-.ph-card { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: grid; gap: 6px; }
-.ph-card .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.ph-pill { font-size: .68rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--green-soft); color: var(--green); white-space: nowrap; }
-.ph-pill.y { background: var(--yellow-soft); color: var(--fg); }
-.ph-ex { display: flex; justify-content: space-between; border-top: 1px dashed var(--line); padding-top: 4px; color: var(--fg); }
-.ph-ex span:last-child { color: var(--muted); }
-.ph-btn { justify-self: start; background: var(--green); color: #fff; font-weight: 700; font-size: .75rem; padding: 6px 12px; border-radius: 8px; }
+/* Faixa de números */
+.faixa { background: var(--green); color: var(--on-green); }
+.faixa .wrap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding-block: 26px; }
+.faixa div { display: grid; gap: 2px; font-size: .9rem; }
+.faixa b { font: 400 2rem/1 var(--serif); color: var(--peach); }
+@media (max-width: 760px) { .faixa .wrap { grid-template-columns: repeat(2, 1fr); } }
 
-section { padding-block: 80px; }
-.sec-head { max-width: 640px; display: grid; gap: 12px; margin-bottom: 40px; }
-.sec-head p { color: var(--muted); font-size: 1.08rem; }
+section { padding-block: 96px; }
+.sec-head { max-width: 660px; display: grid; gap: 14px; margin-bottom: 48px; }
+.sec-head p { color: var(--muted); font-size: 1.1rem; }
 
-/* Funcionalidades */
-.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-@media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
-.feat { background: var(--soft); border-radius: 18px; padding: 24px; display: grid; gap: 10px; align-content: start; }
-.feat .ic { width: 42px; height: 42px; border-radius: 12px; background: var(--bg); display: grid; place-items: center; color: var(--green); border: 1px solid var(--line); }
-.feat .ic svg { width: 22px; height: 22px; }
-.feat p { color: var(--muted); font-size: .98rem; }
+/* Funcionalidades: lista em duas colunas, sem cartões */
+.funcs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 64px; }
+.func { display: grid; grid-template-columns: 52px 1fr; gap: 6px 18px; padding-block: 26px; border-top: 1px solid var(--line); }
+.func .ic { grid-row: span 2; width: 52px; height: 52px; border-radius: 50%; background: var(--peach-soft); color: var(--rust); display: grid; place-items: center; }
+.func .ic svg { width: 24px; height: 24px; }
+.func p { color: var(--muted); font-size: 1rem; }
+@media (max-width: 760px) { .funcs { grid-template-columns: 1fr; } }
 
-/* Fluxo */
-.fluxo { background: var(--soft); }
-.passos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; counter-reset: p; }
-@media (max-width: 800px) { .passos { grid-template-columns: 1fr; } }
-.passo { display: grid; gap: 10px; }
-.passo::before { counter-increment: p; content: counter(p); width: 38px; height: 38px; border-radius: 50%; background: var(--yellow); color: #1b1b1b; font-weight: 800; display: grid; place-items: center; }
+/* Domicílio */
+.domicilio { background: var(--areia); }
+.domicilio .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+.domicilio .fotos { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; align-items: end; }
+.domicilio .fotos img { width: 100%; height: auto; object-fit: cover; border-radius: 20px; background: var(--bg); }
+.domicilio .fotos img:first-child { aspect-ratio: 4 / 5; object-position: 45% center; }
+.domicilio .fotos img:last-child { aspect-ratio: 2 / 3; object-position: center 30%; border-radius: 999px 999px 20px 20px; margin-bottom: 40px; }
+.domicilio ul { list-style: none; margin: 28px 0 0; padding: 0; display: grid; gap: 14px; }
+.domicilio li { display: grid; grid-template-columns: 26px 1fr; gap: 12px; }
+.domicilio li::before { content: ""; width: 26px; height: 26px; border-radius: 50%; background: var(--green) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 10.5l3 3 7-7' fill='none' stroke='%23f2b48c' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 16px no-repeat; margin-top: 1px; }
+@media (max-width: 860px) { .domicilio .wrap { grid-template-columns: 1fr; gap: 40px; } }
+
+/* Fluxo + celular */
+.fluxo .wrap { display: grid; grid-template-columns: 1fr 330px; gap: 64px; align-items: center; }
+.passos { display: grid; gap: 30px; margin-top: 8px; }
+.passo { display: grid; grid-template-columns: 56px 1fr; gap: 4px 18px; }
+.passo span { grid-row: span 2; font: italic 400 2.6rem/1 var(--serif); color: var(--rust); }
 .passo p { color: var(--muted); }
+@media (max-width: 860px) { .fluxo .wrap { grid-template-columns: 1fr; } }
+.phone { width: min(330px, 100%); margin-inline: auto; background: var(--surface); border: 10px solid #15201b; border-radius: 42px; box-shadow: 0 30px 60px -24px rgba(18, 60, 46, .45); overflow: hidden; }
+.phone .scr { background: var(--bg); padding: 18px 14px 20px; display: grid; gap: 10px; font-size: .82rem; }
+.ph-oi { font: 400 1.6rem/1.05 var(--serif); color: var(--green); }
+.ph-oi small { display: block; font: 500 .74rem var(--font); color: var(--muted); margin-top: 4px; }
+.ph-days { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; text-align: center; }
+.ph-days span { padding: 6px 0; border-radius: 99px; font-weight: 700; display: grid; font-size: .85rem; font-variant-numeric: tabular-nums; }
+.ph-days small { font-size: .6rem; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+.ph-days .on { background: var(--green); color: var(--on-green); }
+.ph-days .on small { color: inherit; opacity: .8; }
+.ph-card { background: var(--surface); border-radius: 16px; padding: 12px; display: grid; gap: 6px; }
+.ph-card .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.ph-pill { font-size: .68rem; font-weight: 700; padding: 3px 9px; border-radius: 99px; background: var(--peach-soft); color: var(--rust); white-space: nowrap; }
+.ph-pill.conf { background: var(--green-soft); color: var(--green); }
+.ph-ex { display: flex; justify-content: space-between; border-top: 1px dashed var(--line); padding-top: 4px; }
+.ph-ex span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; }
+.ph-btn { justify-self: start; background: var(--green); color: var(--on-green); font-weight: 700; font-size: .75rem; padding: 6px 14px; border-radius: 99px; }
 
 /* História */
-.historia .wrap { display: grid; grid-template-columns: .8fr 1.2fr; gap: 48px; align-items: center; }
-@media (max-width: 800px) { .historia .wrap { grid-template-columns: 1fr; } }
-blockquote { margin: 0; font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600; line-height: 1.4; letter-spacing: -.01em; border-left: 4px solid var(--yellow); padding-left: 22px; }
-.assin { margin-top: 18px; color: var(--muted); font-weight: 600; padding-left: 26px; }
+.historia { background: var(--green); color: var(--on-green); }
+.historia .wrap { display: grid; grid-template-columns: .8fr 1.2fr; gap: 56px; align-items: center; }
+.historia img { width: 100%; aspect-ratio: 1; object-fit: cover; object-position: 22% center; border-radius: 50%; background: var(--green-2); }
+.historia .eyebrow { color: var(--peach); }
+blockquote { margin: 16px 0 0; font: 400 clamp(1.6rem, 3.2vw, 2.3rem)/1.2 var(--serif); }
+blockquote i { color: var(--peach); }
+.assin { margin-top: 20px; opacity: .8; font-weight: 500; }
+@media (max-width: 800px) { .historia .wrap { grid-template-columns: 1fr; } .historia img { max-width: 260px; } }
 
 /* Preço */
 .preco .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
 @media (max-width: 860px) { .preco .wrap { grid-template-columns: 1fr; } }
-.plano { border: 2px solid var(--green); border-radius: 22px; padding: 30px; display: grid; gap: 18px; background: var(--bg); }
-.valor { font-size: 3rem; font-weight: 800; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
-.valor small { font-size: 1rem; font-weight: 600; color: var(--muted); letter-spacing: 0; }
-.plano ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.plano li { display: flex; gap: 10px; }
-.plano li::before { content: ""; flex: none; width: 20px; height: 20px; margin-top: 3px; border-radius: 50%; background: var(--green-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-7' fill='none' stroke='%231e7a46' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/14px no-repeat; }
-form.contato { display: grid; gap: 12px; background: var(--soft); border-radius: 22px; padding: 28px; }
+.plano { border-radius: 28px; padding: 34px; display: grid; gap: 20px; background: var(--surface); border: 1px solid var(--line); }
+.valor { font: 400 3.6rem/1 var(--serif); color: var(--green); font-variant-numeric: tabular-nums; }
+.valor small { font: 500 1rem var(--font); color: var(--muted); }
+.plano ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.plano li { display: flex; gap: 12px; }
+.plano li::before { content: ""; flex: none; width: 22px; height: 22px; margin-top: 2px; border-radius: 50%; background: var(--green-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 10.5l3 3 7-7' fill='none' stroke='%231d5a43' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 15px no-repeat; }
+form.contato { display: grid; gap: 14px; background: var(--areia); border-radius: 28px; padding: 32px; }
+form.contato h2 { font-size: 2.1rem; }
 form.contato label { display: grid; gap: 6px; font-weight: 600; font-size: .9rem; }
-form.contato input, form.contato textarea { font: inherit; font-size: 1rem; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px; width: 100%; }
-form.contato textarea { min-height: 90px; resize: vertical; }
+form.contato input, form.contato textarea { font: inherit; font-size: 1rem; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px; width: 100%; }
+form.contato textarea { min-height: 96px; resize: vertical; }
 .hp { position: absolute; left: -9999px; }
-.ok { background: var(--green-soft); color: var(--green-dark); border-radius: 12px; padding: 14px; font-weight: 600; }
+.ok { background: var(--green-soft); color: var(--green); border-radius: 14px; padding: 16px; font-weight: 600; }
 .err { color: #b4382c; font-size: .92rem; min-height: 1.2em; }
 
 /* FAQ */
-details { border-bottom: 1px solid var(--line); padding-block: 18px; }
-details summary { cursor: pointer; font-weight: 700; font-size: 1.05rem; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
-details summary::after { content: "+"; color: var(--green); font-size: 1.4rem; line-height: 1; }
+details { border-bottom: 1px solid var(--line); padding-block: 20px; }
+details summary { cursor: pointer; font-weight: 600; font-size: 1.08rem; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+details summary::-webkit-details-marker { display: none; }
+details summary::after { content: "+"; color: var(--rust); font: 400 1.8rem/1 var(--serif); }
 details[open] summary::after { content: "–"; }
 details p { margin-top: 10px; color: var(--muted); max-width: 70ch; }
 
-footer { border-top: 1px solid var(--line); padding-block: 32px calc(32px + env(safe-area-inset-bottom, 0px)); color: var(--muted); font-size: .92rem; }
+footer { border-top: 1px solid var(--line); padding-block: 36px calc(36px + env(safe-area-inset-bottom, 0px)); color: var(--muted); font-size: .92rem; }
 footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center; }
+footer .brand { font-size: 1.4rem; }
+.credito { font-size: .78rem; }
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
-    <a class="brand" href="/"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="none" stroke="var(--yellow)" stroke-width="2"/><path d="M16 6v20" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round"/><path d="M11 10c3 0 5 2 5 4s-2 4-5 4-3 2 0 4c2 1 5 1 5 3" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round"/></svg><span>Fisio<b>Bea</b></span></a>
+    <a class="brand" href="/">Fisio<i>Bea</i></a>
     <nav>
       <a href="#funcionalidades">Funcionalidades</a>
       <a href="#preco">Preço</a>
@@ -148,66 +188,101 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     <div class="wrap">
       <div>
         <span class="eyebrow">Feito por fisioterapeuta</span>
-        <h1 style="margin-top:14px">Seus atendimentos planejados. Suas evoluções em minutos.</h1>
-        <p class="lead">Agenda, treinos A, B, C e D, evolução com modelo pronto, avaliações e financeiro. Tudo no celular e no tablet, do jeito que a fisioterapia funciona.</p>
-        <div class="ctas"><a class="btn" href="#assinar">Quero testar</a><a class="btn ghost" href="#funcionalidades">Ver funcionalidades</a></div>
+        <h1 style="margin-top:16px">Seu atendimento <i>planejado</i> antes do paciente chegar.</h1>
+        <p class="lead">Agenda, treinos A, B, C e D, evolução com modelo pronto, avaliações e financeiro. No celular e no tablet, no consultório ou na casa do paciente.</p>
+        <div class="ctas"><a class="btn" href="#assinar">Quero testar</a><a class="link-sub" href="#funcionalidades">Ver como funciona</a></div>
         <p class="nota">Sem instalar nada. Funciona no navegador e vira um ícone na tela inicial.</p>
       </div>
-      <div class="phone" aria-label="Exemplo da tela de agenda do FisioBea" role="img">
-        <div class="scr">
-          <div class="ph-top"><strong>Segunda, 26 de out</strong><span class="muted">3 atendimentos</span></div>
-          <div class="ph-days"><span class="on"><small>Seg</small>26</span><span><small>Ter</small>27</span><span><small>Qua</small>28</span><span><small>Qui</small>29</span><span><small>Sex</small>30</span><span><small>Sáb</small>31</span></div>
-          <div class="ph-card">
-            <div class="row"><b>08:00 · Marta O.</b><span class="ph-pill">Treino C</span></div>
-            <span class="muted">Pós-operatório de LCA</span>
-            <div class="ph-ex"><span>Step up 15 cm</span><span>3x · 10</span></div>
-            <div class="ph-ex"><span>Leg press 45°</span><span>3x · 12 · 20 kg</span></div>
-            <div class="ph-ex"><span>Marcha lateral</span><span>3x · 10 m</span></div>
-            <span class="ph-btn">Evoluir</span>
-          </div>
-          <div class="ph-card">
-            <div class="row"><b>10:30 · João P.</b><span class="ph-pill y">Confirmado</span></div>
-            <span class="muted">Lombalgia crônica · Treino A</span>
-          </div>
-          <div class="ph-card">
-            <div class="row"><b>14:00 · Helena S.</b><span class="ph-pill">Treino D</span></div>
-            <span class="muted">Prevenção de quedas</span>
-          </div>
-        </div>
+      <div class="arco">
+        <img src="/img/casa-alongamento.jpg" alt="Fisioterapeuta orientando o alongamento de braço de um senhor em casa" width="1100" height="733" fetchpriority="high">
+        <div class="selo"><b>Treino B</b><span class="muted">Hoje, 09:00 · domicílio</span></div>
       </div>
+    </div>
+  </div>
+
+  <div class="faixa">
+    <div class="wrap">
+      <div><b>A–D</b>treinos com rodízio automático</div>
+      <div><b>7</b>modelos de avaliação</div>
+      <div><b>5</b>documentos prontos</div>
+      <div><b>1 toque</b>para enviar no WhatsApp</div>
     </div>
   </div>
 
   <section id="funcionalidades">
     <div class="wrap">
-      <div class="sec-head"><span class="eyebrow">Funcionalidades</span><h2>Tudo o que o atendimento pede, num lugar só</h2><p>Chega de caderno, planilha e bloco de notas espalhados. O FisioBea organiza o dia a dia de quem atende.</p></div>
-      <div class="grid">
-        <div class="feat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><h3>Agenda da semana</h3><p>Seus pacientes de segunda, quarta e sexta aparecem sozinhos. Marque confirmado, realizado, falta ou falta justificada, e remarque com um toque.</p></div>
-        <div class="feat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></svg></span><h3>Treinos A, B, C e D</h3><p>Monte os treinos com séries, repetições e carga. O rodízio é automático e faltas não pulam o treino. Envie para o paciente pelo WhatsApp.</p></div>
-        <div class="feat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/></svg></span><h3>Evolução com modelo pronto</h3><p>PA, FC, SpO2, EVA, conduta e resposta. Os exercícios do treino do dia já entram preenchidos. Você só completa.</p></div>
-        <div class="feat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6v4H9zM5 5h4M15 5h4v16H5V5"/><path d="M9 12l2 2 4-4"/></svg></span><h3>Avaliações por área</h3><p>Fichas ortopédica, neurológica, respiratória, geriátrica, pélvica e de dor, com Berg, TUG, Borg, Ashworth e goniometria.</p></div>
-        <div class="feat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="2.5"/><path d="M7 6V4h10v2"/></svg></span><h3>Financeiro e pacotes</h3><p>Pagamentos, pendências e pacotes de sessões com saldo automático. Gráfico do mês e meta de faturamento.</p></div>
-        <div class="feat"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h4"/></svg></span><h3>Documentos em um toque</h3><p>Atestado de comparecimento, declaração, recibo, relatório fisioterapêutico e de alta, já preenchidos com os dados do paciente.</p></div>
+      <div class="sec-head"><span class="eyebrow">Funcionalidades</span><h2>Tudo o que o atendimento pede, <i>num lugar só</i></h2><p>Chega de caderno, planilha e bloco de notas espalhados. O FisioBea organiza o dia a dia de quem atende.</p></div>
+      <div class="funcs">
+        <div class="func"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><h3>Agenda da semana</h3><p>Seus pacientes de segunda, quarta e sexta aparecem sozinhos. Marque confirmado, realizado, falta ou falta justificada, e remarque com um toque.</p></div>
+        <div class="func"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></svg></span><h3>Treinos A, B, C e D</h3><p>Monte os treinos com séries, repetições e carga. O rodízio é automático e faltas não pulam o treino. Envie para o paciente pelo WhatsApp.</p></div>
+        <div class="func"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/></svg></span><h3>Evolução com modelo pronto</h3><p>PA, FC, SpO2, EVA, conduta e resposta. Os exercícios do treino do dia já entram preenchidos. Você só completa.</p></div>
+        <div class="func"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6v4H9zM5 5h4M15 5h4v16H5V5"/><path d="M9 12l2 2 4-4"/></svg></span><h3>Avaliações por área</h3><p>Fichas ortopédica, neurológica, respiratória, geriátrica, pélvica e de dor, com Berg, TUG, Borg, Ashworth e goniometria.</p></div>
+        <div class="func"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="2.5"/><path d="M7 6V4h10v2"/></svg></span><h3>Financeiro e pacotes</h3><p>Pagamentos, pendências e pacotes de sessões com saldo automático. Gráfico do mês e meta de faturamento.</p></div>
+        <div class="func"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h4"/></svg></span><h3>Documentos em um toque</h3><p>Atestado de comparecimento, declaração, recibo, relatório fisioterapêutico e de alta, já preenchidos com os dados do paciente.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="domicilio">
+    <div class="wrap">
+      <div class="fotos">
+        <img src="/img/casa-acamado.jpg" alt="Fisioterapeuta auxiliando paciente acamado a usar o trapézio no quarto" width="1100" height="733" loading="lazy">
+        <img src="/img/casa-andador.jpg" alt="Senhora caminhando com andador na cozinha de casa" width="800" height="1200" loading="lazy">
+      </div>
+      <div>
+        <span class="eyebrow">Atendimento a domicílio</span>
+        <h2 style="margin-top:14px">O prontuário vai <i>com você</i> até a casa do paciente</h2>
+        <p class="muted" style="margin-top:18px;font-size:1.1rem">Entre uma visita e outra, abra o celular e veja quem é o próximo, o endereço do dia e o treino que vai aplicar.</p>
+        <ul>
+          <li>Treino do dia aberto no celular, sem papel na mochila</li>
+          <li>Evolução feita ali mesmo, com sinais vitais e conduta</li>
+          <li>Lembrete e treino enviados pelo WhatsApp para o paciente ou o cuidador</li>
+        </ul>
       </div>
     </div>
   </section>
 
   <section class="fluxo">
     <div class="wrap">
-      <div class="sec-head"><span class="eyebrow">No dia a dia</span><h2>Do planejamento à evolução, sem retrabalho</h2></div>
-      <div class="passos">
-        <div class="passo"><h3>Planeje a semana</h3><p>Cadastre o paciente com os dias de atendimento e monte os treinos. A agenda e o rodízio se organizam sozinhos.</p></div>
-        <div class="passo"><h3>Atenda com o treino na mão</h3><p>Abra o dia e veja quem vem, em que horário e quais exercícios fazer. Mande lembrete pelo WhatsApp.</p></div>
-        <div class="passo"><h3>Evolua em minutos</h3><p>Toque em Evoluir: o modelo abre com o treino do dia. Preencha sinais vitais e resposta, e o atendimento fica registrado.</p></div>
+      <div>
+        <div class="sec-head" style="margin-bottom:28px"><span class="eyebrow">No dia a dia</span><h2>Do planejamento à evolução, <i>sem retrabalho</i></h2></div>
+        <div class="passos">
+          <div class="passo"><span>1</span><h3>Planeje a semana</h3><p>Cadastre o paciente com os dias de atendimento e monte os treinos. A agenda e o rodízio se organizam sozinhos.</p></div>
+          <div class="passo"><span>2</span><h3>Atenda com o treino na mão</h3><p>Abra o dia e veja quem vem, em que horário e quais exercícios fazer. Mande lembrete pelo WhatsApp.</p></div>
+          <div class="passo"><span>3</span><h3>Evolua em minutos</h3><p>Toque em Evoluir: o modelo abre com o treino do dia. Preencha sinais vitais e resposta, e o atendimento fica registrado.</p></div>
+        </div>
+      </div>
+      <div class="phone" aria-label="Exemplo da tela de agenda do FisioBea" role="img">
+        <div class="scr">
+          <p class="ph-oi">Bom dia, Bea<small>Segunda, 26 de outubro · 3 atendimentos</small></p>
+          <div class="ph-days"><span class="on"><small>Seg</small>26</span><span><small>Ter</small>27</span><span><small>Qua</small>28</span><span><small>Qui</small>29</span><span><small>Sex</small>30</span><span><small>Sáb</small>31</span></div>
+          <div class="ph-card">
+            <div class="row"><b>08:00 · Marta O.</b><span class="ph-pill">Treino C</span></div>
+            <span class="muted">Pós-operatório de LCA · domicílio</span>
+            <div class="ph-ex"><span>Step up 15 cm</span><span>3x · 10</span></div>
+            <div class="ph-ex"><span>Leg press 45°</span><span>3x · 12 · 20 kg</span></div>
+            <div class="ph-ex"><span>Marcha lateral</span><span>3x · 10 m</span></div>
+            <span class="ph-btn">Evoluir</span>
+          </div>
+          <div class="ph-card">
+            <div class="row"><b>10:30 · João P.</b><span class="ph-pill conf">Confirmado</span></div>
+            <span class="muted">Lombalgia crônica · Treino A</span>
+          </div>
+          <div class="ph-card">
+            <div class="row"><b>14:00 · Helena S.</b><span class="ph-pill">Treino D</span></div>
+            <span class="muted">Prevenção de quedas · domicílio</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <section class="historia">
     <div class="wrap">
-      <div><span class="eyebrow">Por que existe</span><h2 style="margin-top:12px">Nasceu dentro do atendimento</h2></div>
+      <img src="/img/casa-exercicio.jpg" alt="Senhor fazendo exercício de braços com a fisioterapeuta" width="1100" height="733" loading="lazy">
       <div>
-        <blockquote>Eu precisava planejar os treinos dos meus pacientes e evoluir rápido entre um atendimento e outro. Não achei nada simples o bastante, então criei o meu.</blockquote>
+        <span class="eyebrow">Por que existe</span>
+        <blockquote>Eu precisava planejar os treinos dos meus pacientes e evoluir rápido entre um atendimento e outro. Não achei nada simples o bastante, então <i>criei o meu</i>.</blockquote>
         <p class="assin">Beatriz, fisioterapeuta e criadora do FisioBea</p>
       </div>
     </div>
@@ -229,7 +304,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <p class="muted" style="font-size:.92rem">Pagamento mensal por Pix. Cada pagamento libera 30 dias de acesso. Sem fidelidade.</p>
       </div>
       <form class="contato" id="assinar" novalidate>
-        <h2 style="font-size:1.6rem">Quero conhecer o FisioBea</h2>
+        <h2>Quero conhecer o FisioBea</h2>
         <p class="muted">Deixe seu contato. A Beatriz te chama para mostrar o app e liberar um período de teste.</p>
         <label>Nome<input id="c-nome" name="nome" autocomplete="name" required></label>
         <label>E-mail<input id="c-email" name="email" type="email" autocomplete="email" required></label>
@@ -242,7 +317,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     </div>
   </section>
 
-  <section id="duvidas" style="padding-top:20px">
+  <section id="duvidas" style="padding-top:24px">
     <div class="wrap" style="max-width:820px">
       <div class="sec-head"><span class="eyebrow">Dúvidas</span><h2>Perguntas frequentes</h2></div>
       <details><summary>Preciso instalar alguma coisa?</summary><p>Não. O FisioBea funciona no navegador. No celular, use “Adicionar à tela inicial” e ele vira um ícone como qualquer aplicativo.</p></details>
@@ -257,7 +332,8 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 
 <footer>
   <div class="wrap">
-    <span>© <span id="ano"></span> FisioBea</span>
+    <span><span class="brand">Fisio<i>Bea</i></span> · © <span id="ano"></span></span>
+    <span class="credito">Fotos: Pexels</span>
     <a href="/app/" style="font-weight:600;color:var(--green);text-decoration:none">Já sou assinante · Entrar</a>
   </div>
 </footer>
@@ -276,7 +352,7 @@ form.addEventListener('submit', async e => {
     const r = await fetch('/api/pedido', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(dados) });
     const c = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(c.erro || 'Não foi possível enviar.');
-    form.innerHTML = `<h2 style="font-size:1.6rem">Recebido!</h2><div class="ok">Obrigada, ${dados.nome.trim().split(' ')[0].replace(/[<>&"]/g, '')}. A Beatriz vai entrar em contato em breve.</div>`;
+    form.innerHTML = `<h2>Recebido!</h2><div class="ok">Obrigada, ${dados.nome.trim().split(' ')[0].replace(/[<>&"]/g, '')}. A Beatriz vai entrar em contato em breve.</div>`;
   } catch (x) { err.textContent = x.message + ' Tente de novo.'; btn.disabled = false; btn.textContent = 'Quero testar'; }
 });
 </script>

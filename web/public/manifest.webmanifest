@@ -4,8 +4,8 @@
   "description": "Agenda, prontuário e financeiro para fisioterapeutas",
   "start_url": "/app/",
   "display": "standalone",
-  "background_color": "#f7f9f8",
-  "theme_color": "#1e7a46",
+  "background_color": "#f7f3ec",
+  "theme_color": "#123c2e",
   "lang": "pt-BR",
   "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
 }
