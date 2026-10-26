@@ -24,6 +24,7 @@
   color-scheme: light;
 }
 * { box-sizing: border-box; }
+html { overflow-x: clip; }
 body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
 a { color: inherit; }
 img { max-width: 100%; height: auto; display: block; }
@@ -83,8 +84,9 @@ section { padding-block: 96px; }
 
 /* Funcionalidades: lista em duas colunas, sem cartões */
 .funcs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 64px; }
-.func { display: grid; grid-template-columns: 52px 1fr; gap: 6px 18px; padding-block: 26px; border-top: 1px solid var(--line); }
-.func .ic { grid-row: span 2; width: 52px; height: 52px; border-radius: 50%; background: var(--peach-soft); color: var(--rust); display: grid; place-items: center; }
+.func { display: grid; grid-template-columns: 52px 1fr; grid-template-rows: auto 1fr; align-content: start; gap: 6px 18px; padding-block: 26px; border-top: 1px solid var(--line); }
+.func h3 { align-self: end; min-height: 26px; padding-top: 2px; }
+.func .ic { grid-row: 1 / span 2; align-self: start; width: 52px; height: 52px; border-radius: 50%; background: var(--peach-soft); color: var(--rust); display: grid; place-items: center; }
 .func .ic svg { width: 24px; height: 24px; }
 .func p { color: var(--muted); font-size: 1rem; }
 @media (max-width: 760px) { .funcs { grid-template-columns: 1fr; } }
@@ -136,8 +138,26 @@ blockquote i { color: var(--peach); }
 @media (max-width: 800px) { .historia .wrap { grid-template-columns: 1fr; } .historia img { max-width: 260px; } }
 
 /* Preço */
-.preco .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
-@media (max-width: 860px) { .preco .wrap { grid-template-columns: 1fr; } }
+.preco .wrap { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; align-items: stretch; }
+.preco .sec-head { grid-column: 1 / -1; margin-bottom: 8px; }
+.preco .plano { display: flex; flex-direction: column; }
+.preco .plano .planos-tabs { align-self: flex-start; }
+.preco .plano > p:last-child { margin-top: auto; padding-top: 18px; border-top: 1px solid var(--line); }
+@media (max-width: 860px) { .preco .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; } }
+@media (max-width: 480px) {
+  .plano, form.contato { padding: 24px 20px; border-radius: 24px; }
+  .planos-tabs, .preco .plano .planos-tabs { justify-self: stretch; align-self: stretch; }
+  .planos-tabs button { flex: 1; padding: 9px 6px; font-size: .86rem; white-space: nowrap; }
+  .planos-tabs .eco { display: none; }
+  .valor { font-size: 2.5rem; white-space: nowrap; }
+  .valor s { font-size: 1.05rem; }
+}
+/* Dúvidas: título à esquerda e perguntas à direita, alinhados com o resto da página */
+.duvidas .wrap { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 56px; align-items: start; }
+.duvidas .sec-head { position: sticky; top: 96px; margin-bottom: 0; }
+@media (max-width: 860px) { .duvidas .wrap { grid-template-columns: minmax(0, 1fr); gap: 8px; } .duvidas .sec-head { position: static; margin-bottom: 24px; } }
+footer .legal { text-align: center; }
+@media (max-width: 640px) { footer .wrap { flex-direction: column; text-align: center; gap: 10px; } }
 .plano { border-radius: 28px; padding: 34px; display: grid; gap: 20px; background: var(--surface); border: 1px solid var(--line); }
 .valor { font: 400 3.6rem/1 var(--serif); color: var(--green); font-variant-numeric: tabular-nums; }
 .valor small { font: 500 1rem var(--font); color: var(--muted); }
@@ -361,6 +381,7 @@ form.contato label.aceite a { color: var(--green); }
 
   <section class="preco" id="preco">
     <div class="wrap">
+      <div class="sec-head" data-rv><span class="eyebrow">Preço</span><h2>Um preço justo, <i>sem fidelidade</i></h2><p>Teste 7 dias de graça. Se gostar, escolha o plano que cabe na sua rotina.</p></div>
       <div class="plano" data-rv>
         <span class="eyebrow">Planos</span>
         <div class="planos-tabs" id="planos-tabs" role="tablist" aria-label="Escolha o plano"><span class="pil" aria-hidden="true"></span>
@@ -394,15 +415,17 @@ form.contato label.aceite a { color: var(--green); }
     </div>
   </section>
 
-  <section id="duvidas" style="padding-top:24px">
-    <div class="wrap" style="max-width:820px">
-      <div class="sec-head" data-rv><span class="eyebrow">Dúvidas</span><h2>Perguntas frequentes</h2></div>
+  <section id="duvidas" class="duvidas" style="padding-top:24px">
+    <div class="wrap">
+      <div class="sec-head" data-rv><span class="eyebrow">Dúvidas</span><h2>Perguntas frequentes</h2><p>Não achou o que procurava? Comece o teste grátis e fale com a gente pelo WhatsApp dentro do app.</p></div>
+      <div class="faq">
       <details><summary>Preciso instalar alguma coisa?</summary><p>Não. O FisioBea funciona no navegador. No celular, use “Adicionar à tela inicial” e ele vira um ícone como qualquer aplicativo.</p></details>
       <details><summary>Meus dados ficam iguais no celular e no tablet?</summary><p>Sim. Tudo fica salvo na sua conta. O que você preenche em um aparelho aparece no outro.</p></details>
       <details><summary>Alguém além de mim vê meus pacientes?</summary><p>Não. Cada conta enxerga só os próprios pacientes, e o acesso é protegido por e-mail e senha.</p></details>
       <details><summary>Como funciona o pagamento?</summary><p>Por Pix, no plano mensal, de 6 meses ou de 12 meses (os planos maiores saem mais baratos por mês). O app mostra o código Pix pronto para copiar e colar. Alguns dias antes de vencer, o app avisa. Se não renovar, o acesso fica pausado e seus dados continuam guardados.</p></details>
       <details><summary>Consigo testar antes de assinar?</summary><p>Sim. Crie sua conta no formulário acima e use tudo de graça por 7 dias, sem cartão. Seus pacientes ficam guardados se você assinar depois.</p></details>
       <details><summary>Posso cancelar quando quiser?</summary><p>Pode. Não tem fidelidade nem multa. É só não renovar.</p></details>
+      </div>
     </div>
   </section>
 </main>

@@ -116,6 +116,23 @@ textarea { min-height: 80px; resize: vertical; line-height: 1.45; }
 .field > span { font-size: .85rem; font-weight: 600; color: var(--muted); }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .row > .field { flex: 1 1 150px; min-width: 0; }
+/* Nada passa da largura da tela: filhos de grade podem encolher (listas de chips rolam por dentro) */
+html { overflow-x: clip; }
+.item > *, .section > *, #adm-conteudo > *, .sheet > * { min-width: 0; }
+.field input, .field select, .field textarea { min-width: 0; max-width: 100%; }
+.abas-adm .curto { display: none; }
+@media (max-width: 560px) {
+  .abas-adm .longo { display: none; } .abas-adm .curto { display: inline; }
+  .abas-adm { gap: 0; }
+  .abas-adm .chip { padding: 8px 9px; font-size: .85rem; }
+  .abas-adm .chip .pill { padding: 0 6px !important; margin-left: 3px !important; font-size: .7rem; }
+}
+@media (max-width: 420px) {
+  /* Em celular estreito as abas quebram em duas linhas, sem a pílula deslizante */
+  .abas-adm { flex-wrap: wrap; border-radius: 18px; overflow: visible; }
+  .abas-adm .pil { display: none; }
+  .abas-adm.abas-pront .chip.on { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+}
 .search { margin-bottom: 14px; }
 
 /* Cartões de resumo */
@@ -1135,6 +1152,7 @@ function render() {
   app.innerHTML = aviso + comunicadosHtml() + (S.aba === 'pacientes' && S.pid ? vPaciente() : ({ inicio: vInicio, agenda: vAgenda, pacientes: vPacientes, financeiro: vFinanceiro, ajustes: vAjustes, usuarios: vUsuarios })[S.aba]());
   if (foco) { const el = document.getElementById(foco.id); if (el) { el.focus(); try { el.setSelectionRange(foco.a, foco.b); } catch (e) {} } }
   posPilula(); posPilula(null, 'abas-adm');
+  if (S.aba === 'usuarios' && S.admAba === 'site') { previaPromo(); }
   // O status que acabou de mudar dá um pulinho para confirmar o toque
   if (realceStatus) { [...app.querySelectorAll('.pill[data-sid]')].filter(b => b.dataset.sid === realceStatus).forEach(b => b.classList.add('troca')); realceStatus = null; }
   // Animação de entrada só quando muda de tela (não a cada digitação ou salvamento)
@@ -2248,7 +2266,7 @@ function vUsuarios() {
   const tarefas = tarefasDoDia(A, M);
   const semFone = A.usuarios.some(u => u.id === S.usuario.id && !fones(u));
   const sem2fa = !S.usuario.doisFatores;
-  const abasAdm = [['geral', 'Visão geral', tarefas.length], ['contas', 'Contas', 0], ['contatos', 'Contatos', novos + pedSenha.length], ['site', 'Site e app', 0], ['historico', 'Histórico', 0]];
+  const abasAdm = [['geral', 'Visão geral|Geral', tarefas.length], ['contas', 'Contas', 0], ['contatos', 'Contatos', novos + pedSenha.length], ['site', 'Site e app|Site', 0], ['historico', 'Histórico', 0]];
   return `
   <div class="head"><div><h2>Assinantes</h2><p class="sub">Como está o FisioBea</p></div>
   <div class="row" style="gap:6px"><button class="ghost small" onclick="S.admin=null;render()">Atualizar</button><button class="small" onclick="novaAssinante()">Nova assinante</button></div></div>
@@ -2258,7 +2276,7 @@ function vUsuarios() {
   ${sem2fa ? `<div class="item" style="background:var(--green-soft);border-color:transparent;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
     <span>Proteja a conta de administrador com a verificação em duas etapas: além da senha, um código do seu celular.</span>
     <button class="small" onclick="ligar2fa()">Ligar agora</button></div>` : ''}
-  <div class="chips abas-pront abas-adm" id="abas-adm" role="tablist"><span class="pil" aria-hidden="true"></span>${abasAdm.map(([k, n, c]) => `<button class="chip ${aba === k ? 'on' : ''}" role="tab" aria-selected="${aba === k}" data-k="${k}" onclick="trocarAbaAdm('${k}')">${n}${c ? ` <span class="pill red" style="padding:1px 7px;margin-left:4px">${c}</span>` : ''}</button>`).join('')}</div>
+  <div class="chips abas-pront abas-adm" id="abas-adm" role="tablist"><span class="pil" aria-hidden="true"></span>${abasAdm.map(([k, n, c]) => `<button class="chip ${aba === k ? 'on' : ''}" role="tab" aria-selected="${aba === k}" data-k="${k}" onclick="trocarAbaAdm('${k}')">${n.includes('|') ? `<span class="longo">${n.split('|')[0]}</span><span class="curto">${n.split('|')[1]}</span>` : n}${c ? ` <span class="pill red" style="padding:1px 7px;margin-left:4px">${c}</span>` : ''}</button>`).join('')}</div>
   <div id="adm-conteudo">${aba === 'contas' ? vAdmContas(A, fones) : aba === 'contatos' ? vAdmContatos(A, pedSenha, interessadas) : aba === 'site' ? vAdmSite(A) : aba === 'historico' ? vAdmHistorico() : vAdmGeral(A, M, tarefas, fones)}</div>`;
 }
 function vAdmGeral(A, M, tarefas, fones) {
