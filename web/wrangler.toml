@@ -6,3 +6,8 @@ compatibility_date = "2024-09-23"
 binding = "DB"
 database_name = "fisiobea-db"
 database_id = "253f1cc5-4fc8-4a3b-8698-352bb3d594ee"
+
+# Fotos do site trocadas pelo painel do administrador
+[[r2_buckets]]
+binding = "ARQUIVOS"
+bucket_name = "fisiobea-site"

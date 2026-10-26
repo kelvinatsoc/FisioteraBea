@@ -63,3 +63,65 @@ CREATE TABLE IF NOT EXISTS recuperacoes (
   usado INTEGER NOT NULL DEFAULT 0,
   criado TEXT NOT NULL
 );
+-- Ajustes do site editados pelo administrador: preços, promoção, Pix, fotos, e-mail de avisos (valor em JSON)
+CREATE TABLE IF NOT EXISTS ajustes (
+  chave TEXT PRIMARY KEY,
+  valor TEXT NOT NULL,
+  atualizado TEXT NOT NULL
+);
+-- Histórico do que aconteceu no sistema (entradas, pagamentos, alterações), para conferência e segurança
+CREATE TABLE IF NOT EXISTS historico (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  quando TEXT NOT NULL,
+  quem TEXT NOT NULL DEFAULT '',
+  acao TEXT NOT NULL,
+  detalhe TEXT NOT NULL DEFAULT '',
+  ip TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS idx_historico_quando ON historico(quando);
+-- Comunicados que aparecem no topo do app para todas as assinantes
+CREATE TABLE IF NOT EXISTS comunicados (
+  id TEXT PRIMARY KEY,
+  titulo TEXT NOT NULL,
+  texto TEXT NOT NULL DEFAULT '',
+  tipo TEXT NOT NULL DEFAULT 'novidade',
+  ate TEXT NOT NULL DEFAULT '',
+  criado TEXT NOT NULL
+);
+-- Por que as assinantes saíram (fica mesmo depois de a conta ser excluída)
+CREATE TABLE IF NOT EXISTS saidas (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL DEFAULT '',
+  nome TEXT NOT NULL,
+  motivo TEXT NOT NULL,
+  detalhe TEXT NOT NULL DEFAULT '',
+  quando TEXT NOT NULL
+);
+-- Dados de cobrança das assinantes (CPF)
+CREATE TABLE IF NOT EXISTS clientes (
+  user_id TEXT PRIMARY KEY,
+  cpf TEXT NOT NULL DEFAULT ''
+);
+-- Verificação em duas etapas (código do aplicativo autenticador)
+CREATE TABLE IF NOT EXISTS segredos (
+  user_id TEXT PRIMARY KEY,
+  totp TEXT NOT NULL,
+  ativo INTEGER NOT NULL DEFAULT 0,
+  criado TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS desafios (
+  token_hash TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  expira INTEGER NOT NULL
+);
+-- E-mails que o sistema mandou (ou tentou mandar)
+CREATE TABLE IF NOT EXISTS emails (
+  id TEXT PRIMARY KEY,
+  para TEXT NOT NULL,
+  assunto TEXT NOT NULL,
+  tipo TEXT NOT NULL,
+  situacao TEXT NOT NULL,
+  erro TEXT NOT NULL DEFAULT '',
+  criado TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_emails_criado ON emails(criado);

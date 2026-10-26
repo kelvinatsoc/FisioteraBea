@@ -269,6 +269,62 @@ button, .btn, .item.tap { position: relative; }
 .abas-pront .pil { position: absolute; top: 3px; bottom: 3px; left: 0; border-radius: 999px; background: var(--fg); z-index: 0; pointer-events: none; }
 #pront-conteudo { position: relative; }
 .pront-velho { position: absolute; inset: 0 0 auto 0; pointer-events: none; }
+#adm-conteudo { position: relative; display: grid; gap: 0; }
+.abas-adm { margin-bottom: 16px; }
+/* Comunicados no topo do app */
+.comunicado { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: start; padding: 14px 16px; border-radius: 16px; margin-bottom: 14px; background: var(--green-soft); color: var(--fg); overflow: hidden; }
+.comunicado.aviso { background: var(--yellow-soft); }
+.comunicado.promo { background: linear-gradient(120deg, var(--green-soft), var(--yellow-soft)); }
+.comunicado .ic { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); font-size: 1.05rem; }
+.comunicado b { display: block; margin-bottom: 2px; }
+.comunicado p { margin: 0; font-size: .92rem; color: var(--muted); white-space: pre-line; }
+.comunicado .x { background: none; color: var(--muted); padding: 2px 6px; font-size: 1.2rem; line-height: 1; }
+/* Assinar: cartões de plano e Pix */
+.planos { display: grid; gap: 10px; }
+.plano-op { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; text-align: left; background: var(--surface); color: var(--fg); border: 1.5px solid var(--line); border-radius: 16px; padding: 14px 16px; font-weight: 400; }
+.plano-op .bola { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; }
+.plano-op .bola::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--green); transform: scale(0); }
+.plano-op.on { border-color: var(--green); background: var(--green-soft); }
+.plano-op.on .bola { border-color: var(--green); }
+.plano-op.on .bola::after { transform: scale(1); }
+.plano-op strong { font: 400 1.35rem/1 var(--serif); color: var(--green); font-variant-numeric: tabular-nums; }
+.plano-op small { display: block; color: var(--muted); font-size: .8rem; }
+.selo { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: var(--yellow-soft); color: var(--rust); margin-left: 6px; vertical-align: 2px; }
+.promo-faixa { border-radius: 14px; padding: 12px 14px; background: linear-gradient(120deg, var(--yellow-soft), var(--green-soft)); font-size: .92rem; position: relative; overflow: hidden; }
+.pix-caixa { display: grid; gap: 12px; justify-items: center; background: var(--bg); border: 1px dashed var(--line); border-radius: 16px; padding: 16px; }
+.pix-qr { width: 196px; height: 196px; padding: 8px; background: #fff; border-radius: 12px; display: grid; place-items: center; }
+.pix-qr img, .pix-qr canvas { width: 180px !important; height: 180px !important; }
+.pix-codigo { width: 100%; font: 500 .78rem/1.4 ui-monospace, monospace; word-break: break-all; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px; color: var(--muted); max-height: 74px; overflow: auto; }
+.feito { display: grid; justify-items: center; gap: 10px; text-align: center; padding: 10px 0; }
+.feito .ok-circ { width: 64px; height: 64px; border-radius: 50%; background: var(--green); color: var(--on-green); display: grid; place-items: center; }
+.feito .ok-circ svg { width: 32px; height: 32px; }
+.codigo-6 { font: 600 1.6rem/1 ui-monospace, monospace; letter-spacing: .5em; text-align: center; padding: 14px 0 14px .5em; }
+/* Painel: fotos do site, histórico, gráfico de motivos */
+.fotos-site { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.foto-slot { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; display: grid; }
+.foto-slot .img { position: relative; aspect-ratio: 4 / 3; background: var(--line); overflow: hidden; }
+.foto-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.foto-slot .img.enviando::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.45) 50%, transparent 70%); background-size: 200% 100%; }
+.foto-slot .txt { padding: 10px 12px; display: grid; gap: 6px; }
+.foto-slot .txt b { font-size: .92rem; }
+.foto-slot .txt span { font-size: .8rem; color: var(--muted); }
+.hist-dia { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; }
+.hist-linha { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: start; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.hist-linha:last-child { border-bottom: 0; }
+.hist-linha .ic { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: .85rem; background: var(--green-soft); }
+.hist-linha .ic.alerta { background: var(--yellow-soft); }
+.hist-linha .ic.perigo { background: rgba(200, 60, 50, .14); }
+.hist-linha .q { font-size: .82rem; color: var(--muted); overflow-wrap: anywhere; }
+.hist-linha time { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.motivo-barra { display: grid; gap: 4px; }
+.motivo-barra .bar i { background: var(--rust); }
+.preview-site { border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: var(--bg); display: grid; gap: 6px; }
+.preview-site s { color: var(--muted); }
+.preview-site strong { font: 400 1.6rem/1 var(--serif); color: var(--green); }
+.estado { display: inline-flex; align-items: center; gap: 6px; font-size: .82rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
+.estado::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.estado.ligado { background: var(--green-soft); color: var(--green); }
+.estado.espera { background: var(--yellow-soft); color: var(--rust); }
 
 /* Botão de salvar que vira ✓ */
 button.salvando, button.salvo { padding: 0; display: inline-grid; place-items: center; }
@@ -327,6 +383,47 @@ button.salvo { background: var(--green-2); }
 </style>
 <!-- Animações num estilo separado: o app pode desligar trocando o atributo media -->
 <style id="movimento">
+  /* Painel e assinatura: tudo entra devagar e para no lugar */
+  .entra .bar i, .motivo-barra .bar i { animation: enche 1.1s var(--suave) both; animation-delay: .25s; }
+  @keyframes enche { from { width: 0 !important; } }
+  .comunicado { animation: comunica .7s var(--suave) both; }
+  @keyframes comunica { from { opacity: 0; transform: translateY(-10px); filter: blur(4px); } }
+  .comunicado.some { animation: someCom .45s var(--leve) forwards; }
+  @keyframes someCom { to { opacity: 0; transform: translateX(24px); filter: blur(3px); } }
+  .comunicado .ic { animation: balanca 2.6s var(--leve) .8s 2; }
+  @keyframes balanca { 0%, 100% { transform: none; } 10% { transform: rotate(-10deg); } 20% { transform: rotate(8deg); } 30% { transform: none; } }
+  .plano-op { transition: border-color .35s var(--leve), background-color .35s var(--leve), transform .35s var(--leve), box-shadow .35s var(--leve); }
+  .plano-op .bola::after { transition: transform .45s var(--suave); }
+  .plano-op.on { box-shadow: 0 14px 28px -22px rgba(18, 60, 46, .55); transform: translateY(-1px); }
+  .planos .plano-op { animation: entra .6s var(--suave) both; }
+  .planos .plano-op:nth-child(2) { animation-delay: .07s; } .planos .plano-op:nth-child(3) { animation-delay: .14s; }
+  .promo-faixa::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 35%, rgba(255,255,255,.5) 50%, transparent 65%); background-size: 250% 100%; animation: brilho 3.2s var(--leve) 1s infinite; pointer-events: none; }
+  @keyframes brilho { from { background-position: 150% 0; } 60%, to { background-position: -100% 0; } }
+  .pix-caixa { animation: revela .6s var(--suave) both; }
+  @keyframes revela { from { opacity: 0; transform: translateY(8px) scale(.985); filter: blur(5px); } }
+  .pix-qr { animation: qr .7s var(--suave) .1s both; }
+  @keyframes qr { from { opacity: 0; transform: scale(.9) rotate(-2deg); } }
+  .feito .ok-circ { animation: okCirc .7s var(--suave) both; }
+  @keyframes okCirc { from { transform: scale(.4); opacity: 0; } }
+  .feito .ok-circ path { stroke-dasharray: 30; animation: risca .5s var(--leve) .35s both; }
+  @keyframes risca { from { stroke-dashoffset: 30; } }
+  .feito h3, .feito p { animation: entra .6s var(--suave) .25s both; }
+  .foto-slot { transition: transform .4s var(--leve), box-shadow .4s var(--leve); }
+  @media (hover: hover) { .foto-slot:hover { transform: translateY(-2px); box-shadow: 0 16px 30px -22px rgba(18, 60, 46, .45); } }
+  .foto-slot img { transition: opacity .6s var(--leve), transform 1.2s var(--suave); }
+  .foto-slot img.nova { animation: fotoNova .9s var(--suave) both; }
+  @keyframes fotoNova { from { opacity: 0; transform: scale(1.06); filter: blur(6px); } }
+  .foto-slot .img.enviando::after { animation: brilho 1.2s linear infinite; }
+  .hist-linha { animation: entra .5s var(--suave) both; }
+  .preview-site strong, .valor-anima { display: inline-block; }
+  .valor-anima.troca { animation: valorTroca .5s var(--suave); }
+  @keyframes valorTroca { from { opacity: 0; transform: translateY(8px); filter: blur(3px); } }
+  .estado.ligado::before { animation: pulsa 2s var(--leve) infinite; }
+  @keyframes pulsa { 50% { box-shadow: 0 0 0 5px transparent; opacity: .6; } }
+  .codigo-6.erro { animation: treme .4s var(--leve); }
+  @keyframes treme { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+  .tarefa-sai { animation: tarefaSai .5s var(--leve) forwards; }
+  @keyframes tarefaSai { to { opacity: 0; transform: translateX(30px); height: 0; padding: 0; margin: 0; } }
   /* Tudo desacelera devagar e para no lugar, sem passar do ponto: movimento contínuo, sem "batidas" */
   :root { --suave: cubic-bezier(.22, 1, .36, 1); --leve: cubic-bezier(.4, 0, .2, 1); }
   .tab-ind.pronto { transition: transform .5s var(--suave), width .5s var(--suave), height .5s var(--suave); }
@@ -612,6 +709,8 @@ async function carregarDados() {
     S.modelo = cfg.modelo?.campos?.length ? cfg.modelo.campos : MODELO_PADRAO;
     S.config = { ...CONFIG_PADRAO, profissional: S.usuario?.nome.split(' ')[0] || CONFIG_PADRAO.profissional, ...(cfg.geral || {}) };
     S.aceite = cfg.aceite || null;
+    api('comunicados').then(r => { S.comunicados = r.comunicados || []; render(); }).catch(() => {});
+    if (S.usuario && S.usuario.doisFatores === undefined) api('eu').then(r => { Object.assign(S.usuario, r.usuario); }).catch(() => {});
     delete S.config.id;
     S.carregado = true; S.erro = null;
   } catch (e) { if (e.status !== 401) S.erro = 'Não foi possível carregar seus dados. Verifique a internet e recarregue a página.'; }
@@ -650,14 +749,16 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 // Só na primeira vez (banco vazio) aparece a criação da conta de administradora.
 let instalado = true;
 const TESTE_DIAS = 7;
-// Botão de WhatsApp para assinar ou renovar, falando com a FisioBea
-const botaoAssinar = (contato, email, teste, cls = '') => soDigitos(contato)
-  ? `<a class="btn wa ${cls}" target="_blank" rel="noopener" href="${waLink(contato, `Olá! ${teste ? 'Estou testando o FisioBea e quero assinar' : 'Quero renovar minha assinatura do FisioBea'}.${email ? ' Meu e-mail no app é ' + email + '.' : ''}`)}">${teste ? 'Quero assinar' : 'Renovar pelo WhatsApp'}</a>` : '';
+// Botão de assinar/renovar: abre a escolha do plano com o Pix copia e cola
+const botaoAssinar = (contato, email, teste, cls = '') => {
+  S.contatoAdm = contato || S.contatoAdm;
+  return `<button type="button" class="wa ${cls}" onclick="telaAssinar('${esc(email || '')}')">${teste ? 'Quero assinar' : 'Renovar agora'}</button>`;
+};
 function mostrarLogin(aviso = '', venc = null) {
   $('#shell').hidden = true; $('#layer').innerHTML = '';
   const el = $('#login'); el.hidden = false;
   const inst = !instalado;
-  el.innerHTML = `<div class="login-foto"><img src="/img/casa-alongamento.jpg" alt=""></div><div class="login-main"><form class="login-box" id="form-login">
+  el.innerHTML = `<div class="login-foto"><img src="${fotoLogin()}" data-foto="login" alt=""></div><div class="login-main"><form class="login-box" id="form-login">
     <div class="brand">${LOGO}</div>
     <div class="item" style="gap:14px">
       <h2>${inst ? 'Criar conta de administrador' : 'Entrar'}</h2>
@@ -678,6 +779,7 @@ function mostrarLogin(aviso = '', venc = null) {
     btn.disabled = true; $('#l-erro').textContent = '';
     try {
       const r = await api(inst ? 'instalar' : 'login', { method: 'POST', body: JSON.stringify(Object.fromEntries(f)) });
+      if (r.doisFatores) return telaCodigo(r.desafio);
       instalado = true; entrou(r.usuario, r.contato);
     } catch (err) {
       $('#l-erro').textContent = err.message; btn.disabled = false;
@@ -687,11 +789,131 @@ function mostrarLogin(aviso = '', venc = null) {
 }
 window.mostrarLogin = mostrarLogin;
 
+// Segunda etapa: código de 6 dígitos do aplicativo autenticador
+function telaCodigo(desafio) {
+  $('#login .login-box').innerHTML = `<div class="brand">${LOGO}</div>
+    <div class="item" style="gap:14px">
+      <h2>Código de verificação</h2>
+      <p class="sub" style="margin:0">Abra o aplicativo autenticador (Google Authenticator ou similar) e digite o código de 6 números do FisioBea.</p>
+      <input id="cod-2fa" class="codigo-6" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" required>
+      <div class="erro-form" id="cod-erro"></div>
+      <button type="submit" id="cod-btn">Confirmar</button>
+    </div>
+    <button type="button" class="link small" style="justify-self:center" onclick="mostrarLogin()">Voltar</button>`;
+  const campo = $('#cod-2fa');
+  campo.oninput = () => { campo.value = soDigitos(campo.value).slice(0, 6); if (campo.value.length === 6) $('#form-login').requestSubmit(); };
+  $('#form-login').onsubmit = async e => {
+    e.preventDefault();
+    const btn = $('#cod-btn'); btn.disabled = true; $('#cod-erro').textContent = '';
+    try { const r = await api('login/2fa', { method: 'POST', body: JSON.stringify({ desafio, codigo: campo.value }) }); instalado = true; entrou(r.usuario, r.contato); }
+    catch (err) {
+      $('#cod-erro').textContent = err.message; btn.disabled = false; campo.value = '';
+      campo.classList.remove('erro'); void campo.offsetWidth; campo.classList.add('erro'); campo.focus();
+      if (err.status === 410) setTimeout(() => mostrarLogin(err.message), 1500);
+    }
+  };
+  campo.focus();
+}
+
+// CPF: máscara enquanto digita e conferência dos dígitos
+const mascaraCpf = el => { const d = soDigitos(el.value).slice(0, 11); el.value = d.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2'); };
+window.mascaraCpf = mascaraCpf;
+const cpfValido = v => {
+  const c = soDigitos(v);
+  if (c.length !== 11 || /^(\d)\1+$/.test(c)) return false;
+  const dv = n => { let t = 0; for (let i = 0; i < n; i++) t += Number(c[i]) * (n + 1 - i); return (t * 10 % 11) % 10; };
+  return dv(9) === Number(c[9]) && dv(10) === Number(c[10]);
+};
+
+// ---------- Preços, promoção e Pix (vêm do painel do administrador) ----------
+async function carregarSite() { try { S.site = await api('site'); aplicarFotos(); } catch (e) {} return S.site; }
+const PLANOS_INFO = { mensal: { nome: 'Mensal', meses: 1, dias: 30 }, semestral: { nome: '6 meses', meses: 6, dias: 180 }, anual: { nome: '12 meses', meses: 12, dias: 365 } };
+const precoPlano = (site, k) => k === 'mensal' && site?.promo ? site.promo.mensal : site?.precos?.[k] || 0;
+const economia = (site, k) => { const m = site?.precos?.mensal || 0, v = site?.precos?.[k] || 0, n = PLANOS_INFO[k].meses; return m && n > 1 && v < m * n ? Math.round((1 - v / (m * n)) * 100) : 0; };
+// Fotos trocadas pelo administrador (as originais ficam enquanto a nova carrega)
+function aplicarFotos() {
+  const f = S.site?.fotos || {};
+  document.querySelectorAll('img[data-foto]').forEach(img => {
+    const nova = f[img.dataset.foto];
+    if (!nova || img.getAttribute('src') === nova) return;
+    const pre = new Image(); pre.onload = () => { img.src = nova; }; pre.src = nova;
+  });
+}
+const fotoLogin = () => S.site?.fotos?.login || '/img/casa-alongamento.jpg';
+
+// Pix copia e cola (padrão BR Code do Banco Central): chave, nome, cidade e valor num texto que o banco entende
+function chavePix(c) {
+  c = String(c || '').trim();
+  if (c.includes('@')) return c.toLowerCase();
+  if (c.startsWith('+')) return '+' + soDigitos(c);
+  if (/^[\d.\-/ ()]+$/.test(c)) return soDigitos(c); // CPF ou CNPJ
+  return c; // chave aleatória
+}
+function pixCopiaECola({ chave, nome, cidade, valor, txid = '***' }) {
+  const campo = (id, v) => id + String(v.length).padStart(2, '0') + v;
+  const limpa = (t, n) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9 ]/g, '').toUpperCase().slice(0, n).trim();
+  const s0 = campo('00', '01') + campo('26', campo('00', 'br.gov.bcb.pix') + campo('01', chavePix(chave))) + campo('52', '0000') + campo('53', '986')
+    + (valor ? campo('54', Number(valor).toFixed(2)) : '') + campo('58', 'BR') + campo('59', limpa(nome, 25) || 'FISIOBEA') + campo('60', limpa(cidade, 15) || 'SAO PAULO')
+    + campo('62', campo('05', txid)) + '6304';
+  let crc = 0xffff;
+  for (const ch of s0) { crc ^= ch.charCodeAt(0) << 8; for (let i = 0; i < 8; i++) { crc = crc & 0x8000 ? (crc << 1) ^ 0x1021 : crc << 1; crc &= 0xffff; } }
+  return s0 + crc.toString(16).toUpperCase().padStart(4, '0');
+}
+// QR code (biblioteca carregada só quando precisa)
+let libQR = null;
+const carregarQR = () => libQR || (libQR = new Promise((ok, falha) => { const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'; sc.onload = ok; sc.onerror = () => { libQR = null; falha(); }; document.head.appendChild(sc); }));
+async function desenharQR(el, texto) {
+  try { await carregarQR(); el.innerHTML = ''; new QRCode(el, { text: texto, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M }); }
+  catch (e) { el.innerHTML = '<span class="muted" style="font-size:.8rem;text-align:center">Use o código abaixo</span>'; }
+}
+
+// Tela de assinar: escolhe o plano, paga com Pix copia e cola e avisa o FisioBea
+window.telaAssinar = async (email = '') => {
+  const site = S.site || await carregarSite();
+  let plano = 'mensal';
+  const desenhar = () => {
+    const valor = precoPlano(site, plano), pix = site?.pix;
+    const codigo = pix ? pixCopiaECola({ ...pix, valor, txid: 'FISIOBEA' + plano.slice(0, 3).toUpperCase() }) : '';
+    sheet(`<h3>Assinar o FisioBea</h3>
+      ${site?.promo ? `<div class="promo-faixa"><b>${esc(site.promo.nome)}</b>${site.promo.texto ? ' · ' + esc(site.promo.texto) : ''}${site.promo.ate ? `<br><span class="muted" style="font-size:.85rem">Válida até ${br(site.promo.ate)}</span>` : ''}</div>` : ''}
+      <div class="planos" role="radiogroup" aria-label="Plano">${Object.entries(PLANOS_INFO).map(([k, i]) => {
+        const v = precoPlano(site, k), eco = economia(site, k);
+        return `<button type="button" role="radio" aria-checked="${plano === k}" class="plano-op ${plano === k ? 'on' : ''}" onclick="escolherPlano('${k}')">
+          <span class="bola"></span><span><b>${i.nome}</b>${eco ? `<span class="selo">economize ${eco}%</span>` : ''}${k === 'mensal' && site?.promo ? '<span class="selo">promoção</span>' : ''}<small>${i.meses > 1 ? `equivale a ${reais(v / i.meses)} por mês` : k === 'mensal' && site?.promo ? `de ${reais(site.precos.mensal)} por mês` : 'renova todo mês, sem fidelidade'}</small></span>
+          <strong>${reais(v)}</strong></button>`;
+      }).join('')}</div>
+      ${pix ? `<div class="pix-caixa">
+        <div class="label">Pague com Pix: ${reais(valor)}</div>
+        <div class="pix-qr" id="pix-qr"></div>
+        <div class="pix-codigo" id="pix-codigo">${esc(codigo)}</div>
+        <button type="button" class="ghost" id="pix-copiar">Copiar código Pix</button>
+        <p class="sub" style="margin:0;text-align:center">No app do banco, escolha <b>Pix copia e cola</b> e cole o código. Depois toque em "Já paguei".</p>
+      </div>` : `<p class="sub" style="margin:0">Fale com o FisioBea pelo WhatsApp para receber os dados de pagamento.</p>`}
+      <div class="erro-form" id="as-erro"></div>`,
+      null,
+      `${pix ? `<button type="button" id="ja-paguei">Já paguei</button>` : ''}${soDigitos(S.contatoAdm || S.contato) ? `<a class="btn wa" target="_blank" rel="noopener" href="${waLink(S.contatoAdm || S.contato, `Olá! Quero assinar o FisioBea no plano ${PLANOS_INFO[plano].nome} (${reais(valor)}).${email ? ' Meu e-mail no app é ' + email + '.' : ''}`)}">WhatsApp</a>` : ''}`);
+    if (!pix) return;
+    desenharQR($('#pix-qr'), codigo);
+    $('#pix-copiar').onclick = e => { copiarTexto(codigo, 'Código Pix copiado'); e.target.textContent = '✓ Copiado'; setTimeout(() => { if (e.target.isConnected) e.target.textContent = 'Copiar código Pix'; }, 2000); };
+    $('#ja-paguei').onclick = async e => {
+      e.target.disabled = true;
+      try {
+        await api('avisar-pagamento', { method: 'POST', body: JSON.stringify({ plano, email }) });
+        $('#sheet').innerHTML = `<div class="feito"><div class="ok-circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+          <h3>Obrigado!</h3><p class="muted" style="margin:0">Avisamos o FisioBea. Assim que o Pix for confirmado, seu acesso é liberado (normalmente no mesmo dia).</p></div>
+          <div class="sheet-foot"><div class="row"><button type="button" onclick="fechar()">Fechar</button></div></div>`;
+      } catch (err) { $('#as-erro').textContent = err.message; e.target.disabled = false; }
+    };
+  };
+  window.escolherPlano = k => { if (k === plano) return; plano = k; const rol = $('#sheet')?.scrollTop; desenhar(); const sh = $('#sheet'); if (sh) { sh.scrollTop = rol || 0; sh.closest('.sheet-bg').style.animation = 'none'; sh.style.animation = 'none'; } };
+  desenhar();
+};
+
 // Cadastro: conta nova com teste grátis, sem cartão; entra direto no app
 window.telaCadastro = () => {
   $('#shell').hidden = true;
   const el = $('#login'); el.hidden = false;
-  el.innerHTML = `<div class="login-foto"><img src="/img/casa-alongamento.jpg" alt=""></div><div class="login-main"><form class="login-box" id="form-cad">
+  el.innerHTML = `<div class="login-foto"><img src="${fotoLogin()}" data-foto="login" alt=""></div><div class="login-main"><form class="login-box" id="form-cad">
     <div class="brand">${LOGO}</div>
     <div class="item" style="gap:14px">
       <h2>Teste grátis por ${TESTE_DIAS} dias</h2>
@@ -699,6 +921,7 @@ window.telaCadastro = () => {
       <label class="field"><span>Seu nome</span><input id="cd-nome" name="nome" autocomplete="name" required maxlength="120"></label>
       <label class="field"><span>E-mail</span><input id="cd-email" name="email" type="email" autocomplete="email" required></label>
       <label class="field"><span>WhatsApp com DDD</span><input id="cd-tel" name="telefone" type="tel" autocomplete="tel" placeholder="(11) 99999-9999" required></label>
+      <label class="field"><span>CPF</span><input id="cd-cpf" name="cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" required oninput="mascaraCpf(this)"></label>
       <label class="field"><span>Crie uma senha (mínimo 8 caracteres)</span><input id="cd-senha" name="senha" type="password" minlength="8" autocomplete="new-password" required></label>
       <input name="site" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
       <p class="sub legal-cad" style="margin:0;font-size:.82rem">Ao criar a conta, você concorda com os <a href="/termos" target="_blank" rel="noopener" style="color:var(--green)">Termos de Uso</a> e a <a href="/privacidade" target="_blank" rel="noopener" style="color:var(--green)">Política de Privacidade</a>.</p>
@@ -709,7 +932,9 @@ window.telaCadastro = () => {
   </form></div>`;
   $('#form-cad').onsubmit = async e => {
     e.preventDefault();
-    const btn = $('#cd-btn'); btn.disabled = true; $('#cd-erro').textContent = '';
+    const btn = $('#cd-btn'); $('#cd-erro').textContent = '';
+    if (!cpfValido($('#cd-cpf').value)) { $('#cd-erro').textContent = 'Confira o CPF: ele parece incompleto ou com algum número trocado.'; return $('#cd-cpf').focus(); }
+    btn.disabled = true;
     try {
       const r = await api('cadastro', { method: 'POST', body: JSON.stringify(Object.fromEntries(new FormData(e.target))) });
       if (!r.usuario) throw new Error('Não foi possível criar a conta.');
@@ -752,7 +977,7 @@ async function telaNovaSenha(codigo) {
   let quem;
   try { quem = await api('redefinir?codigo=' + encodeURIComponent(codigo)); }
   catch (err) { limparLink(); try { instalado = (await api('status')).instalado; } catch (x) {} return mostrarLogin(err.message); }
-  el.innerHTML = `<div class="login-foto"><img src="/img/casa-alongamento.jpg" alt=""></div><div class="login-main"><form class="login-box" id="form-nova">
+  el.innerHTML = `<div class="login-foto"><img src="${fotoLogin()}" data-foto="login" alt=""></div><div class="login-main"><form class="login-box" id="form-nova">
     <div class="brand">${LOGO}</div>
     <div class="item" style="gap:14px">
       <h2>Nova senha</h2>
@@ -786,6 +1011,7 @@ function entrou(usuario, contato = '') {
 }
 window.sair = async () => { try { await api('sair', { method: 'POST' }); } catch (e) {} location.reload(); };
 async function iniciar() {
+  carregarSite();
   const codigo = new URLSearchParams(location.search).get('redefinir');
   if (codigo) return telaNovaSenha(codigo);
   try { const r = await api('eu'); entrou(r.usuario, r.contato); }
@@ -906,9 +1132,9 @@ function render() {
   if (S.pid && !pac(S.pid)) S.pid = null;
   const ativo = document.activeElement;
   const foco = ativo && ativo.id && app.contains(ativo) ? { id: ativo.id, a: ativo.selectionStart, b: ativo.selectionEnd } : null;
-  app.innerHTML = aviso + (S.aba === 'pacientes' && S.pid ? vPaciente() : ({ inicio: vInicio, agenda: vAgenda, pacientes: vPacientes, financeiro: vFinanceiro, ajustes: vAjustes, usuarios: vUsuarios })[S.aba]());
+  app.innerHTML = aviso + comunicadosHtml() + (S.aba === 'pacientes' && S.pid ? vPaciente() : ({ inicio: vInicio, agenda: vAgenda, pacientes: vPacientes, financeiro: vFinanceiro, ajustes: vAjustes, usuarios: vUsuarios })[S.aba]());
   if (foco) { const el = document.getElementById(foco.id); if (el) { el.focus(); try { el.setSelectionRange(foco.a, foco.b); } catch (e) {} } }
-  posPilula();
+  posPilula(); posPilula(null, 'abas-adm');
   // O status que acabou de mudar dá um pulinho para confirmar o toque
   if (realceStatus) { [...app.querySelectorAll('.pill[data-sid]')].filter(b => b.dataset.sid === realceStatus).forEach(b => b.classList.add('troca')); realceStatus = null; }
   // Animação de entrada só quando muda de tela (não a cada digitação ou salvamento)
@@ -994,7 +1220,7 @@ document.addEventListener('click', e => { if (suprimirClique) { e.stopPropagatio
 // Reposiciona quando o tamanho dos botões muda (fonte carregou, girou o celular, trocou de layout)
 const obsMenu = window.ResizeObserver ? new ResizeObserver(() => moverIndicador()) : { disconnect() {}, observe() {} };
 addEventListener('resize', moverIndicador);
-document.fonts?.ready.then(moverIndicador);
+document.fonts?.ready.then(() => { moverIndicador(); posPilula(); posPilula(null, 'abas-adm'); });
 // Números dos cartões de resumo contam de 0 até o valor ao abrir a tela
 function contarNumeros(raiz) {
   if (semAnim()) return;
@@ -1006,7 +1232,7 @@ function contarNumeros(raiz) {
     const ini = performance.now(), dur = 1000;
     const passo = t => {
       if (!el.isConnected) return;
-      const k = Math.min(1, (t - ini) / dur), v = alvo * (1 - Math.pow(1 - k, 3));
+      const k = Math.min(1, Math.max(0, (t - ini) / dur)), v = alvo * (1 - Math.pow(1 - k, 3));
       el.textContent = m[1] ? reais(v) : Math.round(v).toLocaleString('pt-BR');
       if (k < 1) requestAnimationFrame(passo); else el.textContent = txt;
     };
@@ -1016,25 +1242,26 @@ function contarNumeros(raiz) {
 window.ir = (aba, extra = {}) => { S.aba = aba; if (aba === 'pacientes' && !extra.pid) S.pid = null; Object.assign(S, extra); render(); window.scrollTo(0, 0); };
 // Abas do prontuário: o topo e as abas ficam parados; a pílula desliza até a aba nova
 // e o conteúdo antigo some embaçando enquanto o novo aparece ganhando nitidez.
-function posPilula(de) {
-  const abas = $('#abas-pront'), pil = abas?.querySelector('.pil'), b = abas?.querySelector('.chip.on');
+function posPilula(de, id = 'abas-pront') {
+  const abas = $('#' + id), pil = abas?.querySelector('.pil'), b = abas?.querySelector('.chip.on');
   if (!pil || !b) return;
   const pos = x => { pil.style.width = x.offsetWidth + 'px'; pil.style.transform = `translateX(${x.offsetLeft}px)`; };
   if (!de || semAnim()) { pil.classList.remove('anda'); pos(b); return; }
   pil.classList.remove('anda'); pos(de); void pil.offsetWidth;
   pil.classList.add('anda'); pos(b);
 }
-window.trocarSub = k => {
-  if (k === S.sub) return;
-  const antes = $('#pront-conteudo'), abaAntes = $('#abas-pront .chip.on')?.dataset.sub, rolagem = $('#abas-pront')?.scrollLeft;
+window.trocarSub = k => { if (k !== S.sub) trocarAba('abas-pront', 'pront-conteudo', () => S.sub = k); };
+// Troca de aba com a pílula deslizando e o conteúdo dissolvendo (prontuário e painel do administrador)
+function trocarAba(abasId, contId, aplicar) {
+  const antes = $('#' + contId), abaAntes = $(`#${abasId} .chip.on`)?.dataset.k, rolagem = $('#' + abasId)?.scrollLeft;
   const velho = !semAnim() && antes ? antes.cloneNode(true) : null;
-  S.sub = k;
+  aplicar();
   render();
-  const abas = $('#abas-pront'), depois = $('#pront-conteudo');
+  const abas = $('#' + abasId), depois = $('#' + contId);
   if (abas) {
     abas.scrollLeft = rolagem || 0;
-    const de = [...abas.querySelectorAll('.chip')].find(c => c.dataset.sub === abaAntes);
-    posPilula(de);
+    const de = [...abas.querySelectorAll('.chip')].find(c => c.dataset.k === abaAntes);
+    posPilula(de, abasId);
     abas.querySelector('.chip.on')?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: semAnim() ? 'auto' : 'smooth' });
   }
   if (!velho || !depois) return;
@@ -1047,7 +1274,8 @@ window.trocarSub = k => {
   setTimeout(() => velho.remove(), 360); // remove pelo relógio, mesmo se o navegador pausar a animação
   const anims = [...depois.children].filter(x => x !== velho).map(x => x.animate([{ opacity: 0, filter: 'blur(8px)', transform: 'scale(.99)' }, { opacity: 1, filter: 'blur(0)', transform: 'none' }], { duration: 650, easing: E, delay: 100, fill: 'backwards' }));
   setTimeout(() => anims.forEach(a => { try { a.finish(); } catch (e) {} }), 900); // o conteúdo novo sempre termina visível
-};
+  contarNumeros(depois);
+}
 
 // Abrir paciente: a foto e o nome "voam" do cartão tocado até o topo do prontuário (técnica FLIP)
 window.abrirPaciente = (pid, sub = 'resumo') => {
@@ -1467,7 +1695,7 @@ function vPaciente() {
     <div style="min-width:0"><h2>${esc(nome(p))}</h2><p class="sub">${[p.diagnostico, textoIdade(p.nascimento), p.ativo === false && 'Inativo'].filter(Boolean).map(esc).join(' · ')}</p></div></div>
     ${p.celular ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(p.celular, '')}">WhatsApp</a>` : ''}
   </div>
-  <div class="chips abas-pront" id="abas-pront" role="tablist"><span class="pil" aria-hidden="true"></span>${SUBS.map(([k, n]) => `<button class="chip ${S.sub === k ? 'on' : ''}" role="tab" aria-selected="${S.sub === k}" data-sub="${k}" onclick="trocarSub('${k}')">${n}</button>`).join('')}</div>
+  <div class="chips abas-pront" id="abas-pront" role="tablist"><span class="pil" aria-hidden="true"></span>${SUBS.map(([k, n]) => `<button class="chip ${S.sub === k ? 'on' : ''}" role="tab" aria-selected="${S.sub === k}" data-sub="${k}" data-k="${k}" onclick="trocarSub('${k}')">${n}</button>`).join('')}</div>
   <div id="pront-conteudo">${corpo}</div>`;
 }
 function pResumo(p) {
@@ -1822,11 +2050,71 @@ function vAjustes() {
   </div>
 
   <div class="section">
+    <h3>Segurança</h3>
+    <div class="item" style="flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px">
+      <div style="min-width:0;flex:1 1 240px"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>Verificação em duas etapas</b><span class="estado ${S.usuario?.doisFatores ? 'ligado' : 'espera'}">${S.usuario?.doisFatores ? 'Ligada' : 'Desligada'}</span></div>
+      <p class="sub" style="margin:4px 0 0">Além da senha, pede um código do celular para entrar. ${S.usuario?.role === 'admin' ? '<b>Recomendado para o administrador.</b>' : ''}</p></div>
+      <button class="${S.usuario?.doisFatores ? 'ghost' : ''} small" onclick="${S.usuario?.doisFatores ? 'desligar2fa()' : 'ligar2fa()'}">${S.usuario?.doisFatores ? 'Desligar' : 'Ligar'}</button>
+    </div>
+  </div>
+
+  ${S.usuario?.role === 'admin' ? '' : `<div class="section">
+    <h3>Sair do FisioBea</h3>
+    <p class="sub" style="margin:0">Se quiser parar de usar, você pode pedir a exclusão da sua conta e de todos os seus dados. Antes, baixe uma cópia em "Meus dados".</p>
+    <button class="ghost small" style="justify-self:start;color:var(--danger)" onclick="pedirExclusao()">Pedir exclusão da conta</button>
+  </div>`}
+
+  <div class="section">
     <h3>Privacidade</h3>
     <label class="switch"><input type="checkbox" ${ocultarNomes ? 'checked' : ''} onchange="alternarNomes()"> Ocultar nomes dos pacientes neste aparelho</label>
     <p class="sub" style="margin:0">Seus dados ficam salvos na sua conta e aparecem iguais em todos os aparelhos. Nenhuma outra usuária consegue ver seus pacientes.</p>
   </div>`;
 }
+// Verificação em duas etapas: QR code para o aplicativo autenticador e confirmação com o primeiro código
+window.ligar2fa = () => salvar(async () => {
+  const r = await api('2fa/iniciar', { method: 'POST', body: '{}' });
+  sheet(`<h3>Ligar a verificação em duas etapas</h3>
+    <p class="sub" style="margin:0"><b>1.</b> Instale no celular o <b>Google Authenticator</b> (ou Microsoft Authenticator).<br><b>2.</b> No aplicativo, toque em <b>+</b> e leia este QR code.</p>
+    <div class="pix-caixa"><div class="pix-qr" id="qr-2fa"></div>
+      <p class="sub" style="margin:0;text-align:center">Não dá para ler? Digite esta chave no aplicativo:</p>
+      <div class="pix-codigo" style="text-align:center;letter-spacing:.12em">${r.segredo.replace(/(.{4})/g, '$1 ').trim()}</div></div>
+    <label class="field"><span><b>3.</b> Digite o código de 6 números que aparece no aplicativo</span><input id="cod-ativar" class="codigo-6" name="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" required oninput="this.value=soDigitosTxt(this.value)"></label>`,
+    f => salvar(async () => {
+      try { await api('2fa/ativar', { method: 'POST', body: JSON.stringify({ codigo: f.get('codigo') }) }); }
+      catch (err) { const c = $('#cod-ativar'); if (c) { c.classList.remove('erro'); void c.offsetWidth; c.classList.add('erro'); } throw err; }
+      S.usuario.doisFatores = true; setTimeout(render, 700);
+    }, 'Verificação em duas etapas ligada'), '', 'Ligar');
+  desenharQR($('#qr-2fa'), r.uri);
+});
+window.soDigitosTxt = v => soDigitos(v).slice(0, 6);
+window.desligar2fa = () => sheet(`<h3>Desligar a verificação em duas etapas</h3>
+  <p class="sub" style="margin:0">Para confirmar que é você, digite o código atual do aplicativo autenticador.</p>
+  <input class="codigo-6" name="codigo" inputmode="numeric" maxlength="6" placeholder="000000" required oninput="this.value=soDigitosTxt(this.value)">`,
+  f => salvar(async () => { await api('2fa/desativar', { method: 'POST', body: JSON.stringify({ codigo: f.get('codigo') }) }); S.usuario.doisFatores = false; setTimeout(render, 700); }, 'Verificação desligada'), '', 'Desligar');
+const MOTIVOS_SAIDA = ['Achei caro', 'Não tive tempo de usar', 'Faltou alguma função', 'Fui para outro sistema', 'Parei de atender', 'Outro motivo'];
+window.pedirExclusao = () => sheet(`<h3>Pedir exclusão da conta</h3>
+  <p class="sub" style="margin:0">Sua conta e todos os seus dados (pacientes, evoluções, agenda e financeiro) serão apagados em até 15 dias. Isso não pode ser desfeito.</p>
+  <label class="field"><span>Por que você quer sair? (ajuda a melhorar o FisioBea)</span><select name="motivo" required>${MOTIVOS_SAIDA.map(m => `<option>${m}</option>`).join('')}</select></label>
+  <label class="field"><span>Quer contar mais? (opcional)</span><textarea name="detalhe" maxlength="500"></textarea></label>
+  <label class="switch"><input type="checkbox" name="certeza" required> Entendi que meus dados serão apagados</label>`,
+  f => salvar(() => api('sair-conta', { method: 'POST', body: JSON.stringify({ motivo: f.get('motivo'), detalhe: f.get('detalhe') }) }), 'Pedido enviado. O FisioBea vai confirmar com você.'), '', 'Enviar pedido');
+
+// Comunicados do FisioBea no topo do app (cada aparelho lembra quais já foram fechados)
+const lidosCom = () => { try { return JSON.parse(localStorage.getItem('fisiobea-comunicados') || '[]'); } catch (e) { return []; } };
+function comunicadosHtml() {
+  const lidos = lidosCom(), lista = (S.comunicados || []).filter(c => !lidos.includes(c.id));
+  const ic = { novidade: '✨', aviso: '📣', promo: '🏷️' };
+  return lista.map(c => `<div class="comunicado ${esc(c.tipo)}" data-com="${esc(c.id)}"><span class="ic" aria-hidden="true">${ic[c.tipo] || '✨'}</span>
+    <div><b>${esc(c.titulo)}</b>${c.texto ? `<p>${esc(c.texto)}</p>` : ''}</div>
+    <button class="x" aria-label="Fechar comunicado" onclick="fecharComunicado('${esc(c.id)}')">×</button></div>`).join('');
+}
+window.fecharComunicado = id => {
+  try { localStorage.setItem('fisiobea-comunicados', JSON.stringify([...lidosCom(), id].slice(-50))); } catch (e) {}
+  const el = document.querySelector(`[data-com="${id}"]`);
+  if (!el || semAnim()) return render();
+  el.classList.add('some'); setTimeout(render, 450);
+};
+
 window.mudarConfig = (k, v) => { const c = { ...S.config, [k]: v }; S.config = c; salvar(() => store.config(c), 'Salvo'); };
 function mexerModelo(fn, re = true) { modeloRascunho = modeloRascunho || JSON.parse(JSON.stringify(S.modelo)); fn(modeloRascunho); if (re) render(); }
 window.mexerModelo = mexerModelo;
@@ -1915,6 +2203,15 @@ const somaDiasIso = (di, n) => { const d = deIso(di); d.setDate(d.getDate() + n)
 // Lista do dia: quem precisa de uma mensagem agora (fim do teste, vencimento, quem ainda não começou a usar)
 function tarefasDoDia(A, M) {
   const t = [], primeiro = u => u.nome.split(' ')[0];
+  for (const p of A.pedidos.filter(x => x.status === 'pagamento')) {
+    const u = A.usuarios.find(x => x.email === p.email); if (!u) continue;
+    const [msg, plano, valor] = p.mensagem.split('|');
+    t.push({ u, cor: 'green', motivo: msg, confirmar: { pedido: p.id, plano, valor: Number(valor) || 0 } });
+  }
+  for (const p of A.pedidos.filter(x => x.status === 'exclusao')) {
+    const u = A.usuarios.find(x => x.email === p.email); if (!u) continue;
+    t.push({ u, cor: 'red', motivo: 'Pediu para excluir a conta (LGPD: até 15 dias)', excluir: true });
+  }
   for (const u of M.assin) {
     const r = diasRestantes(u.valido_ate), st = situacao(u);
     if (st.k === 'teste' && r <= 2) t.push({ u, cor: 'st-agendado', motivo: `Teste acaba ${r <= 1 ? 'hoje' : 'em 2 dias'}`, msg: cobrancaMsg(u), pagar: true });
@@ -1925,8 +2222,11 @@ function tarefasDoDia(A, M) {
   }
   return t;
 }
-const cobrancaMsg = u => emTeste(u) ? `Olá, ${u.nome.split(' ')[0]}! Aqui é do FisioBea. Seu teste grátis ${diasRestantes(u.valido_ate) > 0 ? 'vai até ' + br(u.valido_ate) : 'terminou em ' + br(u.valido_ate)}. Está gostando? Para continuar usando, é só fazer o Pix de ${reais(PRECO_PADRAO)} e me mandar o comprovante. Seus pacientes e registros continuam todos lá.`
-  : `Olá, ${u.nome.split(' ')[0]}! Sua assinatura do FisioBea ${diasRestantes(u.valido_ate) > 0 ? 'vence em ' + br(u.valido_ate) : 'venceu em ' + br(u.valido_ate)}. Para renovar, é só fazer o Pix de ${reais(u.ultimo_valor || PRECO_PADRAO)} e me mandar o comprovante. Obrigado!`;
+const precoAtual = () => { const a = S.admin?.ajustes; return a ? (a.promo.ativa && (!a.promo.ate || a.promo.ate >= hojeIso()) ? a.promo.mensal : a.precos.mensal) : PRECO_PADRAO; };
+const comPix = (txt, valor) => { const px = S.admin?.ajustes?.pix; return px?.chave ? `${txt}\n\nPix copia e cola (${reais(valor)}):\n${pixCopiaECola({ ...px, valor, txid: 'FISIOBEA' })}` : txt; };
+const cobrancaMsg = u => comPix(cobrancaTxt(u), emTeste(u) || !u.ultimo_valor ? precoAtual() : u.ultimo_valor);
+const cobrancaTxt = u => emTeste(u) ? `Olá, ${u.nome.split(' ')[0]}! Aqui é do FisioBea. Seu teste grátis ${diasRestantes(u.valido_ate) > 0 ? 'vai até ' + br(u.valido_ate) : 'terminou em ' + br(u.valido_ate)}. Está gostando? Para continuar usando, é só fazer o Pix de ${reais(precoAtual())} e me mandar o comprovante. Seus pacientes e registros continuam todos lá.`
+  : `Olá, ${u.nome.split(' ')[0]}! Sua assinatura do FisioBea ${diasRestantes(u.valido_ate) > 0 ? 'vence em ' + br(u.valido_ate) : 'venceu em ' + br(u.valido_ate)}. Para renovar, é só fazer o Pix de ${reais(u.ultimo_valor || precoAtual())} e me mandar o comprovante. Obrigado!`;
 function graficoReceita(A) {
   const n = innerWidth < 640 ? 6 : 12, W = n * 50, larg = 50; // no celular, 6 meses para os números caberem
   const meses = [...Array(n)].map((_, i) => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - n + 1 + i); return iso(d).slice(0, 7); });
@@ -1944,18 +2244,22 @@ function vUsuarios() {
   const fones = u => soDigitos(u.telefone);
   const novos = A.pedidos.filter(p => p.status === 'novo').length;
   const pedSenha = A.pedidos.filter(p => p.status === 'senha');
-  const interessadas = A.pedidos.filter(p => !['descartado', 'senha'].includes(p.status) && p.mensagem !== 'Pediu uma nova senha pelo app');
+  const interessadas = A.pedidos.filter(p => !['descartado', 'senha', 'pagamento', 'exclusao'].includes(p.status) && p.mensagem !== 'Pediu uma nova senha pelo app');
   const tarefas = tarefasDoDia(A, M);
   const semFone = A.usuarios.some(u => u.id === S.usuario.id && !fones(u));
-  const abasAdm = [['geral', 'Visão geral', tarefas.length], ['contas', 'Contas', 0], ['contatos', 'Contatos', novos + pedSenha.length]];
+  const sem2fa = !S.usuario.doisFatores;
+  const abasAdm = [['geral', 'Visão geral', tarefas.length], ['contas', 'Contas', 0], ['contatos', 'Contatos', novos + pedSenha.length], ['site', 'Site e app', 0], ['historico', 'Histórico', 0]];
   return `
   <div class="head"><div><h2>Assinantes</h2><p class="sub">Como está o FisioBea</p></div>
   <div class="row" style="gap:6px"><button class="ghost small" onclick="S.admin=null;render()">Atualizar</button><button class="small" onclick="novaAssinante()">Nova assinante</button></div></div>
   ${semFone ? `<div class="item" style="background:var(--yellow-soft);border-color:transparent;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px">
     <span>Cadastre o seu WhatsApp: é para ele que vai o botão “Quero assinar” de quem está no teste grátis.</span>
     <button class="small" onclick="editarAssinante('${S.usuario.id}')">Cadastrar WhatsApp</button></div>` : ''}
-  <div class="chips" style="margin:0 0 14px">${abasAdm.map(([k, n, c]) => `<button class="chip ${aba === k ? 'on' : ''}" onclick="S.admAba='${k}';render()">${n}${c ? ` <span class="pill red" style="padding:1px 7px;margin-left:4px">${c}</span>` : ''}</button>`).join('')}</div>
-  ${aba === 'contas' ? vAdmContas(A, fones) : aba === 'contatos' ? vAdmContatos(A, pedSenha, interessadas) : vAdmGeral(A, M, tarefas, fones)}`;
+  ${sem2fa ? `<div class="item" style="background:var(--green-soft);border-color:transparent;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+    <span>Proteja a conta de administrador com a verificação em duas etapas: além da senha, um código do seu celular.</span>
+    <button class="small" onclick="ligar2fa()">Ligar agora</button></div>` : ''}
+  <div class="chips abas-pront abas-adm" id="abas-adm" role="tablist"><span class="pil" aria-hidden="true"></span>${abasAdm.map(([k, n, c]) => `<button class="chip ${aba === k ? 'on' : ''}" role="tab" aria-selected="${aba === k}" data-k="${k}" onclick="trocarAbaAdm('${k}')">${n}${c ? ` <span class="pill red" style="padding:1px 7px;margin-left:4px">${c}</span>` : ''}</button>`).join('')}</div>
+  <div id="adm-conteudo">${aba === 'contas' ? vAdmContas(A, fones) : aba === 'contatos' ? vAdmContatos(A, pedSenha, interessadas) : aba === 'site' ? vAdmSite(A) : aba === 'historico' ? vAdmHistorico() : vAdmGeral(A, M, tarefas, fones)}</div>`;
 }
 function vAdmGeral(A, M, tarefas, fones) {
   const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
@@ -1975,7 +2279,7 @@ function vAdmGeral(A, M, tarefas, fones) {
   <div class="section"><h3>Para fazer hoje ${tarefas.length ? `<span class="pill red">${tarefas.length}</span>` : ''}</h3>
     ${tarefas.length ? `<div class="item">${tarefas.map(t => `<div class="tline" style="align-items:center;flex-wrap:wrap">
       <div style="min-width:0;flex:1 1 220px"><div>${esc(t.u.nome)}</div><span class="pill ${t.cor}" style="font-size:.78rem">${esc(t.motivo)}</span> <span class="muted" style="font-size:.82rem">· ${usoTexto(t.u)} · ${t.u.pacientes} paciente${t.u.pacientes === 1 ? '' : 's'}</span></div>
-      <div class="row" style="gap:4px">${fones(t.u) ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(t.u.telefone, t.msg)}">WhatsApp</a>` : ''}${t.pagar ? `<button class="ghost small" onclick="registrarPagamento('${t.u.id}')">Pagou</button>` : ''}</div></div>`).join('')}</div>`
+      <div class="row" style="gap:4px">${t.confirmar ? `<button class="small" onclick='registrarPagamento("${t.u.id}", ${JSON.stringify(t.confirmar)})'>Confirmar pagamento</button>` : ''}${t.excluir ? `<button class="danger small" onclick="excluirConta('${t.u.id}')">Excluir conta</button>` : ''}${fones(t.u) && t.msg ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(t.u.telefone, t.msg)}">WhatsApp</a>` : ''}${t.pagar ? `<button class="ghost small" onclick="registrarPagamento('${t.u.id}')">Pagou</button>` : ''}</div></div>`).join('')}</div>`
     : '<div class="empty">Nada pendente hoje. Ninguém com teste acabando ou assinatura vencendo.</div>'}
   </div>
 
@@ -1999,22 +2303,27 @@ function vAdmGeral(A, M, tarefas, fones) {
     ${Object.keys(porPlano).length ? `<div class="item">${Object.entries(porPlano).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="tline"><span>${k}</span><span class="num">${v}</span></div>`).join('')}</div>` : '<div class="empty">Ninguém pagando ainda.</div>'}
   </div>
 
+  ${A.saidas?.length ? (() => { const cont = {}; A.saidas.forEach(x => cont[x.motivo] = (cont[x.motivo] || 0) + 1); const max = Math.max(...Object.values(cont)); return `<div class="section"><h3>Por que saíram</h3>
+    <div class="item">${Object.entries(cont).sort((a, b) => b[1] - a[1]).map(([m, n]) => `<div class="motivo-barra"><div class="tline" style="border:0;padding:0"><span>${esc(m)}</span><span class="num">${n}</span></div><div class="bar"><i style="width:${n / max * 100}%"></i></div></div>`).join('')}
+    <div class="muted" style="font-size:.85rem">Últimos: ${A.saidas.slice(0, 3).map(x => `${esc(x.nome.split(' ')[0])} (${esc(x.motivo.toLowerCase())}${x.detalhe ? ': “' + esc(x.detalhe.slice(0, 60)) + '”' : ''})`).join(' · ')}</div></div></div>`; })() : ''}
+
   ${A.ultimosPagamentos?.length ? `<div class="section"><h3>Últimos pagamentos</h3><div class="item">${A.ultimosPagamentos.map(p => `<div class="tline"><span>${esc(p.nome)} <span class="muted num" style="font-size:.85rem">· ${br(p.data).slice(0, 5)} · ${PLANOS[p.dias] || p.dias + ' dias'}</span></span><span class="num">${reais(p.valor)}</span></div>`).join('')}</div></div>` : ''}`;
 }
 function vAdmContas(A, fones) {
   const filtro = S.filtroAss || 'todas', q = (S.buscaAss || '').toLowerCase();
   const ordem = { vencida: 0, vencendo: 1, teste: 2, ativa: 3, desativada: 4, admin: 5 };
-  const lista = A.usuarios.filter(u => (filtro === 'todas' || situacao(u).k === filtro) && (!q || (u.nome + ' ' + u.email + ' ' + u.telefone).toLowerCase().includes(q)))
+  const lista = A.usuarios.filter(u => (filtro === 'todas' || situacao(u).k === filtro) && (!q || (u.nome + ' ' + u.email + ' ' + u.telefone + ' ' + (u.cpf || '') + ' ' + soDigitos(u.cpf)).toLowerCase().includes(q)))
     .sort((a, b) => ordem[situacao(a).k] - ordem[situacao(b).k] || a.nome.localeCompare(b.nome));
   const cont = k => A.usuarios.filter(u => situacao(u).k === k).length;
   return `
-  <input class="search" id="busca-ass" placeholder="Buscar por nome, e-mail ou WhatsApp" value="${esc(S.buscaAss || '')}" oninput="S.buscaAss=this.value;render()">
+  <div class="row" style="gap:6px;margin-bottom:10px"><button class="ghost small" onclick="planilhaAssinantes()">Planilha de assinantes</button><button class="ghost small" onclick="planilhaPagamentos()">Planilha de pagamentos</button></div>
+  <input class="search" id="busca-ass" placeholder="Buscar por nome, e-mail, WhatsApp ou CPF" value="${esc(S.buscaAss || '')}" oninput="S.buscaAss=this.value;render()">
   <div class="chips" style="margin:0">${[['todas', 'Todas'], ['ativa', 'Ativas'], ['teste', 'Em teste'], ['vencendo', 'Vencendo'], ['vencida', 'Vencidas'], ['desativada', 'Desativadas']].map(([k, n]) => `<button class="chip ${filtro === k ? 'on' : ''}" onclick="S.filtroAss='${k}';render()">${n}${k !== 'todas' && cont(k) ? ' · ' + cont(k) : ''}</button>`).join('')}</div>
   <div class="list">${lista.map(u => { const st = situacao(u); return `<div class="item">
     <div class="item-top"><div style="min-width:0"><h3>${esc(u.nome)}${u.id === S.usuario.id ? ' <span class="muted" style="font-weight:400">(você)</span>' : ''}</h3>
-      <div class="muted" style="font-size:.88rem;overflow-wrap:anywhere">${esc(u.email)}${u.telefone ? ' · ' + esc(u.telefone) : ''}</div></div>
+      <div class="muted" style="font-size:.88rem;overflow-wrap:anywhere">${esc(u.email)}${u.telefone ? ' · ' + esc(u.telefone) : ''}${u.cpf ? ' · CPF ' + esc(u.cpf) : u.role === 'admin' ? '' : ' · <span style="color:var(--rust)">sem CPF</span>'}</div></div>
       <span class="pill ${st.c}">${st.t}</span></div>
-    ${u.role === 'admin' ? '' : `<div class="muted num" style="font-size:.85rem">${plano(u)}${u.ultimo_valor ? ' · ' + reais(u.ultimo_valor) : ''} · ${u.pacientes} paciente${u.pacientes === 1 ? '' : 's'} · ${usoTexto(u)}</div>
+    ${u.role === 'admin' ? `<div class="muted" style="font-size:.85rem">${u.dois_fatores ? '🔒 Verificação em duas etapas ligada' : 'Verificação em duas etapas desligada'}</div>` : `<div class="muted num" style="font-size:.85rem">${plano(u)}${u.ultimo_valor ? ' · ' + reais(u.ultimo_valor) : ''} · ${u.pacientes} paciente${u.pacientes === 1 ? '' : 's'} · ${usoTexto(u)}</div>
     <div class="muted num" style="font-size:.82rem">Desde ${br(u.criado.slice(0, 10))}${u.total_pago ? ' · já pagou ' + reais(u.total_pago) : ''}${u.valido_ate && u.valido_ate !== VITALICIO ? ' · acesso até ' + br(u.valido_ate) : ''}</div>`}
     ${u.obs && !doSite(u) ? `<div style="font-size:.9rem">${esc(u.obs)}</div>` : ''}
     ${u.role === 'admin' ? `<div class="actions"><button class="ghost small" onclick="editarAssinante('${u.id}')">Editar meus dados</button></div>` : `<div class="actions">
@@ -2022,11 +2331,22 @@ function vAdmContas(A, fones) {
       ${fones(u) && st.k !== 'ativa' ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(u.telefone, cobrancaMsg(u))}">Cobrar</a>` : fones(u) ? `<a class="btn wa small" target="_blank" rel="noopener" href="${waLink(u.telefone, `Oi, ${u.nome.split(' ')[0]}! Aqui é do FisioBea. Tudo certo com o app?`)}">WhatsApp</a>` : ''}
       <button class="ghost small" onclick="editarAssinante('${u.id}')">Editar</button>
       <button class="link small" onclick="historicoAss('${u.id}')">Pagamentos</button>
+      ${['vencida', 'desativada'].includes(st.k) && !A.saidas?.some(x => x.user_id === u.id) ? `<button class="link small" onclick="motivoSaida('${u.id}')">Motivo da saída</button>` : ''}
     </div>`}
   </div>`; }).join('') || '<div class="empty">Nenhuma conta encontrada.</div>'}</div>`;
 }
 function vAdmContatos(A, pedSenha, interessadas) {
+  const pagos = A.pedidos.filter(p => p.status === 'pagamento'), excl = A.pedidos.filter(p => p.status === 'exclusao');
+  const linhaPed = (p, botoes) => `<div class="tline" style="align-items:center;flex-wrap:wrap">
+      <div style="min-width:0;flex:1 1 220px"><div>${esc(p.nome)} <span class="muted" style="font-size:.85rem">· ${br(p.criado.slice(0, 10)).slice(0, 5)}</span></div><div style="font-size:.88rem">${esc(p.mensagem.split('|')[0])}</div></div>
+      <div class="row" style="gap:4px">${botoes}</div></div>`;
   return `
+  ${pagos.length ? `<div class="section"><h3>Avisaram que pagaram <span class="pill green">${pagos.length}</span></h3>
+    <div class="item">${pagos.map(p => { const u = A.usuarios.find(x => x.email === p.email), [, plano, valor] = p.mensagem.split('|'); return linhaPed(p, `${u ? `<button class="small" onclick='registrarPagamento("${u.id}", ${JSON.stringify({ pedido: p.id, plano, valor: Number(valor) || 0 })})'>Confirmar</button>` : ''}<button class="link small" onclick="mudarPedido('${p.id}','descartado')">Não recebi</button>`); }).join('')}</div>
+    <p class="sub" style="margin:0">Confira no extrato do banco se o Pix caiu antes de confirmar.</p></div>` : ''}
+  ${excl.length ? `<div class="section"><h3>Pedidos de exclusão <span class="pill red">${excl.length}</span></h3>
+    <div class="item">${excl.map(p => { const u = A.usuarios.find(x => x.email === p.email); return linhaPed(p, `${u ? `<button class="danger small" onclick="excluirConta('${u.id}')">Excluir conta</button>` : ''}<button class="link small" onclick="mudarPedido('${p.id}','descartado')">Desistiu</button>`); }).join('')}</div>
+    <p class="sub" style="margin:0">Pela LGPD, a exclusão deve ser feita em até 15 dias do pedido.</p></div>` : ''}
   ${pedSenha.length ? `<div class="section"><h3>Pedidos de nova senha <span class="pill red">${pedSenha.length}</span></h3>
     <div class="item">${pedSenha.map(p => { const u = A.usuarios.find(x => x.email === p.email); return `<div class="tline" style="align-items:center;flex-wrap:wrap">
       <div style="min-width:0;flex:1 1 200px"><div>${esc(p.nome)} <span class="muted" style="font-size:.85rem">· ${br(p.criado.slice(0, 10)).slice(0, 5)}</span></div><div class="muted" style="font-size:.85rem;overflow-wrap:anywhere">${esc(p.email)}</div></div>
@@ -2046,6 +2366,238 @@ function vAdmContatos(A, pedSenha, interessadas) {
   </div>`;
 }
 const atualizarAdmin = async () => { S.admin = null; render(); };
+window.trocarAbaAdm = k => { if (k !== (S.admAba || 'geral')) trocarAba('abas-adm', 'adm-conteudo', () => S.admAba = k); };
+
+// ---------- Site e app: preços, promoção, Pix, fotos, comunicados e avisos ----------
+const MODELOS_PROMO = [
+  { nome: 'Promoção de lançamento', mensal: 39.9, dias: 30, texto: 'Comece agora pagando menos por mês.' },
+  { nome: 'Black Friday', mensal: 34.9, dias: 7, texto: 'Só nesta semana: o FisioBea com o menor preço do ano.' },
+  { nome: 'Mês do Fisioterapeuta', mensal: 39.9, dias: 15, texto: 'Outubro é o nosso mês: desconto especial para quem assinar agora.' },
+  { nome: 'Volta às atividades', mensal: 42.9, dias: 15, texto: 'Organize a agenda do ano com desconto.' },
+];
+const FOTOS_SITE = [
+  ['hero', 'Foto principal', 'Topo da página de vendas', '/img/casa-alongamento.jpg'],
+  ['domicilio1', 'Atendimento em casa 1', 'Seção “No consultório ou em casa”', '/img/casa-acamado.jpg'],
+  ['domicilio2', 'Atendimento em casa 2', 'Foto em pé, ao lado da primeira', '/img/casa-andador.jpg'],
+  ['historia', 'Por que existe', 'Ao lado da história da Beatriz', '/img/casa-exercicio.jpg'],
+  ['login', 'Tela de entrar', 'Aparece no login do app', '/img/casa-alongamento.jpg'],
+];
+function vAdmSite(A) {
+  const aj = A.ajustes, pr = aj.precos, pm = aj.promo, px = aj.pix, av = aj.avisos;
+  const eco = (v, n) => pr.mensal && v < pr.mensal * n ? ` · economia de ${Math.round((1 - v / (pr.mensal * n)) * 100)}%` : '';
+  if (!S.admComs) { S.admComs = 'carregando'; api('admin/comunicados').then(r => { S.admComs = r.comunicados; render(); }).catch(() => { S.admComs = []; }); }
+  const coms = Array.isArray(S.admComs) ? S.admComs : [];
+  return `
+  <div class="section"><h3>Preços dos planos</h3>
+    <form class="item" style="gap:12px" onsubmit="event.preventDefault();salvarAjuste('precos',this)">
+      <div class="row">
+        <label class="field"><span>Mensal (R$)</span><input name="mensal" inputmode="decimal" required value="${Number(pr.mensal).toFixed(2).replace('.', ',')}"></label>
+        <label class="field"><span>6 meses (R$)</span><input name="semestral" inputmode="decimal" value="${Number(pr.semestral).toFixed(2).replace('.', ',')}"></label>
+        <label class="field"><span>12 meses (R$)</span><input name="anual" inputmode="decimal" value="${Number(pr.anual).toFixed(2).replace('.', ',')}"></label>
+      </div>
+      <p class="sub" style="margin:0">Hoje: 6 meses = ${reais(pr.semestral / 6)}/mês${eco(pr.semestral, 6)} · 12 meses = ${reais(pr.anual / 12)}/mês${eco(pr.anual, 12)}</p>
+      <button type="submit" class="small" style="justify-self:start">Salvar preços</button>
+    </form></div>
+
+  <div class="section"><h3>Promoção <span class="estado ${pm.ativa && (!pm.ate || pm.ate >= hojeIso()) ? 'ligado' : 'espera'}">${pm.ativa ? (pm.ate && pm.ate < hojeIso() ? 'Acabou em ' + br(pm.ate) : 'No ar') : 'Desligada'}</span></h3>
+    <form class="item" style="gap:12px" id="form-promo" onsubmit="event.preventDefault();salvarAjuste('promo',this)">
+      <div><div class="label" style="margin-bottom:6px">Modelos prontos</div><div class="chips" style="margin:0">${MODELOS_PROMO.map((m, i) => `<button type="button" class="chip" onclick="usarModeloPromo(${i})">${esc(m.nome)}</button>`).join('')}</div></div>
+      <label class="switch"><input type="checkbox" name="ativa" ${pm.ativa ? 'checked' : ''} onchange="previaPromo()"> Promoção no ar (aparece no site e na tela de assinar)</label>
+      <div class="row">
+        <label class="field"><span>Nome</span><input name="nome" maxlength="60" value="${esc(pm.nome)}" oninput="previaPromo()"></label>
+        <label class="field"><span>Preço mensal na promoção (R$)</span><input name="mensal" inputmode="decimal" value="${Number(pm.mensal).toFixed(2).replace('.', ',')}" oninput="previaPromo()"></label>
+        <label class="field"><span>Válida até</span><input name="ate" type="date" value="${esc(pm.ate)}" oninput="previaPromo()"></label>
+      </div>
+      <label class="field"><span>Frase da promoção</span><input name="texto" maxlength="200" value="${esc(pm.texto)}" oninput="previaPromo()"></label>
+      <div class="preview-site" id="previa-promo"></div>
+      <button type="submit" class="small" style="justify-self:start">Salvar promoção</button>
+    </form></div>
+
+  <div class="section"><h3>Pix para receber as assinaturas</h3>
+    <form class="item" style="gap:12px" onsubmit="event.preventDefault();salvarAjuste('pix',this)">
+      <div class="row">
+        <label class="field"><span>Chave Pix</span><input name="chave" value="${esc(px.chave)}" placeholder="CPF, e-mail, celular (+55...) ou chave aleatória" oninput="previaPix()"></label>
+        <label class="field"><span>Nome do recebedor</span><input name="nome" maxlength="25" value="${esc(px.nome)}" placeholder="Como está no banco" oninput="previaPix()"></label>
+        <label class="field"><span>Cidade</span><input name="cidade" maxlength="15" value="${esc(px.cidade)}" oninput="previaPix()"></label>
+      </div>
+      <p class="sub" style="margin:0">Com o Pix preenchido, a tela de assinar e as suas mensagens de cobrança já levam o <b>Pix copia e cola</b> com o valor certo. Celular como chave: comece com +55.</p>
+      <div id="previa-pix"></div>
+      <button type="submit" class="small" style="justify-self:start">Salvar Pix</button>
+    </form></div>
+
+  <div class="section"><h3>Fotos do site</h3>
+    ${A.fotosAtivas ? '' : '<div class="item" style="background:var(--yellow-soft);border-color:transparent">O espaço das fotos ainda não está ligado no Cloudflare.</div>'}
+    <div class="fotos-site">${FOTOS_SITE.map(([k, n, onde, orig]) => { const atual = S.site?.fotos?.[k]; return `<div class="foto-slot" data-slot="${k}">
+      <div class="img"><img src="${esc(atual || orig)}" alt="" loading="lazy"></div>
+      <div class="txt"><b>${n}</b><span>${onde}${atual ? ' · trocada' : ' · original'}</span>
+        <div class="row" style="gap:4px"><label class="btn ghost small">Trocar<input type="file" accept="image/*" hidden onchange="trocarFotoSite('${k}', this.files[0])"></label>${atual ? `<button class="link small" onclick="voltarFotoSite('${k}')">Voltar original</button>` : ''}</div></div></div>`; }).join('')}</div>
+    <p class="sub" style="margin:0">Use fotos deitadas (horizontais) e com boa luz. O sistema ajusta o tamanho sozinho.</p></div>
+
+  <div class="section"><h3>Comunicados no app</h3>
+    <form class="item" style="gap:12px" id="form-com" onsubmit="event.preventDefault();publicarComunicado(this)">
+      <div class="chips" style="margin:0" id="tipo-com">${[['novidade', '✨ Novidade'], ['aviso', '📣 Aviso'], ['promo', '🏷️ Promoção']].map(([k, n], i) => `<button type="button" class="chip ${i ? '' : 'on'}" data-tipo="${k}" onclick="[...this.parentNode.children].forEach(b=>b.classList.toggle('on',b===this));previaCom()">${n}</button>`).join('')}</div>
+      <label class="field"><span>Título</span><input name="titulo" maxlength="80" required placeholder="Ex.: Agora a agenda tem visão por mês!" oninput="previaCom()"></label>
+      <label class="field"><span>Texto (opcional)</span><textarea name="texto" maxlength="600" placeholder="Explique em poucas palavras" oninput="previaCom()"></textarea></label>
+      <label class="field" style="max-width:220px"><span>Mostrar até (opcional)</span><input name="ate" type="date"></label>
+      <div id="previa-com"></div>
+      <button type="submit" class="small" style="justify-self:start">Publicar para todas</button>
+    </form>
+    ${coms.length ? `<div class="item">${coms.map(c => `<div class="tline" style="align-items:center"><span style="min-width:0">${{ novidade: '✨', aviso: '📣', promo: '🏷️' }[c.tipo] || ''} ${esc(c.titulo)} <span class="muted" style="font-size:.82rem">· ${br(c.criado.slice(0, 10)).slice(0, 5)}${c.ate ? ' até ' + br(c.ate).slice(0, 5) : ''}${c.ate && c.ate < hojeIso() ? ' (encerrado)' : ''}</span></span><button class="link small" onclick="apagarComunicado('${c.id}')">Apagar</button></div>`).join('')}</div>` : ''}
+  </div>
+
+  <div class="section"><h3>Avisos e e-mails automáticos <span class="estado ${A.emailAtivo ? 'ligado' : 'espera'}">${A.emailAtivo ? 'Enviando' : 'Esperando domínio'}</span></h3>
+    <form class="item" style="gap:12px" onsubmit="event.preventDefault();salvarAjuste('avisos',this)">
+      <label class="field"><span>Seu e-mail para receber avisos</span><input name="email" type="email" value="${esc(av.email)}"></label>
+      <label class="switch"><input type="checkbox" name="cadastro" ${av.cadastro ? 'checked' : ''}> Quando alguém criar conta no teste grátis</label>
+      <label class="switch"><input type="checkbox" name="pagamento" ${av.pagamento ? 'checked' : ''}> Quando alguém avisar que pagou</label>
+      <label class="switch"><input type="checkbox" name="saida" ${av.saida ? 'checked' : ''}> Quando alguém pedir para sair</label>
+      <p class="sub" style="margin:0">As assinantes recebem sozinhas: boas-vindas, "seu teste acaba amanhã", aviso de vencimento, recibo do pagamento e link de nova senha.${A.emailAtivo ? '' : ' <b>Para os e-mails saírem de verdade, falta ligar um domínio próprio (ex.: fisiobea.com.br) no Cloudflare.</b> Até lá, tudo fica registrado abaixo.'}</p>
+      <button type="submit" class="small" style="justify-self:start">Salvar avisos</button>
+    </form>
+    <button class="link small" style="justify-self:start" onclick="verEmails()">Ver e-mails enviados</button>
+  </div>`;
+}
+window.salvarAjuste = (chave, form) => {
+  const f = new FormData(form), dados = Object.fromEntries(f);
+  form.querySelectorAll('input[type=checkbox]').forEach(c => dados[c.name] = c.checked);
+  salvar(async () => {
+    const r = await api('admin/ajustes/' + chave, { method: 'PUT', body: JSON.stringify(dados) });
+    S.admin.ajustes[chave] = r.valor; await carregarSite(); render();
+  }, { precos: 'Preços salvos', promo: 'Promoção salva', pix: 'Pix salvo', avisos: 'Avisos salvos' }[chave]);
+};
+window.usarModeloPromo = i => {
+  const m = MODELOS_PROMO[i], f = $('#form-promo');
+  f.nome.value = m.nome; f.mensal.value = m.mensal.toFixed(2).replace('.', ','); f.texto.value = m.texto;
+  const d = new Date(); d.setDate(d.getDate() + m.dias); f.ate.value = iso(d); f.ativa.checked = true;
+  f.querySelectorAll('input').forEach(x => { x.animate?.([{ backgroundColor: 'var(--green-soft)' }, { backgroundColor: 'transparent' }], { duration: 900, easing: 'ease-out' }); });
+  previaPromo();
+};
+window.previaPromo = () => {
+  const f = $('#form-promo'), el = $('#previa-promo'); if (!f || !el) return;
+  const preco = Number(String(f.mensal.value).replace(',', '.')) || 0, cheio = S.admin.ajustes.precos.mensal;
+  el.innerHTML = `<span class="label">Como aparece no site</span>${f.ativa.checked ? `<div class="promo-faixa"><b>${esc(f.nome.value || 'Promoção')}</b>${f.texto.value ? ' · ' + esc(f.texto.value) : ''}${f.ate.value ? `<br><span class="muted" style="font-size:.85rem">Válida até ${br(f.ate.value)}</span>` : ''}</div>
+    <div><s>${reais(cheio)}</s> <strong class="valor-anima troca">${reais(preco)}</strong> <span class="muted">/ mês</span></div>` : `<div><strong class="valor-anima">${reais(cheio)}</strong> <span class="muted">/ mês · sem promoção</span></div>`}`;
+};
+window.previaPix = () => {
+  const f = $('#previa-pix')?.closest('form'), el = $('#previa-pix'); if (!f || !el) return;
+  if (!f.chave.value.trim()) { el.innerHTML = ''; return; }
+  const codigo = pixCopiaECola({ chave: f.chave.value, nome: f.nome.value, cidade: f.cidade.value, valor: S.admin.ajustes.precos.mensal, txid: 'TESTE' });
+  el.innerHTML = `<div class="pix-caixa"><div class="label">Teste: Pix de ${reais(S.admin.ajustes.precos.mensal)}</div><div class="pix-qr" id="qr-teste"></div><div class="pix-codigo">${esc(codigo)}</div><p class="sub" style="margin:0;text-align:center">Leia com o app do seu banco para conferir o nome antes de salvar (não precisa pagar).</p></div>`;
+  clearTimeout(window.tPix); window.tPix = setTimeout(() => desenharQR($('#qr-teste'), codigo), 400);
+};
+window.previaCom = () => {
+  const f = $('#form-com'), el = $('#previa-com'); if (!f || !el) return;
+  const tipo = f.querySelector('#tipo-com .on')?.dataset.tipo || 'novidade';
+  el.innerHTML = f.titulo.value ? `<div class="label" style="margin-bottom:6px">Como as assinantes vão ver</div><div class="comunicado ${tipo}" style="animation:none"><span class="ic">${{ novidade: '✨', aviso: '📣', promo: '🏷️' }[tipo]}</span><div><b>${esc(f.titulo.value)}</b>${f.texto.value ? `<p>${esc(f.texto.value)}</p>` : ''}</div><span class="x">×</span></div>` : '';
+};
+window.publicarComunicado = form => {
+  const f = new FormData(form), tipo = form.querySelector('#tipo-com .on')?.dataset.tipo || 'novidade';
+  salvar(async () => {
+    await api('admin/comunicados', { method: 'POST', body: JSON.stringify({ titulo: f.get('titulo'), texto: f.get('texto'), ate: f.get('ate'), tipo }) });
+    S.admComs = null; S.comunicados = (await api('comunicados')).comunicados; form.reset(); render();
+  }, 'Comunicado publicado');
+};
+window.apagarComunicado = id => confirmar('Apagar este comunicado?', () => salvar(async () => {
+  await api('admin/comunicados/' + id, { method: 'DELETE' }); S.admComs = null; S.comunicados = (S.comunicados || []).filter(c => c.id !== id); render();
+}, 'Comunicado apagado'));
+// Fotos: reduz no próprio aparelho (até 1800 px, JPEG) antes de enviar
+function reduzirFoto(arq, max = 1800) {
+  return new Promise((ok, falha) => {
+    const img = new Image(), url = URL.createObjectURL(arq);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      c.toBlob(b => b ? ok(b) : falha(new Error('Não deu para ler a foto.')), 'image/jpeg', .84);
+    };
+    img.onerror = () => falha(new Error('Esse arquivo não parece ser uma foto.'));
+    img.src = url;
+  });
+}
+window.trocarFotoSite = async (slot, arq) => {
+  if (!arq) return;
+  const caixa = document.querySelector(`[data-slot="${slot}"] .img`); caixa?.classList.add('enviando');
+  try {
+    const blob = await reduzirFoto(arq);
+    const r = await fetch('/api/admin/fotos/' + slot, { method: 'PUT', credentials: 'same-origin', headers: { 'content-type': 'image/jpeg' }, body: blob });
+    const c = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(c.erro || 'Não deu para enviar a foto.');
+    await carregarSite(); render();
+    const nova = document.querySelector(`[data-slot="${slot}"] img`); nova?.classList.add('nova');
+    toast('Foto trocada no site');
+  } catch (e) { toast(e.message); caixa?.classList.remove('enviando'); }
+};
+window.voltarFotoSite = slot => confirmar('Voltar para a foto original?', () => salvar(async () => { await api('admin/fotos/' + slot, { method: 'DELETE' }); await carregarSite(); render(); }, 'Foto original de volta'));
+window.verEmails = async () => {
+  let r; try { r = await api('admin/emails'); } catch (e) { return toast(e.message); }
+  const cor = { enviado: 'green', 'sem domínio': 'st-agendado', falhou: 'red' };
+  sheet(`<h3>E-mails do sistema</h3><p class="sub" style="margin:0">${r.ativo ? 'O envio está ligado.' : 'O envio ainda não está ligado (falta o domínio). Estes são os e-mails que teriam saído.'}</p>
+    ${r.emails.length ? `<div class="item">${r.emails.map(m => `<div class="tline" style="align-items:center;flex-wrap:wrap"><div style="min-width:0;flex:1 1 200px"><div>${esc(m.assunto)}</div><div class="muted" style="font-size:.82rem;overflow-wrap:anywhere">${esc(m.para)} · ${new Date(m.criado).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</div></div><span class="pill ${cor[m.situacao] || ''}">${esc(m.situacao)}</span></div>`).join('')}</div>` : '<div class="empty">Nenhum e-mail ainda.</div>'}`, null);
+};
+
+// ---------- Histórico ----------
+const ICONES_HIST = [[/exclu|bloquead|errad|apagou/i, '⚠️', 'perigo'], [/pagamento|pagou/i, '💰', ''], [/entrou/i, '🔑', ''], [/senha|verificação/i, '🔒', 'alerta'], [/criou conta|teste/i, '🌱', ''], [/comunicado/i, '📣', ''], [/foto/i, '🖼️', ''], [/ajustes|preço|promo/i, '🏷️', ''], [/editou|motivo/i, '✏️', 'alerta']];
+function vAdmHistorico() {
+  if (!S.admHist) { S.admHist = 'carregando'; api('admin/historico').then(r => { S.admHist = r.historico; render(); }).catch(e => { S.admHist = []; toast(e.message); }); }
+  if (!Array.isArray(S.admHist)) return esqueleto();
+  const q = (S.buscaHist || '').toLowerCase(), filtro = S.filtroHist || 'tudo';
+  const grupos = { tudo: () => true, entradas: h => /entrou|senha errada|bloquead|código/i.test(h.acao), dinheiro: h => /pag/i.test(h.acao), contas: h => /conta|editou|motivo|exclu/i.test(h.acao), site: h => /ajustes|foto|comunicado/i.test(h.acao) };
+  const lista = S.admHist.filter(h => grupos[filtro](h) && (!q || (h.quem + ' ' + h.acao + ' ' + h.detalhe).toLowerCase().includes(q)));
+  let dia = '';
+  return `
+  <div class="row" style="gap:6px;margin-bottom:10px"><button class="ghost small" onclick="S.admHist=null;render()">Atualizar</button></div>
+  <input class="search" id="busca-hist" placeholder="Buscar por pessoa ou ação" value="${esc(S.buscaHist || '')}" oninput="S.buscaHist=this.value;render()">
+  <div class="chips">${[['tudo', 'Tudo'], ['entradas', 'Entradas'], ['dinheiro', 'Pagamentos'], ['contas', 'Contas'], ['site', 'Site']].map(([k, n]) => `<button class="chip ${filtro === k ? 'on' : ''}" onclick="S.filtroHist='${k}';render()">${n}</button>`).join('')}</div>
+  ${lista.length ? `<div class="item" style="gap:0">${lista.slice(0, 200).map((h, i) => {
+    const d = new Date(h.quando), chave = d.toLocaleDateString('pt-BR');
+    const [, ic, cls] = ICONES_HIST.find(([re]) => re.test(h.acao)) || [0, '•', ''];
+    const cab = chave !== dia ? `<div class="hist-dia">${chave === new Date().toLocaleDateString('pt-BR') ? 'Hoje' : chave}</div>` : '';
+    dia = chave;
+    return `${cab}<div class="hist-linha" style="animation-delay:${Math.min(i, 12) * 30}ms"><span class="ic ${cls}">${ic}</span><div style="min-width:0"><div>${esc(h.acao)}${h.detalhe ? ` <span class="muted">· ${esc(h.detalhe)}</span>` : ''}</div><div class="q">${esc(h.quem)}${h.ip && h.ip !== 'local' ? ' · ' + esc(h.ip) : ''}</div></div><time>${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</time></div>`;
+  }).join('')}</div>` : '<div class="empty">Nada registrado ainda.</div>'}
+  <p class="sub">O histórico guarda entradas, pagamentos, mudanças nas contas e no site. Os endereços de internet (IP) ajudam a reconhecer acessos estranhos.</p>`;
+}
+
+// ---------- Planilhas (abrem no Excel ou Google Planilhas) ----------
+function baixarCSV(nome, cab, linhas) {
+  const cel = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const texto = '\ufeff' + [cab.join(';'), ...linhas.map(l => l.map(cel).join(';'))].join('\r\n');
+  const url = URL.createObjectURL(new Blob([texto], { type: 'text/csv;charset=utf-8' }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: nome });
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+  toast('Planilha baixada');
+}
+const num = v => String(Math.round((v || 0) * 100) / 100).replace('.', ',');
+window.planilhaAssinantes = () => baixarCSV(`fisiobea-assinantes-${hojeIso()}.csv`,
+  ['Nome', 'E-mail', 'WhatsApp', 'CPF', 'Situação', 'Plano', 'Último valor', 'Acesso até', 'Último pagamento', 'Total pago', 'Pacientes', 'Último uso', 'Criada em'],
+  S.admin.usuarios.filter(u => u.role !== 'admin').map(u => [u.nome, u.email, u.telefone, u.cpf || '', situacao(u).t, plano(u), num(u.ultimo_valor), u.valido_ate === VITALICIO ? 'vitalício' : br(u.valido_ate), br(u.ultimo_pagamento), num(u.total_pago), u.pacientes, u.ultimo_uso ? br(u.ultimo_uso.slice(0, 10)) : '', br(u.criado.slice(0, 10))]));
+window.planilhaPagamentos = async () => {
+  let r; try { r = await api('admin/pagamentos'); } catch (e) { return toast(e.message); }
+  baixarCSV(`fisiobea-pagamentos-${hojeIso()}.csv`, ['Data', 'Nome', 'E-mail', 'CPF', 'Valor', 'Dias', 'Plano', 'Forma', 'Acesso até'],
+    r.pagamentos.map(p => [br(p.data), p.nome, p.email, p.cpf, num(p.valor), p.dias, PLANOS[p.dias] || '', p.forma, br(p.valido_ate)]));
+};
+
+// ---------- Excluir conta (LGPD) e motivo de saída ----------
+window.excluirConta = id => {
+  const u = S.admin.usuarios.find(x => x.id === id), ped = S.admin.pedidos.find(p => p.status === 'exclusao' && p.email === u.email);
+  sheet(`<h3>Excluir ${esc(u.nome)}</h3>
+    <div class="item" style="background:rgba(200,60,50,.08);border-color:transparent;gap:6px"><b>Isso apaga de vez:</b><span style="font-size:.92rem">a conta, ${u.pacientes} paciente${u.pacientes === 1 ? '' : 's'}, evoluções, avaliações, agenda, financeiro e o CPF. Os pagamentos ficam só como números, para a sua contabilidade.</span></div>
+    ${ped ? `<p class="sub" style="margin:0">Pedido feito em ${br(ped.criado.slice(0, 10))}: ${esc(ped.mensagem)}</p>` : `<label class="field"><span>Motivo da saída</span><select name="motivo">${S.admin.motivos.map(m => `<option>${m}</option>`).join('')}</select></label>`}
+    <label class="field"><span>Para confirmar, digite o nome: <b>${esc(u.nome)}</b></span><input name="confirmacao" autocomplete="off" required></label>
+    <p class="sub" style="margin:0">Os backups automáticos guardam cópias por até 30 dias e depois somem sozinhos.</p>`,
+    f => salvar(async () => {
+      await api('admin/usuarios/' + id, { method: 'DELETE', body: JSON.stringify({ confirmacao: f.get('confirmacao'), motivo: f.get('motivo') || '', detalhe: '' }) });
+      await atualizarAdmin();
+    }, 'Conta e dados excluídos'), '', 'Excluir de vez');
+};
+window.motivoSaida = id => {
+  const u = S.admin.usuarios.find(x => x.id === id);
+  sheet(`<h3>Por que ${esc(u.nome.split(' ')[0])} saiu?</h3>
+    <p class="sub" style="margin:0">Pergunte com carinho pelo WhatsApp. Saber o motivo é o que mais ajuda a melhorar o FisioBea.</p>
+    <label class="field"><span>Motivo</span><select name="motivo">${S.admin.motivos.map(m => `<option>${m}</option>`).join('')}</select></label>
+    <label class="field"><span>O que ela disse (opcional)</span><textarea name="detalhe" maxlength="500"></textarea></label>`,
+    f => salvar(async () => { await api(`admin/usuarios/${id}/saida`, { method: 'POST', body: JSON.stringify({ motivo: f.get('motivo'), detalhe: f.get('detalhe') }) }); await atualizarAdmin(); }, 'Motivo registrado'));
+};
 window.mudarPedido = (id, status) => salvar(async () => { await api('admin/pedidos/' + id, { method: 'PATCH', body: JSON.stringify({ status }) }); await atualizarAdmin(); }, 'Situação atualizada');
 window.novaAssinante = (pre = {}) => sheet(`<h3>Nova assinante</h3>
   <label class="field"><span>Nome</span><input id="na-nome" name="nome" required value="${esc(pre.nome || '')}"></label>
@@ -2053,6 +2605,7 @@ window.novaAssinante = (pre = {}) => sheet(`<h3>Nova assinante</h3>
     <label class="field"><span>E-mail (login)</span><input id="na-email" name="email" type="email" required value="${esc(pre.email || '')}"></label>
     <label class="field"><span>WhatsApp</span><input id="na-tel" name="telefone" type="tel" value="${esc(pre.telefone || '')}"></label>
   </div>
+  <label class="field"><span>CPF</span><input id="na-cpf" name="cpf" inputmode="numeric" placeholder="000.000.000-00" oninput="mascaraCpf(this)"></label>
   <div class="row">
     <label class="field"><span>Senha provisória</span><input id="na-senha" name="senha" minlength="8" required value="${Math.random().toString(36).slice(2, 6) + Math.random().toString(36).slice(2, 6)}"></label>
     <label class="field"><span>Acesso inicial</span><select id="na-dias" name="dias"><option value="7">7 dias de teste</option><option value="30">1 mês (já pagou)</option><option value="180">6 meses (já pagou)</option><option value="365">1 ano (já pagou)</option><option value="vitalicio">Vitalício (sem mensalidade)</option><option value="0">Sem acesso até pagar</option></select></label>
@@ -2071,23 +2624,26 @@ window.novaAssinante = (pre = {}) => sheet(`<h3>Nova assinante</h3>
       else copiarTexto(msg, 'Conta criada. Dados de acesso copiados.');
     }, 'Assinante criada');
   });
-window.registrarPagamento = id => {
-  const u = S.admin.usuarios.find(x => x.id === id);
+window.registrarPagamento = (id, pre = {}) => {
+  const u = S.admin.usuarios.find(x => x.id === id), pr = S.admin.ajustes?.precos || {};
+  const diasPre = { mensal: 30, semestral: 180, anual: 365 }[pre.plano] || 30;
+  const valorDe = d => d === 365 ? pr.anual : d === 180 ? pr.semestral : d === 30 ? precoAtual() : (pr.mensal || PRECO_PADRAO) * d / 30;
   const hoje = hojeIso(), emDia = u.valido_ate && u.valido_ate >= hoje;
   sheet(`<h3>Pagamento · ${esc(u.nome)}</h3>
     <p class="sub" style="margin:0">${emDia ? `Está em dia até ${br(u.valido_ate)}. Os dias pagos serão somados a partir do vencimento.` : 'Acesso vencido ou não ativado. Os dias contam a partir da data do pagamento.'}</p>
     <div class="row">
-      <label class="field"><span>Valor (R$)</span><input id="rp-v" name="valor" inputmode="decimal" required value="${String(PRECO_PADRAO).replace('.', ',')}"></label>
-      <label class="field"><span>Dias de acesso</span><select id="rp-d" name="dias"><option value="30">1 mês (30 dias)</option><option value="90">3 meses (90 dias)</option><option value="180">6 meses (180 dias)</option><option value="365">1 ano (365 dias)</option></select></label>
+      <label class="field"><span>Valor (R$)</span><input id="rp-v" name="valor" inputmode="decimal" required value="${Number(pre.valor || valorDe(diasPre) || 0).toFixed(2).replace('.', ',')}"></label>
+      <label class="field"><span>Dias de acesso</span><select id="rp-d" name="dias" onchange="$('#rp-v').value=Number(valorDePag(Number(this.value))||0).toFixed(2).replace('.',',')">${[[30, '1 mês (30 dias)'], [90, '3 meses (90 dias)'], [180, '6 meses (180 dias)'], [365, '1 ano (365 dias)']].map(([d, n]) => `<option value="${d}" ${d === diasPre ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
     </div>
     <div class="row">
       <label class="field"><span>Data do pagamento</span><input id="rp-dt" name="data" type="date" required value="${hoje}"></label>
       <label class="field"><span>Forma</span><select id="rp-f" name="forma"><option>Pix</option><option>Cartão</option><option>Dinheiro</option><option>Transferência</option></select></label>
     </div>`,
     f => {
-      const corpo = { ...Object.fromEntries(f), valor: Number(String(f.get('valor')).replace(/\./g, '').replace(',', '.')) || 0 };
+      const corpo = { ...Object.fromEntries(f), valor: Number(String(f.get('valor')).replace(/\./g, '').replace(',', '.')) || 0, pedido: pre.pedido || '' };
       salvar(async () => { const r = await api(`admin/usuarios/${id}/pagamento`, { method: 'POST', body: JSON.stringify(corpo) }); toast('Acesso liberado até ' + br(r.valido_ate)); await atualizarAdmin(); });
     }, '', 'Registrar');
+  window.valorDePag = valorDe;
 };
 window.editarAssinante = id => {
   const u = S.admin.usuarios.find(x => x.id === id);
@@ -2096,16 +2652,19 @@ window.editarAssinante = id => {
       <label class="field"><span>Nome</span><input id="ea-nome" name="nome" required value="${esc(u.nome)}"></label>
       <label class="field"><span>WhatsApp</span><input id="ea-tel" name="telefone" value="${esc(u.telefone)}"></label>
     </div>
+    ${u.role === 'admin' ? '' : `<label class="field"><span>CPF</span><input id="ea-cpf" name="cpf" inputmode="numeric" placeholder="000.000.000-00" value="${esc(u.cpf || '')}" oninput="mascaraCpf(this)"></label>`}
     <label class="switch"><input id="ea-vit" type="checkbox" name="vitalicio" ${u.valido_ate === VITALICIO ? 'checked' : ''} onchange="$('#ea-ate-campo').hidden=this.checked">Acesso vitalício (não paga mensalidade)</label>
     <label class="field" id="ea-ate-campo" ${u.valido_ate === VITALICIO ? 'hidden' : ''}><span>Acesso até (ajuste manual)</span><input id="ea-ate" name="valido_ate" type="date" value="${u.valido_ate === VITALICIO ? '' : esc(u.valido_ate)}"></label>
     <label class="field"><span>Observações</span><input id="ea-obs" name="obs" value="${esc(u.obs)}"></label>
     <div class="actions">
       <button type="button" class="ghost small" onclick="linkSenha('${u.id}')">Link de nova senha</button>
       <button type="button" class="ghost small" onclick="redefinirSenha('${u.id}')">Definir senha provisória</button>
-      <button type="button" class="${u.ativo ? 'danger' : 'ghost'} small" onclick="fechar();alterarUsuaria('${u.id}',{ativo:${!u.ativo}},'${u.ativo ? 'Conta desativada' : 'Conta reativada'}')">${u.ativo ? 'Desativar conta' : 'Reativar conta'}</button>
+      ${u.role === 'admin' ? '' : `<button type="button" class="${u.ativo ? 'ghost' : 'ghost'} small" onclick="fechar();alterarUsuaria('${u.id}',{ativo:${!u.ativo}},'${u.ativo ? 'Conta desativada' : 'Conta reativada'}')">${u.ativo ? 'Desativar conta' : 'Reativar conta'}</button>
+      <button type="button" class="danger small" onclick="excluirConta('${u.id}')">Excluir conta e dados</button>`}
     </div>`,
     f => {
       const dados = Object.fromEntries(f);
+      if (dados.cpf && !cpfValido(dados.cpf)) return toast('Confira o CPF: ele parece incompleto ou com algum número trocado.');
       if (dados.vitalicio) dados.valido_ate = VITALICIO;
       delete dados.vitalicio;
       alterarUsuaria(id, dados, 'Dados atualizados');

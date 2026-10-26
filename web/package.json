@@ -8,7 +8,9 @@
     "deploy": "wrangler pages deploy",
     "publicar": "node publicar.js",
     "backup": "node ferramentas/backup.js",
-    "link-senha": "node ferramentas/link-senha.js"
+    "link-senha": "node ferramentas/link-senha.js",
+    "desligar-2fa": "node ferramentas/desligar-2fa.js",
+    "robo": "wrangler deploy -c backup/wrangler.toml"
   },
   "devDependencies": {
     "wrangler": "^3.80.0"

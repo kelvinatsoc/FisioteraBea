@@ -141,6 +141,19 @@ blockquote i { color: var(--peach); }
 .plano { border-radius: 28px; padding: 34px; display: grid; gap: 20px; background: var(--surface); border: 1px solid var(--line); }
 .valor { font: 400 3.6rem/1 var(--serif); color: var(--green); font-variant-numeric: tabular-nums; }
 .valor small { font: 500 1rem var(--font); color: var(--muted); }
+.valor s { font-size: 1.4rem; color: var(--muted); margin-right: 6px; }
+.valor-num { display: inline-block; }
+.planos-tabs { position: relative; display: inline-flex; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 4px; justify-self: start; }
+.planos-tabs button { position: relative; z-index: 1; font: 600 .9rem var(--font); background: none; border: 0; color: var(--muted); padding: 9px 16px; border-radius: 999px; cursor: pointer; }
+.planos-tabs button.on { color: var(--on-green, #f3efe6); }
+.planos-tabs .pil { position: absolute; top: 4px; bottom: 4px; left: 0; border-radius: 999px; background: var(--green); z-index: 0; }
+.planos-tabs .eco { font-size: .7rem; margin-left: 4px; color: var(--rust); }
+.planos-tabs button.on .eco { color: inherit; opacity: .85; }
+.promo-faixa { position: relative; overflow: hidden; border-radius: 16px; padding: 12px 16px; background: linear-gradient(120deg, #fbe3d2, #dcefe4); font-size: .95rem; }
+.promo-faixa b { color: var(--rust); }
+#valor-obs { margin: -8px 0 0; font-size: .92rem; }
+img[data-foto] { transition: opacity .7s ease; }
+img[data-foto].trocando { opacity: 0; }
 .plano ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .plano li { display: flex; gap: 12px; }
 .plano li::before { content: ""; flex: none; width: 22px; height: 22px; margin-top: 2px; border-radius: 50%; background: var(--green-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 10.5l3 3 7-7' fill='none' stroke='%231d5a43' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 15px no-repeat; }
@@ -181,6 +194,17 @@ header.rolou { box-shadow: 0 10px 30px -22px rgba(18, 60, 46, .5); }
   .arco .selo { animation: sobe .9s var(--suave) 1s both; }
   .grifo path { stroke-dasharray: 220; stroke-dashoffset: 220; animation: risco 1.2s var(--suave) .8s forwards; }
   @keyframes sobe { from { opacity: 0; transform: translateY(12px); } }
+  .planos-tabs .pil { transition: transform .55s var(--suave), width .55s var(--suave); }
+  .planos-tabs button { transition: color .4s var(--leve); }
+  .valor-num.troca { animation: valorTroca .55s var(--suave); }
+  @keyframes valorTroca { from { opacity: 0; transform: translateY(14px); filter: blur(4px); } }
+  #valor-obs.troca { animation: aparece .6s var(--leve); }
+  @keyframes aparece { from { opacity: 0; } }
+  .promo-faixa { animation: sobe .8s var(--suave) both; }
+  .promo-faixa::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%); background-size: 250% 100%; animation: brilho 3.4s ease 1.2s infinite; pointer-events: none; }
+  @keyframes brilho { from { background-position: 150% 0; } 60%, to { background-position: -100% 0; } }
+  .plano { transition: transform .6s var(--suave), box-shadow .6s var(--suave); }
+  .plano:hover { transform: translateY(-3px); box-shadow: 0 30px 50px -40px rgba(18, 60, 46, .5); }
   @keyframes arco { from { clip-path: inset(100% 0 0 0 round 999px 999px 24px 24px); transform: scale(1.04); } to { clip-path: inset(0 0 0 0 round 999px 999px 24px 24px); transform: none; } }
   @keyframes risco { to { stroke-dashoffset: 0; } }
 
@@ -241,7 +265,7 @@ form.contato label.aceite a { color: var(--green); }
         <p class="nota">Sem instalar nada. Funciona no navegador e vira um ícone na tela inicial.</p>
       </div>
       <div class="arco">
-        <img src="/img/casa-alongamento.jpg" alt="Fisioterapeuta orientando o alongamento de braço de um senhor em casa" width="1100" height="733" fetchpriority="high">
+        <img data-foto="hero" src="/img/casa-alongamento.jpg" alt="Fisioterapeuta orientando o alongamento de braço de um senhor em casa" width="1100" height="733" fetchpriority="high">
         <div class="selo"><b>Treino B</b><span class="muted">Hoje, 09:00 · domicílio</span></div>
       </div>
     </div>
@@ -273,8 +297,8 @@ form.contato label.aceite a { color: var(--green); }
   <section class="domicilio">
     <div class="wrap">
       <div class="fotos">
-        <img data-rv src="/img/casa-acamado.jpg" alt="Fisioterapeuta auxiliando paciente acamado a usar o trapézio no quarto" width="1100" height="733" loading="lazy">
-        <img data-rv style="--d:2" src="/img/casa-andador.jpg" alt="Senhora caminhando com andador na cozinha de casa" width="800" height="1200" loading="lazy">
+        <img data-rv data-foto="domicilio1" src="/img/casa-acamado.jpg" alt="Fisioterapeuta auxiliando paciente acamado a usar o trapézio no quarto" width="1100" height="733" loading="lazy">
+        <img data-rv data-foto="domicilio2" style="--d:2" src="/img/casa-andador.jpg" alt="Senhora caminhando com andador na cozinha de casa" width="800" height="1200" loading="lazy">
       </div>
       <div>
         <span class="eyebrow" data-rv>Atendimento a domicílio</span>
@@ -326,7 +350,7 @@ form.contato label.aceite a { color: var(--green); }
 
   <section class="historia">
     <div class="wrap">
-      <img data-rv src="/img/casa-exercicio.jpg" alt="Senhor fazendo exercício de braços com a fisioterapeuta" width="1100" height="733" loading="lazy">
+      <img data-rv data-foto="historia" src="/img/casa-exercicio.jpg" alt="Senhor fazendo exercício de braços com a fisioterapeuta" width="1100" height="733" loading="lazy">
       <div>
         <span class="eyebrow">Por que existe</span>
         <blockquote data-rv>Eu precisava planejar os treinos dos meus pacientes e evoluir rápido entre um atendimento e outro. Não achei nada simples o bastante, então <i>criei o meu</i>.</blockquote>
@@ -338,8 +362,12 @@ form.contato label.aceite a { color: var(--green); }
   <section class="preco" id="preco">
     <div class="wrap">
       <div class="plano" data-rv>
-        <span class="eyebrow">Plano único</span>
-        <div class="valor" id="valor-plano">R$ 49,90 <small>/ mês</small></div>
+        <span class="eyebrow">Planos</span>
+        <div class="planos-tabs" id="planos-tabs" role="tablist" aria-label="Escolha o plano"><span class="pil" aria-hidden="true"></span>
+          <button type="button" role="tab" class="on" data-p="mensal">Mensal</button><button type="button" role="tab" data-p="semestral">6 meses</button><button type="button" role="tab" data-p="anual">12 meses</button></div>
+        <div class="promo-faixa" id="promo-faixa" hidden></div>
+        <div class="valor" id="valor-plano"><s id="valor-de" hidden></s><span class="valor-num" id="valor-num">R$ 49,90</span> <small id="valor-per">/ mês</small></div>
+        <p class="muted" id="valor-obs">Sem fidelidade. Cancele quando quiser.</p>
         <ul>
           <li>Pacientes ilimitados</li>
           <li>Agenda, treinos, evoluções e avaliações</li>
@@ -348,14 +376,15 @@ form.contato label.aceite a { color: var(--green); }
           <li>Seus pacientes visíveis só para você</li>
           <li>Suporte direto com quem criou</li>
         </ul>
-        <p class="muted" style="font-size:.92rem">Pagamento mensal por Pix. Cada pagamento libera 30 dias de acesso. Sem fidelidade.</p>
+        <p class="muted" style="font-size:.92rem">Pagamento por Pix, com o código pronto para copiar e colar. Comece com 7 dias grátis, sem cartão.</p>
       </div>
       <form class="contato" id="assinar" novalidate data-rv style="--d:1">
         <h2>Teste grátis por 7 dias</h2>
-        <p class="muted">Crie sua conta e comece a usar agora, sem cartão. Gostou? Continue por R$ 49,90 por mês no Pix. Não gostou? É só não assinar.</p>
+        <p class="muted">Crie sua conta e comece a usar agora, sem cartão. Gostou? Continue por <span id="form-preco">R$ 49,90</span> por mês no Pix. Não gostou? É só não assinar.</p>
         <label>Nome<input id="c-nome" name="nome" autocomplete="name" required maxlength="120"></label>
         <label>E-mail<input id="c-email" name="email" type="email" autocomplete="email" required></label>
         <label>WhatsApp com DDD<input id="c-tel" name="telefone" type="tel" autocomplete="tel" placeholder="(11) 99999-9999" required></label>
+        <label>CPF<input id="c-cpf" name="cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" required></label>
         <label>Crie uma senha (mínimo 8 caracteres)<input id="c-senha" name="senha" type="password" autocomplete="new-password" minlength="8" required></label>
         <input class="hp" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
         <label class="aceite"><input type="checkbox" id="c-aceite" name="aceite" required> <span>Li e aceito os <a href="/termos" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>.</span></label>
@@ -371,7 +400,7 @@ form.contato label.aceite a { color: var(--green); }
       <details><summary>Preciso instalar alguma coisa?</summary><p>Não. O FisioBea funciona no navegador. No celular, use “Adicionar à tela inicial” e ele vira um ícone como qualquer aplicativo.</p></details>
       <details><summary>Meus dados ficam iguais no celular e no tablet?</summary><p>Sim. Tudo fica salvo na sua conta. O que você preenche em um aparelho aparece no outro.</p></details>
       <details><summary>Alguém além de mim vê meus pacientes?</summary><p>Não. Cada conta enxerga só os próprios pacientes, e o acesso é protegido por e-mail e senha.</p></details>
-      <details><summary>Como funciona o pagamento?</summary><p>Mensal, por Pix. Cada pagamento libera 30 dias de uso. Alguns dias antes de vencer, o app avisa. Se não renovar, o acesso fica pausado e seus dados continuam guardados.</p></details>
+      <details><summary>Como funciona o pagamento?</summary><p>Por Pix, no plano mensal, de 6 meses ou de 12 meses (os planos maiores saem mais baratos por mês). O app mostra o código Pix pronto para copiar e colar. Alguns dias antes de vencer, o app avisa. Se não renovar, o acesso fica pausado e seus dados continuam guardados.</p></details>
       <details><summary>Consigo testar antes de assinar?</summary><p>Sim. Crie sua conta no formulário acima e use tudo de graça por 7 dias, sem cartão. Seus pacientes ficam guardados se você assinar depois.</p></details>
       <details><summary>Posso cancelar quando quiser?</summary><p>Pode. Não tem fidelidade nem multa. É só não renovar.</p></details>
     </div>
@@ -397,6 +426,47 @@ form.contato label.aceite a { color: var(--green); }
   document.querySelectorAll('[data-rv]').forEach(el => io.observe(el));
 })();
 document.getElementById('ano').textContent = new Date().getFullYear();
+// CPF: máscara e conferência dos dígitos
+const soDig = v => String(v || '').replace(/\D/g, '');
+const cpfValido = v => { const c = soDig(v); if (c.length !== 11 || /^(\d)\1+$/.test(c)) return false; const dv = n => { let t = 0; for (let i = 0; i < n; i++) t += Number(c[i]) * (n + 1 - i); return (t * 10 % 11) % 10; }; return dv(9) === Number(c[9]) && dv(10) === Number(c[10]); };
+document.getElementById('c-cpf').addEventListener('input', e => { const d = soDig(e.target.value).slice(0, 11); e.target.value = d.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2'); });
+
+// Preços, promoção e fotos vêm do painel do administrador
+(async () => {
+  let site; try { site = await (await fetch('/api/site', { cache: 'no-store' })).json(); } catch (e) { return; }
+  const reais = v => 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',');
+  const br = d => d ? d.split('-').reverse().join('/') : '';
+  const pr = site.precos || {}, promo = site.promo, meses = { mensal: 1, semestral: 6, anual: 12 };
+  const tabs = document.getElementById('planos-tabs'), pil = tabs.querySelector('.pil');
+  const eco = k => pr.mensal && meses[k] > 1 && pr[k] < pr.mensal * meses[k] ? Math.round((1 - pr[k] / (pr.mensal * meses[k])) * 100) : 0;
+  tabs.querySelectorAll('button').forEach(b => { const e = eco(b.dataset.p); if (e) b.insertAdjacentHTML('beforeend', `<span class="eco">-${e}%</span>`); });
+  if (promo) {
+    const f = document.getElementById('promo-faixa');
+    f.innerHTML = `<b>${promo.nome.replace(/[<>&]/g, '')}</b>${promo.texto ? ' · ' + promo.texto.replace(/[<>&]/g, '') : ''}${promo.ate ? `<br><small>Válida até ${br(promo.ate)}</small>` : ''}`;
+    f.hidden = false;
+  }
+  const mover = b => { pil.style.width = b.offsetWidth + 'px'; pil.style.transform = `translateX(${b.offsetLeft - 4}px)`; };
+  const mostrar = (k, anima) => {
+    const v = k === 'mensal' && promo ? promo.mensal : pr[k], num = document.getElementById('valor-num'), obs = document.getElementById('valor-obs'), de = document.getElementById('valor-de');
+    tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.p === k));
+    mover(tabs.querySelector('.on'));
+    num.textContent = reais(v);
+    document.getElementById('valor-per').textContent = k === 'mensal' ? '/ mês' : k === 'semestral' ? '/ 6 meses' : '/ ano';
+    de.hidden = !(k === 'mensal' && promo); de.textContent = reais(pr.mensal);
+    obs.textContent = k === 'mensal' ? (promo ? `Preço promocional de ${promo.nome}.` : 'Sem fidelidade. Cancele quando quiser.') : `Equivale a ${reais(v / meses[k])} por mês${eco(k) ? `, ${eco(k)}% mais barato que o mensal` : ''}.`;
+    if (anima) [num, obs].forEach(el => { el.classList.remove('troca'); void el.offsetWidth; el.classList.add('troca'); });
+  };
+  tabs.addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.classList.contains('on')) mostrar(b.dataset.p, true); });
+  mostrar('mensal', false);
+  document.getElementById('form-preco').textContent = reais(promo ? promo.mensal : pr.mensal);
+  document.fonts?.ready.then(() => mover(tabs.querySelector('.on')));
+  addEventListener('resize', () => mover(tabs.querySelector('.on')));
+  // Fotos trocadas: carrega a nova e faz a troca suave
+  for (const [k, url] of Object.entries(site.fotos || {})) document.querySelectorAll(`img[data-foto="${k}"]`).forEach(img => {
+    const pre = new Image(); pre.onload = () => { img.classList.add('trocando'); setTimeout(() => { img.src = url; img.classList.remove('trocando'); }, 350); }; pre.src = url;
+  });
+})();
+
 const form = document.getElementById('assinar');
 form.addEventListener('submit', async e => {
   e.preventDefault();
@@ -405,6 +475,7 @@ form.addEventListener('submit', async e => {
   err.textContent = '';
   if (!dados.nome.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(dados.email.trim())) { err.textContent = 'Informe seu nome e um e-mail válido.'; return; }
   if (dados.telefone.replace(/\D/g, '').length < 10) { err.textContent = 'Informe seu WhatsApp com DDD.'; return; }
+  if (!cpfValido(dados.cpf)) { err.textContent = 'Confira o CPF: ele parece incompleto ou com algum número trocado.'; return; }
   if (dados.senha.length < 8) { err.textContent = 'A senha precisa ter pelo menos 8 caracteres.'; return; }
   if (!dados.aceite) { err.textContent = 'Marque que leu a Política de Privacidade para enviar.'; return; }
   btn.disabled = true; btn.textContent = 'Criando sua conta…';

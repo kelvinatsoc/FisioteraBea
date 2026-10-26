@@ -66,9 +66,71 @@ export async function fazerBackup(env) {
   return resumo;
 }
 
+// ---------- Lembretes por e-mail (todo dia às 9h de Brasília) ----------
+// Só envia com o domínio configurado (segredos EMAIL_TOKEN, EMAIL_CONTA e EMAIL_DE); sem isso, registra como "sem domínio".
+const VITALICIO = '9999-12-31';
+const br = iso => iso ? iso.split('-').reverse().join('/') : '';
+const somaDias = (iso, n) => { const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const escHtml = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+async function enviarEmail(env, { para, assunto, texto, tipo }) {
+  let situacao = 'sem domínio', falha = '';
+  if (env.EMAIL_TOKEN && env.EMAIL_CONTA && env.EMAIL_DE) {
+    try {
+      const html = `<div style="font-family:Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#1f2a24"><div style="font:400 26px Georgia,serif;color:#1d5a43">Fisio<i style="color:#b4583a">Bea</i></div><h1 style="font-size:19px">${escHtml(assunto)}</h1>${texto.split('\n\n').map(p => `<p style="font-size:15px;line-height:1.55">${escHtml(p).replace(/\n/g, '<br>')}</p>`).join('')}</div>`;
+      const r = await fetch(`https://api.cloudflare.com/client/v4/accounts/${env.EMAIL_CONTA}/email/sending/send`, {
+        method: 'POST', headers: { authorization: 'Bearer ' + env.EMAIL_TOKEN, 'content-type': 'application/json' },
+        body: JSON.stringify({ to: para, from: env.EMAIL_DE, subject: assunto, text: texto, html }),
+      });
+      const c = await r.json().catch(() => ({}));
+      situacao = r.ok && c.success ? 'enviado' : 'falhou';
+      if (situacao === 'falhou') falha = JSON.stringify(c.errors || r.status).slice(0, 300);
+    } catch (e) { situacao = 'falhou'; falha = String(e).slice(0, 300); }
+  }
+  await env.DB.prepare('INSERT INTO emails (id, para, assunto, tipo, situacao, erro, criado) VALUES (?, ?, ?, ?, ?, ?, ?)')
+    .bind(crypto.randomUUID().slice(0, 16), para, assunto, tipo, situacao, falha, new Date().toISOString()).run();
+}
+export async function lembretes(env) {
+  const hoje = new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10), site = env.SITE || 'https://fisiobea.pages.dev';
+  const { results } = await env.DB.prepare(
+    `SELECT u.id, u.nome, u.email, u.valido_ate, u.obs, (SELECT COUNT(*) FROM assinaturas a WHERE a.user_id = u.id) AS pagos
+     FROM users u WHERE u.ativo = 1 AND u.role <> 'admin' AND u.valido_ate IN (?, ?, ?)`
+  ).bind(somaDias(hoje, 1), somaDias(hoje, 3), somaDias(hoje, -1)).all();
+  let n = 0;
+  for (const u of results) {
+    if (u.valido_ate === VITALICIO) continue;
+    const nome = u.nome.split(' ')[0], teste = !u.pagos;
+    let tipo, assunto, texto;
+    if (teste && u.valido_ate === somaDias(hoje, 1)) {
+      tipo = 'teste-acabando'; assunto = 'Seu teste grátis do FisioBea acaba amanhã';
+      texto = `Olá, ${nome}!
+
+Seu teste grátis vai até amanhã (${br(u.valido_ate)}). Se o FisioBea está ajudando na sua rotina, é só assinar para continuar: seus pacientes e registros ficam todos lá.
+
+Para assinar, entre no app e toque em "Quero assinar": ${site}/app/`;
+    } else if (!teste && u.valido_ate === somaDias(hoje, 3)) {
+      tipo = 'vencendo'; assunto = 'Sua assinatura do FisioBea vence em 3 dias';
+      texto = `Olá, ${nome}!
+
+Sua assinatura vence em ${br(u.valido_ate)}. Para não perder o acesso, renove pelo app (o código Pix já vem pronto): ${site}/app/`;
+    } else if (u.valido_ate === somaDias(hoje, -1)) {
+      tipo = 'vencida'; assunto = teste ? 'Seu teste grátis terminou' : 'Seu acesso ao FisioBea venceu';
+      texto = `Olá, ${nome}!
+
+${teste ? 'Seu teste grátis terminou ontem.' : 'Sua assinatura venceu ontem.'} Seus dados continuam guardados: assim que você ${teste ? 'assinar' : 'renovar'}, tudo volta como estava.
+
+Entre no app para ${teste ? 'assinar' : 'renovar'}: ${site}/app/`;
+    } else continue;
+    const ja = await env.DB.prepare('SELECT 1 FROM emails WHERE para = ? AND tipo = ? AND criado > ?').bind(u.email, tipo, new Date(Date.now() - 20 * 3600e3).toISOString()).first();
+    if (ja) continue;
+    await enviarEmail(env, { para: u.email, assunto, texto, tipo }); n++;
+  }
+  return n;
+}
+
 export default {
   async scheduled(evento, env, ctx) {
-    ctx.waitUntil(fazerBackup(env).then(r => console.log('Backup feito', JSON.stringify(r))));
+    if (evento.cron === '0 12 * * *') ctx.waitUntil(lembretes(env).then(n => console.log('Lembretes', n)));
+    else ctx.waitUntil(fazerBackup(env).then(r => console.log('Backup feito', JSON.stringify(r))));
   },
   async fetch() {
     return new Response('Nada aqui.', { status: 404 });
